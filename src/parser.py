@@ -38,36 +38,38 @@ def parser_df(file_path):
     f = open(file_path, "r")
 
     data = dict()
-    ttl = 0
-    prefix = ""
+
+    #valores default
+    ttl_default = 0
+    sufix = ""
 
     for line in f:
         words = line.split()
 
         if words[0][0] != '#':
-            if len(words) >= 3:
-                if words[1] == "DEFAULT": #valores default
+            if len(words) == 3: #valores default
+                if words[1] == "DEFAULT":
                     if words[0] == "TTL":
                         ttl_default = words[2]
                     elif words[0] == "@":
-                        prefix = words[2].rstrip(words[2][-1])
+                        sufix = words[2]
 
+            elif len(words) > 3:
                 parameter = words[0]
 
                 if "@" in words[0]:
-                    parameter = words[0].rstrip(words[0][-1]) + prefix
-
+                    parameter = words[0].rstrip(words[0][-1]) + sufix
                 elif words[0][len(words[0])-1] != ".":
-                    parameter += "." + prefix
+                    parameter += "." + sufix
 
                 value_type = words[1]
 
-                if words[2][len(words[2])-1] == ".":
-                    value = words[2].rstrip(words[2][-1])
-                else:
-                    value = words[2]
+                value = words[2]
 
-                expiration = ttl
+                if words[3] == "TTL":
+                    expiration = ttl_default
+                else:
+                    expiration = words[3]
 
                 if len(words) == 5:
                     priority = words[4]
@@ -94,36 +96,35 @@ def parser_df(file_path):
 
                 elif words[1] == "NS":
                     try:
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
                     except KeyError:
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
 
                 elif words[1] == "A":
                     try:
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
                     except KeyError:
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
 
                 elif words[1] == "CNAME":
                     data[(parameter, value_type)] = (value, expiration)
 
                 elif words[1] == "MX":
                     try:
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
                     except KeyError:
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
 
                 elif words[1] == "PTR":
                     try:
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
                     except KeyError:
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((words[2], words[3], priority))
+                        data[(parameter, value_type)].append((value, expiration, priority))
 
-    print(data)
     f.close()
 
 parser_df("dadossp.txt")
