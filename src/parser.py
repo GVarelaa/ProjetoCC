@@ -48,6 +48,20 @@ def parser_cf(file_path):
     return config
 
 
+def parser_st(file_path):
+    f = open(file_path, "r")
+
+    servers = list()
+
+    for line in f:
+        if line[0] != "\n" and line[0] != "#":
+            line = line.replace("\n", "")
+            servers.append(line)
+
+    f.close()
+
+    return servers
+
 def parser_df(file_path):
     f = open(file_path, "r")
 
@@ -142,4 +156,5 @@ def parser_df(file_path):
     f.close()
 
 #parser_df("dadossp.txt")
-parser_cf("config.txt")
+#parser_cf("config.txt")
+#parser_st("st.txt")
