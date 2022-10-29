@@ -1,37 +1,51 @@
 def parser_cf(file_path):
     f = open(file_path, "r")
 
-    db = list()
-    sp = list()
-    ss = list()
-    dd = list()
-    st = list()
-    lg = list()
+    config = dict()
 
     for line in f:
-
         words = line.split()
 
-        if len(words) >= 3 and words[0][0] != '#':
-            parametro = words[0]
-            valor = words[2]
-            if words[1] == "DB":
-                db.append((parametro, valor))
-            elif words[1] == "SP":
-                sp.append((parametro, valor))
-            elif words[1] == "SS":
-                ss.append((parametro, valor))
-            elif words[1] == "DD":
-                dd.append((parametro, valor))
-            elif words[1] == "ST":
-                st.append((parametro, valor))
-            elif words[1] == "LG":
-                lg.append((parametro, valor))
+        if len(words) > 0 and words[0][0] != '#':
+            if len(words) == 3:
+                parameter = words[0]
+                value_type = words[1]
+                value = words[2]
+
+                if value_type == "DB":
+                    if (parameter, value_type) not in config.keys():
+                        config[(parameter, value_type)] = list()
+                    config[(parameter, value_type)].append(value)
+
+                elif value_type == "SP":
+                    if (parameter, value_type) not in config.keys():
+                        config[(parameter, value_type)] = list()
+                    config[(parameter, value_type)].append(value)
+
+                elif value_type == "SS":
+                    if (parameter, value_type) not in config.keys():
+                        config[(parameter, value_type)] = list()
+                    config[(parameter, value_type)].append(value)
+
+                elif value_type == "DD":
+                    if (parameter, value_type) not in config.keys():
+                        config[(parameter, value_type)] = list()
+                    config[(parameter, value_type)].append(value)
+
+                elif value_type == "ST":
+                    if (parameter, value_type) not in config.keys():
+                        config[(parameter, value_type)] = list()
+                    config[(parameter, value_type)].append(value)
+
+                elif value_type == "LG":
+                    if (parameter, value_type) not in config.keys():
+                        config[(parameter, value_type)] = list()
+                    config[(parameter, value_type)].append(value)
 
 
     f.close()
 
-    return(db, sp, ss, dd, st, lg)
+    return config
 
 
 def parser_df(file_path):
@@ -46,7 +60,7 @@ def parser_df(file_path):
     for line in f:
         words = line.split()
 
-        if words[0][0] != '#':
+        if len(words) > 0 and words[0][0] != '#':
             if len(words) == 3: #valores default
                 if words[1] == "DEFAULT":
                     if words[0] == "TTL":
@@ -127,4 +141,5 @@ def parser_df(file_path):
 
     f.close()
 
-parser_df("dadossp.txt")
+#parser_df("dadossp.txt")
+parser_cf("config.txt")
