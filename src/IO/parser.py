@@ -47,7 +47,6 @@ def parser_cf(file_path):
 
     return config
 
-
 def parser_st(file_path):
     f = open(file_path, "r")
 
