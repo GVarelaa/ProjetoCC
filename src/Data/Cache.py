@@ -1,3 +1,8 @@
+# Author: Miguel Braga
+# Created at: 30/10/22
+# Last update: 30/10/12
+# Description: 
+
 class Cache:
     def __init__(self, map = {}):
         self.map = map          # Vamos utilizar mesmo um map?
