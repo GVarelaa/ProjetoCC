@@ -38,9 +38,27 @@ class Log:
         message = "ER " + ip_address + " " + info
         self.add_log(message)
 
+    def log_ez(self, ip_address, data):
+        if data == "SP" or data == "SS":
+            message = "EZ " + ip_address + " " + data
+            self.add_log(message)
 
+    def log_fl(self, ip_address, info):
+        message = "FL " + ip_address + " " + info
+        self.add_log(message)
 
+    def log_to(self, ip_address, info):
+        message = "TO " + ip_address + " " + info
+        self.add_log(message)
 
+    def log_sp(self, ip_address, info):
+        message = "SP " + ip_address + " " + info
+        self.add_log(message)
+
+    def log_st(self, ip_address, port, timeout, mode):
+        if mode == "shy" or mode == "debug":
+            message = "ST " + ip_address + " " + port + " " + timeout
+            self.add_log(message)
 
     def add_log(self, message):
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
