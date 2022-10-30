@@ -123,35 +123,27 @@ def parser_df(file_path):
                     data[(parameter, value_type)] = (value, expiration)
 
                 elif words[1] == "NS":
-                    try:
-                        data[(parameter, value_type)].append((value, expiration, priority))
-                    except KeyError:
+                    if (parameter, value_type) not in data.keys():
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((value, expiration, priority))
+                    data[(parameter, value_type)].append((value, expiration, priority))
 
                 elif words[1] == "A":
-                    try:
-                        data[(parameter, value_type)].append((value, expiration, priority))
-                    except KeyError:
+                    if (parameter, value_type) not in data.keys():
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((value, expiration, priority))
+                    data[(parameter, value_type)].append((value, expiration, priority))
 
                 elif words[1] == "CNAME":
                     data[(parameter, value_type)] = (value, expiration)
 
                 elif words[1] == "MX":
-                    try:
-                        data[(parameter, value_type)].append((value, expiration, priority))
-                    except KeyError:
+                    if (parameter, value_type) not in data.keys():
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((value, expiration, priority))
+                    data[(parameter, value_type)].append((value, expiration, priority))
 
                 elif words[1] == "PTR":
-                    try:
-                        data[(parameter, value_type)].append((value, expiration, priority))
-                    except KeyError:
+                    if (parameter, value_type) not in data.keys():
                         data[(parameter, value_type)] = list()
-                        data[(parameter, value_type)].append((value, expiration, priority))
+                    data[(parameter, value_type)].append((value, expiration, priority))
 
     f.close()
 
