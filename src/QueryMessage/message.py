@@ -3,8 +3,8 @@
 # Last update: 30/10/12
 # Description: PDU of a query: Header, Data
 
-from Header import Header
-from Data import Data
+from header import Header
+from data import Data
 
 class Message:
     def __init__(self, header, data):

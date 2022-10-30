@@ -6,8 +6,8 @@
 
 import sys
 import socket
-from PrimaryServer import PrimaryServer
-from SecondaryServer import SecondaryServer
+from primary_server import PrimaryServer
+from secondary_server import SecondaryServer
 
 # Args: fileConfig1 fileConfig2 ... fileConfigN porta timeout debug
 def main(): 
