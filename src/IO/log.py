@@ -1,4 +1,5 @@
 from datetime import datetime
+import sys
 
 class Log:
     def __init__(self, filepath):
@@ -64,6 +65,7 @@ class Log:
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
         self.fd.write(dt + " " + message + "\n")
+        sys.stdout.write(dt + " " + message + "\n")
 
 
 
