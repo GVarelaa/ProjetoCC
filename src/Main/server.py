@@ -25,10 +25,10 @@ class Server:
         self.db = parser_df(d_fp)
 
     def __str__(self):
-        return f"Base de Dados: {self.data_file_path}\nDomínio: {self.domain}\nServidores secundários: {self.secondary_servers}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidore primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
     
     def __repr__(self):
-        return f"Base de Dados: {self.data_file_path}\nDomínio: {self.domain}\nServidores secundários: {self.secondary_servers}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidore primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
 
 
     def response_query(self, query): #objeto do tipo message
@@ -59,3 +59,5 @@ class Server:
             #header_response = Header(message_id, "A", response_code, num_values, )
 
 
+p = Server("config.txt")
+print(p)

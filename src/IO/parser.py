@@ -26,7 +26,10 @@ def parser_cf(file_path):
 
         if len(words) > 0 and words[0][0] != '#':
             if len(words) == 3:
-                domain = words[0]
+                if words[0] != "root" and words[0] != "all":
+                    domain = words[0]
+
+                parameter = words[0]
                 value_type = words[1]
                 value = words[2]
 
@@ -42,7 +45,7 @@ def parser_cf(file_path):
                 elif value_type == "DD" and validate_ip(value):
                     default_domains.append(value)
 
-                elif value_type == "ST" and domain == "root":
+                elif value_type == "ST" and parameter == "root":
                     root_servers_file_path = value
 
                 elif value_type == "LG":
