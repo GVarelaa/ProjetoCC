@@ -4,17 +4,24 @@
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 
-class PrimaryServer:
+from src.IO.parser import parser_df
+from src.IO.parser import parser_st
+
+class Server:
     def __init__(self, config_file_path):
         self.__data_file_path = None
         self.__domain = None
         self.__secondary_servers = []
         self.__default_domains = []
-        self.__root_servers = []
         self.__log_file = None
+        self.__server_type = None
+        self.__root_servers_path = None
         # ficheiro de log global ? controlo de concorrência?
-        
-        self.parser_cf(config_file_path)
+
+        self.parser_cf(config_file_path) # parser do ficheiro de configuração
+
+        self.__root_servers = parser_st(self.__root_servers_path)
+        self.__db = parser_df(self.__data_file_path)
 
     def __str__(self):
         return f"Base de Dados: {self.__data_file_path}\nDomínio: {self.__domain}\nServidores secundários: {self.__secondary_servers}\nRoot Servers: {self.__root_servers}\nFicheiro de Log: {self.__log_file}"
@@ -45,7 +52,7 @@ class PrimaryServer:
                         self.__default_domains.append(value)
 
                     elif value_type == "ST" and parameter == "root":
-                        self.__root_servers.append(value)
+                        self.__root_servers_path = value
 
                     elif value_type == "LG":
                         if parameter == self.__domain:
@@ -55,8 +62,41 @@ class PrimaryServer:
         f.close()
 
 
-    def interpretQuery(self, query):
-        print('prim')
 
-p = PrimaryServer("ConfigPrimary.txt")
+
+    def response_query(self, query): #objeto do tipo message
+        header = query.get_header()
+        flag = header.get_flags()
+
+        if 'Q' in flag:
+            header = query.get_header()
+            data = query.get_data()
+
+            query_info = data.get_query_info()
+            name = query_info.get_name()
+            type_of_value = query_info.get_type_of_value()
+
+            db_data = self.__db[name, type_of_value]
+
+            if len(db_data) == 0:
+
+            else:
+                authorities_values = self.__db[name, "NS"]
+
+                header.__flags = "A"
+                header.__responde_code = "0" # alterar
+                header.__num_values = str(len(db_data))
+                header.__num_authorities = len(authorities_values)
+                header.__num_extra_values = None
+
+                data.__response_values = db_data
+                data.__authorities_values = authorities_values
+                data.__extra_values = None
+
+            #header_response = Header(message_id, "A", response_code, num_values, )
+
+
+
+
+p = Server("ConfigPrimary.txt")
 print(p)

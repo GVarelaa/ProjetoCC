@@ -145,6 +145,7 @@ def parser_df(file_path):
                     data[(parameter, value_type)].append((value, expiration, priority))
 
     f.close()
+    return data
 
 #parser_df("dadossp.txt")
 #parser_cf("config.txt")

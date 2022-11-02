@@ -30,4 +30,21 @@ class Header:
 
     def __repr__(self):
         return self.__msg_id + " | " + self.__flags + " | " + self.__response_code + " | " + self.__num_values + " | " + self.__num_authorities + " | " + self.__num_extra_values
-    
+
+    def get_msg_id(self):
+        return self.__msg_id
+
+    def get_flags(self):
+        return self.__flags
+
+    def get_response_code(self):
+        return self.__response_code
+
+    def get_num_values(self):
+        return self.__num_values
+
+    def get_num_authorities(self):
+        return self.__num_authorities
+
+    def get_num_extra_values(self):
+        return self.__num_extra_values
