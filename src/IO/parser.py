@@ -1,3 +1,15 @@
+def validate_ip(ip_address):
+    ip_parts = ip_address.split('.')
+    ip_parts[-1] = (ip_parts[-1].split(':'))[0]
+
+    port_bool = True
+    if len(ip_address.split(':')) == 2:
+        port = (ip_address.split(':'))[-1]
+        if 1 > int(port) > 65000:
+            port_bool = False
+
+    return len(ip_parts) == 4 and all(0 <= int(part) < 256 for part in ip_parts) and port_bool
+
 def parser_cf(file_path):
     f = open(file_path, "r")
 
@@ -17,17 +29,17 @@ def parser_cf(file_path):
                         config[(parameter, value_type)] = list()
                     config[(parameter, value_type)].append(value)
 
-                elif value_type == "SP":
+                elif value_type == "SP" and validate_ip(value):
                     if (parameter, value_type) not in config.keys():
                         config[(parameter, value_type)] = list()
                     config[(parameter, value_type)].append(value)
 
-                elif value_type == "SS":
+                elif value_type == "SS" and validate_ip(value):
                     if (parameter, value_type) not in config.keys():
                         config[(parameter, value_type)] = list()
                     config[(parameter, value_type)].append(value)
 
-                elif value_type == "DD":
+                elif value_type == "DD" and validate_ip(value):
                     if (parameter, value_type) not in config.keys():
                         config[(parameter, value_type)] = list()
                     config[(parameter, value_type)].append(value)
@@ -90,7 +102,6 @@ def parser_df(file_path):
                     parameter += "." + sufix
 
                 value_type = words[1]
-
                 value = words[2]
 
                 if words[3] == "TTL":
@@ -126,7 +137,7 @@ def parser_df(file_path):
                         data[(parameter, value_type)] = list()
                     data[(parameter, value_type)].append((value, expiration, priority))
 
-                elif words[1] == "A":
+                elif words[1] == "A" and validate_ip(value):
                     if (parameter, value_type) not in data.keys():
                         data[(parameter, value_type)] = list()
                     data[(parameter, value_type)].append((value, expiration, priority))
@@ -139,12 +150,14 @@ def parser_df(file_path):
                         data[(parameter, value_type)] = list()
                     data[(parameter, value_type)].append((value, expiration, priority))
 
-                elif words[1] == "PTR":
+                elif words[1] == "PTR" and validate_ip(words[0]):
                     if (parameter, value_type) not in data.keys():
                         data[(parameter, value_type)] = list()
                     data[(parameter, value_type)].append((value, expiration, priority))
 
     f.close()
+
+    return data
 
 #parser_df("dadossp.txt")
 #parser_cf("config.txt")
