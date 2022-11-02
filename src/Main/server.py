@@ -9,25 +9,25 @@ from src.IO.parser import parser_st
 
 class Server:
     def __init__(self, config_file_path):
-        self.__data_file_path = None
-        self.__domain = None
-        self.__secondary_servers = []
-        self.__default_domains = []
-        self.__log_file = None
-        self.__server_type = None
-        self.__root_servers_path = None
+        self.data_file_path = None
+        self.domain = None
+        self.secondary_servers = []
+        self.default_domains = []
+        self.log_file = None
+        self.server_type = None
+        self.root_servers_path = None
         # ficheiro de log global ? controlo de concorrência?
 
         self.parser_cf(config_file_path) # parser do ficheiro de configuração
 
-        self.__root_servers = parser_st(self.__root_servers_path)
-        self.__db = parser_df(self.__data_file_path)
+        self.root_servers = parser_st(self.root_servers_path)
+        self.db = parser_df(self.data_file_path)
 
     def __str__(self):
-        return f"Base de Dados: {self.__data_file_path}\nDomínio: {self.__domain}\nServidores secundários: {self.__secondary_servers}\nRoot Servers: {self.__root_servers}\nFicheiro de Log: {self.__log_file}"
+        return f"Base de Dados: {self.data_file_path}\nDomínio: {self.domain}\nServidores secundários: {self.secondary_servers}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file}"
     
     def __repr__(self):
-        return f"Base de Dados: {self.__data_file_path}\nDomínio: {self.__domain}\nServidores secundários: {self.__secondary_servers}\nRoot Servers: {self.__root_servers}\nFicheiro de Log: {self.__log_file}"
+        return f"Base de Dados: {self.data_file_path}\nDomínio: {self.domain}\nServidores secundários: {self.secondary_servers}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file}"
 
     def parser_cf(self, file_path):
         f = open(file_path, "r")
@@ -42,21 +42,21 @@ class Server:
                     value = words[2]
 
                     if value_type == "DB":                       
-                        self.__data_file_path = value_type
-                        self.__domain = parameter
+                        self.data_file_path = value_type
+                        self.domain = parameter
 
                     elif value_type == "SS":
-                        self.__secondary_servers.append(value)
+                        self.secondary_servers.append(value)
 
                     elif value_type == "DD":
-                        self.__default_domains.append(value)
+                        self.default_domains.append(value)
 
                     elif value_type == "ST" and parameter == "root":
-                        self.__root_servers_path = value
+                        self.root_servers_path = value
 
                     elif value_type == "LG":
-                        if parameter == self.__domain:
-                            self.__log_file = value
+                        if parameter == self.domain:
+                            self.log_file = value
 
 
         f.close()
@@ -65,33 +65,29 @@ class Server:
 
 
     def response_query(self, query): #objeto do tipo message
-        header = query.get_header()
-        flag = header.get_flags()
+        header = query.header
+        data = query.data
+        flag = header.flags
 
         if 'Q' in flag:
-            header = query.get_header()
-            data = query.get_data()
+            name = data.query_info.name
+            type_of_value = data.query_info.type_of_value
 
-            query_info = data.get_query_info()
-            name = query_info.get_name()
-            type_of_value = query_info.get_type_of_value()
-
-            db_data = self.__db[name, type_of_value]
+            db_data = self.db[name, type_of_value]
+            authorities_values = self.db[name, "NS"]
 
             if len(db_data) == 0:
 
             else:
-                authorities_values = self.__db[name, "NS"]
+                header.flags = "A"
+                header.responde_code = "0" # alterar
+                header.num_values = str(len(db_data))
+                header.num_authorities = len(authorities_values)
+                header.num_extra_values = None
 
-                header.__flags = "A"
-                header.__responde_code = "0" # alterar
-                header.__num_values = str(len(db_data))
-                header.__num_authorities = len(authorities_values)
-                header.__num_extra_values = None
-
-                data.__response_values = db_data
-                data.__authorities_values = authorities_values
-                data.__extra_values = None
+                data.response_values = db_data
+                data.authorities_values = authorities_values
+                data.extra_values = None
 
             #header_response = Header(message_id, "A", response_code, num_values, )
 

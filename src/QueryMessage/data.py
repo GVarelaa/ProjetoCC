@@ -10,20 +10,9 @@ class Query_Data:
                  response_values,
                  authorities_values,
                  extra_values):
-        self.__query_info = query_info
-        self.__responde_values = response_values
-        self.__authorities_values = authorities_values
-        self.__extra_values = extra_values
+        self.query_info = query_info
+        self.responde_values = response_values
+        self.authorities_values = authorities_values
+        self.extra_values = extra_values
 
-    def get_query_info(self):
-        return self.__query_info
-
-    def get_response_values(self):
-        return self.__responde_values
-
-    def get_authorities_values(self):
-        return self.__authorities_values
-
-    def get_extra_values(self):
-        return self.__extra_values
 
