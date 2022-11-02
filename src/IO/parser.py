@@ -13,51 +13,45 @@ def validate_ip(ip_address):
 def parser_cf(file_path):
     f = open(file_path, "r")
 
-    config = dict()
+    domain = None
+    data_file_path = None
+    primary_server = None
+    secundary_servers = list()
+    default_domains = list()
+    root_servers_file_path = None
+    log_file_path = None
 
     for line in f:
         words = line.split()
 
         if len(words) > 0 and words[0][0] != '#':
             if len(words) == 3:
-                parameter = words[0]
+                domain = words[0]
                 value_type = words[1]
                 value = words[2]
 
                 if value_type == "DB":
-                    if (parameter, value_type) not in config.keys():
-                        config[(parameter, value_type)] = list()
-                    config[(parameter, value_type)].append(value)
+                    data_file_path = value
 
                 elif value_type == "SP" and validate_ip(value):
-                    if (parameter, value_type) not in config.keys():
-                        config[(parameter, value_type)] = list()
-                    config[(parameter, value_type)].append(value)
+                    primary_server = value
 
                 elif value_type == "SS" and validate_ip(value):
-                    if (parameter, value_type) not in config.keys():
-                        config[(parameter, value_type)] = list()
-                    config[(parameter, value_type)].append(value)
+                    secundary_servers.append(value)
 
                 elif value_type == "DD" and validate_ip(value):
-                    if (parameter, value_type) not in config.keys():
-                        config[(parameter, value_type)] = list()
-                    config[(parameter, value_type)].append(value)
+                    default_domains.append(value)
 
-                elif value_type == "ST":
-                    if (parameter, value_type) not in config.keys():
-                        config[(parameter, value_type)] = list()
-                    config[(parameter, value_type)].append(value)
+                elif value_type == "ST" and domain == "root":
+                    root_servers_file_path = value
 
                 elif value_type == "LG":
-                    if (parameter, value_type) not in config.keys():
-                        config[(parameter, value_type)] = list()
-                    config[(parameter, value_type)].append(value)
+                    log_file_path = value
 
 
     f.close()
 
-    return config
+    return (domain, data_file_path, primary_server, secundary_servers, default_domains, root_servers_file_path, log_file_path)
 
 def parser_st(file_path):
     f = open(file_path, "r")
@@ -159,7 +153,3 @@ def parser_df(file_path):
     return data
 
     return data
-
-#parser_df("dadossp.txt")
-#parser_cf("config.txt")
-#parser_st("st.txt")

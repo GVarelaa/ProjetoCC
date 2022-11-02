@@ -1,67 +1,34 @@
 # Author: Miguel Braga
 # Created at: 30/10/22
-# Last update: 30/10/12
+# Last update: 02/11/12
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 
 from src.IO.parser import parser_df
 from src.IO.parser import parser_st
+from src.IO.parser import parser_cf
 
 class Server:
     def __init__(self, config_file_path):
-        self.data_file_path = None
-        self.domain = None
-        self.secondary_servers = []
-        self.default_domains = []
-        self.log_file = None
-        self.server_type = None
-        self.root_servers_path = None
-        # ficheiro de log global ? controlo de concorrência?
+        (d, d_fp, ps, ss, dd, rfp, lfp) = parser_cf(config_file_path)
+        self.domain = d
+        self.data_file_path = d_fp
+        self.primary_server = ps    # caso de o servidor ser secundário
+        self.secondary_servers = ss # caso de o servidor ser primário
+        self.default_domains = dd
+        self.root_servers_file_path = rfp
+        self.log_file_path = lfp
 
-        self.parser_cf(config_file_path) # parser do ficheiro de configuração
+        self.server_type = None   # if
 
-        self.root_servers = parser_st(self.root_servers_path)
-        self.db = parser_df(self.data_file_path)
+        self.root_servers = parser_st(rfp)
+        self.db = parser_df(d_fp)
 
     def __str__(self):
         return f"Base de Dados: {self.data_file_path}\nDomínio: {self.domain}\nServidores secundários: {self.secondary_servers}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file}"
     
     def __repr__(self):
         return f"Base de Dados: {self.data_file_path}\nDomínio: {self.domain}\nServidores secundários: {self.secondary_servers}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file}"
-
-    def parser_cf(self, file_path):
-        f = open(file_path, "r")
-
-        for line in f:
-            words = line.split()
-
-            if len(words) > 0 and words[0][0] != '#':
-                if len(words) == 3:
-                    parameter = words[0]
-                    value_type = words[1]
-                    value = words[2]
-
-                    if value_type == "DB":                       
-                        self.data_file_path = value_type
-                        self.domain = parameter
-
-                    elif value_type == "SS":
-                        self.secondary_servers.append(value)
-
-                    elif value_type == "DD":
-                        self.default_domains.append(value)
-
-                    elif value_type == "ST" and parameter == "root":
-                        self.root_servers_path = value
-
-                    elif value_type == "LG":
-                        if parameter == self.domain:
-                            self.log_file = value
-
-
-        f.close()
-
-
 
 
     def response_query(self, query): #objeto do tipo message
@@ -77,7 +44,7 @@ class Server:
             authorities_values = self.db[name, "NS"]
 
             if len(db_data) == 0:
-
+                return None
             else:
                 header.flags = "A"
                 header.responde_code = "0" # alterar
@@ -92,7 +59,3 @@ class Server:
             #header_response = Header(message_id, "A", response_code, num_values, )
 
 
-
-
-p = Server("ConfigPrimary.txt")
-print(p)
