@@ -1,6 +1,6 @@
 # Author: Miguel Braga
 # Created at: 30/10/22
-# Last update: 30/10/12
+# Last update: 03/11/22
 # Description: PDU of a query: Header, Data
 
 from src.QueryMessage.header import Header
@@ -17,9 +17,46 @@ def build_message(name, type_of_value, flag):
 
     return message
 
+def parse_message(message):
+    fields = message.split(";")
+    header_fields = fields[0].split(",")
+    data_fields = fields[1].split(",")
 
-class Message:
-    def __init__(self, header, data):
-        self.header = header
-        self.data = data
+    message_id = header_fields[0]
+    flags = header_fields[1]
+    name = data_fields[0]
+    type_of_value = data_fields[1]
 
+    return (message_id, flags, name, type_of_value)
+
+def build_query_response(message, response_values, authorities_values, extra_values):
+    (message_id, flags, name, type_of_value) = parse_message(message)
+
+    message_response = ""
+    num_values = len(response_values)
+    num_authorities = len(authorities_values)
+    num_extra = len(extra_values)
+
+    if flags == "Q+R":
+        flags_response = "R+A" #A sempre ?
+    else:
+        flags_response = "A"
+
+    message_response += message_id + "," + flags_response + ",0" + "," + str(num_values) + "," + str(num_authorities) + "," + str(num_extra) + ";" + name + "," + type_of_value + ";"
+
+    for (value, ttl, priority) in response_values:
+        message_response += name + " " + type_of_value + " " + str(value) + " " + str(ttl) + " " + str(priority) + ","
+
+    message_response = message_response[:-1] + ";"
+
+    for (value, ttl, priority) in authorities_values:
+        message_response += name + " " + "NS" + " " + str(value) + " " + str(ttl) + " " + str(priority) + ","
+
+    message_response = message_response[:-1] + ";"
+
+    for (name, type_of_value, value, ttl, priority) in extra_values:
+        message_response += name + " " + type_of_value + " " + str(value) + " " + str(ttl) + " " + str(priority) + ","
+
+    message_response = message_response[:-1] + ";"
+
+    return message_response
