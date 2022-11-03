@@ -1,12 +1,13 @@
-# Author: Miguel Braga
+# Author: Guilherme Varela
 # Created at: 30/10/22
-# Last update: 02/11/12
+# Last update: 03/11/12
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 
 from src.IO.parser import parser_df
 from src.IO.parser import parser_st
 from src.IO.parser import parser_cf
+from src.QueryMessage.message import *
 
 class Server:
     def __init__(self, config_file_path):
@@ -25,39 +26,44 @@ class Server:
         self.db = parser_df(d_fp)
 
     def __str__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidore primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
     
     def __repr__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidore primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
 
 
     def response_query(self, query): #objeto do tipo message
-        header = query.header
-        data = query.data
-        flag = header.flags
+        (message_id, flags, name, type_of_value) = parse_message(query)
 
-        if 'Q' in flag:
-            name = data.query_info.name
-            type_of_value = data.query_info.type_of_value
+        response = ""
 
-            db_data = self.db[name, type_of_value]
+        if 'Q' in flags:
+            response_values = self.db[name, type_of_value]
             authorities_values = self.db[name, "NS"]
+            extra_values = list()
 
-            if len(db_data) == 0:
-                return None
+            for (p, tv) in self.db.keys(): # meter isto numa função
+                print(p)
+                if tv == "A":
+                    for (value, ttl, expiration) in response_values:
+                        if p == value:
+                            for (v1, e1, p1) in self.db[p,tv]:
+                                extra_values.append((p,tv) + (v1,e1,p1))
+
+                    for (value, ttl, expiration) in authorities_values:
+                        if p == value:
+                            for (v1, e1, p1) in self.db[p, tv]:
+                                extra_values.append((p, tv) + (v1, e1, p1))
+
+            if len(response_values) == 0:
+                return None # alterar
             else:
-                header.flags = "A"
-                header.responde_code = "0" # alterar
-                header.num_values = str(len(db_data))
-                header.num_authorities = len(authorities_values)
-                header.num_extra_values = None
+                response = build_query_response(query, response_values, authorities_values, extra_values)
 
-                data.response_values = db_data
-                data.authorities_values = authorities_values
-                data.extra_values = None
-
-            #header_response = Header(message_id, "A", response_code, num_values, )
+            return response
 
 
 p = Server("config.txt")
-print(p)
+#print(p.response_query("3874,Q+R,0,0,0,0;example.com.,MX;"))
+
+

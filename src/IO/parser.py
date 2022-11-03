@@ -2,8 +2,13 @@ def validate_ip(ip_address):
     ip_parts = ip_address.split('.')
     ip_parts[-1] = (ip_parts[-1].split(':'))[0]
 
+    length = len(ip_address.split(':'))
     port_bool = True
-    if len(ip_address.split(':')) == 2:
+
+    if length > 2:
+        port_bool = False
+
+    elif length == 2:
         port = (ip_address.split(':'))[-1]
         if 1 > int(port) > 65000:
             port_bool = False
