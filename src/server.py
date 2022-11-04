@@ -16,8 +16,8 @@ class Server:
         (d, d_fp, ps, ss, dd, rfp, lfp) = parser_cf(config_file_path)
         self.domain = d
         self.data_file_path = d_fp
-        self.primary_server = ps    # caso de o servidor ser secundário
-        self.secondary_servers = ss # caso de o servidor ser primário
+        self.primary_server = ps
+        self.secondary_servers = ss
         self.default_domains = dd
         self.root_servers_file_path = rfp
         self.log_file_path = lfp
@@ -41,26 +41,28 @@ class Server:
 
         if 'Q' in flags:
             response_values = self.db.get_values_by_type_and_parameter(type_of_value, name)
-            authorities_values = self.db.get_values_by_type_and_parameter("NS", name)
-            extra_values = list()
 
-            for data_entry in response_values:
-                if data_entry.value in self.db.get_parameter_keys("A"):
-                    for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
-                        extra_values.append((de, data_entry.value))
+            if len(response_values) != 0:     # HIT
+                authorities_values = self.db.get_values_by_type_and_parameter("NS", name)
+                extra_values = list()
 
-            for data_entry in authorities_values:
-                if data_entry.value in self.db.get_parameter_keys("A"):
-                    for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
-                        extra_values.append((de, data_entry.value))
+                for data_entry in response_values:
+                    if data_entry.value in self.db.get_parameter_keys("A"):
+                        for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
+                            extra_values.append((de, data_entry.value))
 
-            if len(response_values) == 0:
-                return None # caso em que contacta o primario se for secundario
-            else:
+                for data_entry in authorities_values:
+                    if data_entry.value in self.db.get_parameter_keys("A"):
+                        for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
+                            extra_values.append((de, data_entry.value))
+
                 response = build_query_response(query, response_values, authorities_values, extra_values)
 
-            return response
+                return (True, response)
 
+            else:   # SS
+                if self.server_type == "SS":
+                    return (False, self.primary_server) # Caso não encontra, devolve a query original e o ip para onde tem de mandar a query
 
 
 def main():
@@ -79,12 +81,24 @@ def main():
     print(f"Estou à  escuta no {endereco}:{porta}")
 
     while True:
-        msg, add = s.recvfrom(1024)
+        msg, address_from = s.recvfrom(1024)
         msg = msg.decode('utf-8')
 
-        server.response_query(msg)
+        (bool, string) = server.response_query(msg)
 
-        print(f"Recebi uma mensagem do cliente {add}")
+        if bool == False: # Se falhar no acesso à base de dados, reenvia para o seu servidor primario
+            substrings = string.split(":")
+            address = substrings[0]
+            if len(substrings) > 1:
+                port = substrings[1]
+
+            s.sendto(msg.encode('utf-8'), (address, port))
+
+        else:
+            s.sendto(string.encode('utf-8'), address_from) # Deu hit e envia a resposta para o endereço de onde veio
+
+
+        print(f"Recebi uma mensagem do cliente {address_from}")
 
     s.close()
 
