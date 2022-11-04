@@ -1,3 +1,5 @@
+from database import *
+
 def validate_ip(ip_address):
     ip_parts = ip_address.split('.')
     ip_parts[-1] = (ip_parts[-1].split(':'))[0]

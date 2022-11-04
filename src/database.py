@@ -54,7 +54,7 @@ class Database:
         return None
 
 
-c = Cache({})
+c = Database({})
 e = DataEntry("A", "ns1", "193.136.130.250", "86400", "0")
 e2 = DataEntry("A", "ns2", "193.136.130.251", "86400", "0")
 e3 = DataEntry("NS", "example.com", "ns1.example.com.", "86400", "0")
