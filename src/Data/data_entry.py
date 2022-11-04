@@ -1,16 +1,27 @@
 # Author: Miguel Braga
 # Created at: 30/10/22
-# Last update: 30/10/12
-
-# Description: Dados do tipo <end_ip> <ttl> <priority>
+# Last update date: 4/11/22
+# Description: DataBase entries (type, parameter, value, expiration, priority)
+# Last update: Changed class attributes to a more general entry
 
 class DataEntry: 
-    def __init__(self, ip_add, ttl, priority):
-        self.ip_add = ip_add
-        self.ttl = ttl
+    def __init__(self, entry_type, parameter, value, expiration, priority):
+        self.type = entry_type
+        self.parameter = parameter
+        self.value = value
+        self.expiration = expiration
         self.priority = priority
 
+    def __str__(self):
+        return str(self.parameter) + " " \
+               + str(self.type) + " " \
+               + str(self.value) + " " \
+               + str (self.expiration) + " " \
+               + str(self.priority)
 
-
-d = DataEntry("192.168.1.2", 4, 1)
-print(d.ip_add)
+    def __repr__(self):
+        return str(self.parameter) + " " \
+               + str(self.type) + " " \
+               + str(self.value) + " " \
+               + str(self.expiration) + " " \
+               + str(self.priority)

@@ -1,6 +1,6 @@
 # Author: Miguel Braga
 # Created at: 29/10/22
-# Last update: 29/10/12
+# Last update date: 29/10/12
 # Description: Implements a server
 # Last update: Added main and basic structure
 

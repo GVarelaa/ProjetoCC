@@ -1,7 +1,8 @@
 # Author: Guilherme Varela
 # Created at: 29/10/22
-# Last update: 02/11/12
-# Description: 
+# Last update date: 02/11/12
+# Description: Builds a dns query message and sends it to a server
+# Last update: 
 
 import socket
 import sys
