@@ -1,5 +1,8 @@
 from database import Database
 from data_entry import DataEntry
+def validate_port(port):
+    if 1 > int(port) > 65000:
+        return False
 
 def validate_ip(ip_address):
     ip_parts = ip_address.split('.')
@@ -13,8 +16,7 @@ def validate_ip(ip_address):
 
     elif length == 2:
         port = (ip_address.split(':'))[-1]
-        if 1 > int(port) > 65000:
-            port_bool = False
+        port_bool = validate_port(port)
 
     return len(ip_parts) == 4 and all(0 <= int(part) < 256 for part in ip_parts) and port_bool
 

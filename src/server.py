@@ -7,13 +7,12 @@
 import socket
 import sys
 
-from parser import parser_df
-from parser import parser_st
-from parser import parser_cf
+from parser import *
 from query_message.message import *
 class Server:
-    def __init__(self, config_file_path):
+    def __init__(self, config_file_path, mode):
         (d, d_fp, ps, ss, dd, rfp, lfp) = parser_cf(config_file_path)
+        self.mode = mode
         self.domain = d
         self.data_file_path = d_fp
         self.primary_server = ps
@@ -22,16 +21,27 @@ class Server:
         self.root_servers_file_path = rfp
         self.log_file_path = lfp
 
-        self.server_type = None   # if
+        if self.primary_server is None:
+            self.server_type = "SP"
+        elif len(self.secondary_servers) == 0:
+            self.server_type = "SS"
+        else:
+            self.server_type = "SR"
 
         self.root_servers = parser_st(rfp)
         self.db = parser_df(d_fp)
 
     def __str__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
+               f"Servidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\n" \
+               f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
+               f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
     
     def __repr__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
+               f"Servidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\n" \
+               f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
+               f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
 
 
     def response_query(self, query): #objeto do tipo message
@@ -68,17 +78,22 @@ class Server:
 def main():
     args = sys.argv
     config_filepath = args[1]
+    port = args[2]
+    timeout = args[3]
+    mode = args[4]
 
-    server = Server(config_filepath)
+    if not validate_port(port):
+        return #adicionar log
+
+    server = Server(config_filepath, mode)
     print(server)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    endereco = '127.0.0.1'
-    porta = 6000
-    s.bind((endereco, porta))
+    ip_address = '127.0.0.1'
+    s.bind((ip_address, port))
 
-    print(f"Estou à  escuta no {endereco}:{porta}")
+    print(f"Estou à  escuta no {ip_address}:{port}")
 
     while True:
         msg, address_from = s.recvfrom(1024)
