@@ -28,6 +28,9 @@ class Server:
         else:
             self.server_type = "SR"
 
+        if self.server_type == "SS":
+            self.zone_transfer_initial()
+
         self.root_servers = parser_st(rfp)
         self.db = parser_df(d_fp)
 
@@ -43,6 +46,25 @@ class Server:
                f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
 
+    def zone_transfer_initial(self):
+        sp = self.primary_server
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        substrings = sp.split(':')
+        ip_address = substrings[0]
+        port = substrings[1]
+
+        s.bind((ip_address, port))
+        s.listen()
+
+        print(f"Estou à escuta no {ip_address}:{port}")
+
+        while True:
+            connection, address = s.accept()  # 3-way handshake
+            msg = "zone transfer"
+            connection.sendall(msg.encode('utf-8'))
+            response = connection.recv(1024)
 
     def response_query(self, query): #objeto do tipo message
         (message_id, flags, name, type_of_value) = parse_message(query)
