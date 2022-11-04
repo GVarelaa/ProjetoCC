@@ -1,4 +1,5 @@
-from database import *
+from database import Database
+from data_entry import DataEntry
 
 def validate_ip(ip_address):
     ip_parts = ip_address.split('.')
@@ -80,11 +81,11 @@ def parser_st(file_path):
 def parser_df(file_path):
     f = open(file_path, "r")
 
-    data = dict()
+    data = Database(dict())
 
     #valores default
     ttl_default = 0
-    sufix = ""
+    suffix = ""
 
     for line in f:
         words = line.split()
@@ -95,15 +96,15 @@ def parser_df(file_path):
                     if words[0] == "TTL":
                         ttl_default = words[2]
                     elif words[0] == "@":
-                        sufix = words[2]
+                        suffix = words[2]
 
             elif len(words) > 3:
                 parameter = words[0]
 
                 if "@" in words[0]:
-                    parameter = words[0].rstrip(words[0][-1]) + sufix
+                    parameter = words[0].rstrip(words[0][-1]) + suffix
                 elif words[0][len(words[0])-1] != ".":
-                    parameter += "." + sufix
+                    parameter += "." + suffix
 
                 value_type = words[1]
                 value = words[2]
@@ -111,55 +112,57 @@ def parser_df(file_path):
                 if words[3] == "TTL":
                     expiration = ttl_default
                 else:
-                    expiration = words[3]
+                    expiration = int(words[3])
 
                 if len(words) == 5:
-                    priority = words[4]
+                    priority = int(words[4])
                 else:
-                    priority = 0
+                    priority = int("0")
 
                 if words[1] == "SOASP":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, -1)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "SOAADMIN":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, -1)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "SOASERIAL":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, -1)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "SOAREFRESH":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, -1)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "SOARETRY":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, -1)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "SOAEXPIRE":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, -1)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "NS":
-                    if (parameter, value_type) not in data.keys():
-                        data[(parameter, value_type)] = list()
-                    data[(parameter, value_type)].append((value, expiration, priority))
+                    entry = DataEntry(value, expiration, priority)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "A" and validate_ip(value):
-                    if (parameter, value_type) not in data.keys():
-                        data[(parameter, value_type)] = list()
-                    data[(parameter, value_type)].append((value, expiration, priority))
+                    entry = DataEntry(value, expiration, priority)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "CNAME":
-                    data[(parameter, value_type)] = (value, expiration)
+                    entry = DataEntry(value, expiration, priority)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "MX":
-                    if (parameter, value_type) not in data.keys():
-                        data[(parameter, value_type)] = list()
-                    data[(parameter, value_type)].append((value, expiration, priority))
+                    entry = DataEntry(value, expiration, priority)
+                    data.add_entry(entry, value_type, parameter)
 
                 elif words[1] == "PTR" and validate_ip(words[0]):
-                    if (parameter, value_type) not in data.keys():
-                        data[(parameter, value_type)] = list()
-                    data[(parameter, value_type)].append((value, expiration, priority))
+                    entry = DataEntry(value, expiration, priority)
+                    data.add_entry(entry, value_type, parameter)
 
     f.close()
-    return data
 
     return data

@@ -63,6 +63,7 @@ class Server:
 
 
 p = Server("files/config.txt")
+print(p.db)
 #print(p.response_query("3874,Q+R,0,0,0,0;example.com.,MX;"))
 
 
