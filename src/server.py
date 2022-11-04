@@ -7,13 +7,12 @@
 import socket
 import sys
 
-from parser import parser_df
-from parser import parser_st
-from parser import parser_cf
+from parser import *
 from query_message.message import *
 class Server:
-    def __init__(self, config_file_path):
+    def __init__(self, config_file_path, mode):
         (d, d_fp, ps, ss, dd, rfp, lfp) = parser_cf(config_file_path)
+        self.mode = mode
         self.domain = d
         self.data_file_path = d_fp
         self.primary_server = ps    # caso de o servidor ser secundário
@@ -77,17 +76,22 @@ class Server:
 def main():
     args = sys.argv
     config_filepath = args[1]
+    port = args[2]
+    timeout = args[3]
+    mode = args[4]
 
-    server = Server(config_filepath)
+    if not validate_port(port):
+        return #adicionar log
+
+    server = Server(config_filepath, mode)
     print(server)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    endereco = '127.0.0.1'
-    porta = 6000
-    s.bind((endereco, porta))
+    ip_address = '127.0.0.1'
+    s.bind((ip_address, port))
 
-    print(f"Estou à  escuta no {endereco}:{porta}")
+    print(f"Estou à  escuta no {ip_address}:{port}")
 
     while True:
         msg, add = s.recvfrom(1024)
