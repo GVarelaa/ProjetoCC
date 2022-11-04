@@ -29,23 +29,29 @@ class Database:
 
     # Gets all entries with the given entry_type
     # Example: All entries with type 'A' -- Addresses
-    def get_values_by_entry_type(self, entry_type):
+    def get_values_by_type(self, entry_type):
         entries = []
-        if type in self.dict.keys():
-            ofType = self.dict[type]
+        if entry_type in self.dict.keys():
+            of_type = self.dict[entry_type]
 
-            if ofType is not None:
-                for key in ofType.keys():
-                    for entry in ofType[key]:
+            if of_type is not None:
+                for key in of_type.keys():
+                    for entry in of_type[key]:
                         entries.append(entry)
 
         return entries
 
-    def get_values_by_entry_type_and_parameter(self, entry_type, entry_parameter):
+    def get_values_by_type_and_parameter(self, entry_type, entry_parameter):
         if entry_type in self.dict.keys():
             if entry_parameter in self.dict[entry_type].keys():
                 return self.dict[entry_type][entry_parameter]
 
+
+    def get_type_keys(self):
+        return self.dict.keys()
+
+    def get_parameter_keys(self, type):
+        return self.dict[type].keys()
 
     def get_value(self, key):
         return None

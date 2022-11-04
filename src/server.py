@@ -4,6 +4,9 @@
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 
+import socket
+import sys
+
 from parser import parser_df
 from parser import parser_st
 from parser import parser_cf
@@ -37,22 +40,19 @@ class Server:
         response = ""
 
         if 'Q' in flags:
-            response_values = self.db[name, type_of_value]
-            authorities_values = self.db[name, "NS"]
+            response_values = self.db.get_values_by_type_and_parameter(type_of_value, name)
+            authorities_values = self.db.get_values_by_type_and_parameter("NS", name)
             extra_values = list()
 
-            for (p, tv) in self.db.keys(): # meter isto numa função
-                print(p)
-                if tv == "A":
-                    for (value, ttl, expiration) in response_values:
-                        if p == value:
-                            for (v1, e1, p1) in self.db[p,tv]:
-                                extra_values.append((p,tv) + (v1,e1,p1))
+            for data_entry in response_values:
+                if data_entry.value in self.db.get_parameter_keys("A"):
+                    for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
+                        extra_values.append((de, data_entry.value))
 
-                    for (value, ttl, expiration) in authorities_values:
-                        if p == value:
-                            for (v1, e1, p1) in self.db[p, tv]:
-                                extra_values.append((p, tv) + (v1, e1, p1))
+            for data_entry in authorities_values:
+                if data_entry.value in self.db.get_parameter_keys("A"):
+                    for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
+                        extra_values.append((de, data_entry.value))
 
             if len(response_values) == 0:
                 return None # alterar
@@ -62,8 +62,29 @@ class Server:
             return response
 
 
-p = Server("files/config.txt")
-print(p.db)
-#print(p.response_query("3874,Q+R,0,0,0,0;example.com.,MX;"))
 
+def main():
+    args = sys.argv
+    config_filepath = args[1]
+
+    server = Server(config_filepath)
+    print(server)
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    endereco = '10.0.0.10'
+    porta = 3333
+    s.bind((endereco, porta))
+
+    print(f"Estou Ã  escuta no {endereco}:{porta}")
+
+    while True:
+        msg, add = s.recvfrom(1024)
+        print(msg.decode('utf-8'))
+        print(f"Recebi uma mensagem do cliente {add}")
+
+    s.close()
+
+if __name__ == "__main__" :
+    main()
 

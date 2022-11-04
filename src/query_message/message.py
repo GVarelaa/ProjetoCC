@@ -41,18 +41,18 @@ def build_query_response(message, response_values, authorities_values, extra_val
 
     message_response += message_id + "," + flags_response + ",0" + "," + str(num_values) + "," + str(num_authorities) + "," + str(num_extra) + ";" + name + "," + type_of_value + ";"
 
-    for (value, ttl, priority) in response_values:
-        message_response += name + " " + type_of_value + " " + str(value) + " " + str(ttl) + " " + str(priority) + ","
+    for data_entry in response_values:
+        message_response += name + " " + type_of_value + " " + data_entry.value + " " + str(data_entry.ttl) + " " + str(data_entry.priority) + ","
 
     message_response = message_response[:-1] + ";"
 
-    for (value, ttl, priority) in authorities_values:
-        message_response += name + " " + "NS" + " " + str(value) + " " + str(ttl) + " " + str(priority) + ","
+    for data_entry in authorities_values:
+        message_response += name + " " + "NS" + " " + data_entry.value + " " + str(data_entry.ttl) + " " + str(data_entry.priority) + ","
 
     message_response = message_response[:-1] + ";"
 
-    for (name, type_of_value, value, ttl, priority) in extra_values:
-        message_response += name + " " + type_of_value + " " + str(value) + " " + str(ttl) + " " + str(priority) + ","
+    for (data_entry, name) in extra_values:
+        message_response += name + " " + "A" + " " + data_entry.value + " " + str(data_entry.ttl) + " " + str(data_entry.priority) + ","
 
     message_response = message_response[:-1] + ";"
 
