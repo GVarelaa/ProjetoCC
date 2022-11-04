@@ -1,7 +1,7 @@
 # Author: Miguel Braga
 # Created at: 30/10/22
 # Last update: 30/10/12
-# Description: Header of a DNS Message
+# Description: Header of a DNS query_message
 
 from enum import Enum
 

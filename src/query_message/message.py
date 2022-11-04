@@ -3,8 +3,8 @@
 # Last update: 03/11/22
 # Description: PDU of a query: Header, Data
 
-from src.QueryMessage.header import Header
-from src.QueryMessage.data import Query_Data
+from src.Message.header import Header
+from src.Message.data import Query_Data
 
 def build_message(name, type_of_value, flag):
     if flag == None:

@@ -4,11 +4,10 @@
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 
-from src.IO.parser import parser_df
-from src.IO.parser import parser_st
-from src.IO.parser import parser_cf
-from src.QueryMessage.message import *
-
+from parser import parser_df
+from parser import parser_st
+from parser import parser_cf
+from query_message.message import *
 class Server:
     def __init__(self, config_file_path):
         (d, d_fp, ps, ss, dd, rfp, lfp) = parser_cf(config_file_path)
@@ -63,7 +62,7 @@ class Server:
             return response
 
 
-p = Server("config.txt")
+p = Server("files/config.txt")
 #print(p.response_query("3874,Q+R,0,0,0,0;example.com.,MX;"))
 
 

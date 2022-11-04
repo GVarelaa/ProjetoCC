@@ -6,7 +6,7 @@
 
 import socket
 import sys
-from src.QueryMessage.message import build_message
+from query_message.message import build_message
 
 def main():
     args = sys.argv

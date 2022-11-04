@@ -1,13 +1,13 @@
 # Author: Miguel Braga
 # Created at: 30/10/22
 # Last update date: 4/11/22
-# Description: Module that implements a cache for storing data records (ex: A, NS, CNAME, etc)
+# Description: Module that implements a database for storing data records (ex: A, NS, CNAME, etc)
 # Last update: Changed data structure to dictionary of dictionaries and implemented the methods of put, get
 
 from data_entry import DataEntry
 
 
-class Cache:
+class Database:
     def __init__(self, dic={}):
         self.dic = dic
 
