@@ -22,16 +22,27 @@ class Server:
         self.root_servers_file_path = rfp
         self.log_file_path = lfp
 
-        self.server_type = None   # if
+        if self.primary_server is None:
+            self.server_type = "SP"
+        elif len(self.secondary_servers) == 0:
+            self.server_type = "SS"
+        else:
+            self.server_type = "SR"
 
         self.root_servers = parser_st(rfp)
         self.db = parser_df(d_fp)
 
     def __str__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
+               f"Servidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\n" \
+               f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
+               f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
     
     def __repr__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\nServidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\nDomínios por defeito: {self.default_domains}\nRoot Servers: {self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
+               f"Servidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\n" \
+               f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
+               f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
 
 
     def response_query(self, query): #objeto do tipo message
