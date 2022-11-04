@@ -20,7 +20,7 @@ def main():
     if len(args_split) > 1:
         port = args_split[1]
     else:
-        port = 5353 # porta default
+        port = 6000 # porta default
 
     name = args[1]
     type_of_value = args[2]

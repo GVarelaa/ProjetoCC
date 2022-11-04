@@ -55,7 +55,7 @@ class Server:
                         extra_values.append((de, data_entry.value))
 
             if len(response_values) == 0:
-                return None # alterar
+                return None # caso em que contacta o primario se for secundario
             else:
                 response = build_query_response(query, response_values, authorities_values, extra_values)
 
@@ -72,15 +72,18 @@ def main():
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    endereco = '10.0.0.10'
-    porta = 3333
+    endereco = '127.0.0.1'
+    porta = 6000
     s.bind((endereco, porta))
 
-    print(f"Estou Ã  escuta no {endereco}:{porta}")
+    print(f"Estou à  escuta no {endereco}:{porta}")
 
     while True:
         msg, add = s.recvfrom(1024)
-        print(msg.decode('utf-8'))
+        msg = msg.decode('utf-8')
+
+        server.response_query(msg)
+
         print(f"Recebi uma mensagem do cliente {add}")
 
     s.close()
