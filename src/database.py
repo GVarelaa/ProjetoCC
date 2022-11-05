@@ -18,14 +18,14 @@ class Database:
         return str(self.dict)
 
     # Entry (type, parameter, value, expiration, priority)
-    def add_entry(self, entry, entry_type, entry_parameter):
-        if entry_type not in self.dict:
-            self.dict[entry_type] = {}
+    def add_entry(self, entry):
+        if entry.value_type not in self.dict:
+            self.dict[entry.value_type] = {}
 
-        if entry_parameter not in self.dict[entry_type].keys():
-            self.dict[entry_type][entry_parameter] = list()
+        if entry.parameter not in self.dict[entry.value_type].keys():
+            self.dict[entry.value_type][entry.parameter] = list()
 
-        self.dict[entry_type][entry_parameter].append(entry)
+        self.dict[entry.value_type][entry.parameter].append(entry)
 
     # Gets all entries with the given entry_type
     # Example: All entries with type 'A' -- Addresses

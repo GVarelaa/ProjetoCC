@@ -32,6 +32,12 @@ def main():
 
     s.sendto(message.encode('utf-8'), (ip_address, port))
 
+    while True:
+        msg, add = s.recvfrom(1024)
+        msg = msg.decode('utf-8')
+
+        print(msg)
+
 
 if __name__ == "__main__" :
     main()

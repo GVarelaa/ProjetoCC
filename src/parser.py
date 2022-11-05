@@ -122,48 +122,48 @@ def parser_df(file_path):
                     priority = int("0")
 
                 if words[1] == "SOASP":
-                    entry = DataEntry(value, expiration, -1)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    data.add_entry(entry)
 
                 elif words[1] == "SOAADMIN":
-                    entry = DataEntry(value, expiration, -1)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    data.add_entry(entry)
 
                 elif words[1] == "SOASERIAL":
-                    entry = DataEntry(value, expiration, -1)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    data.add_entry(entry)
 
                 elif words[1] == "SOAREFRESH":
-                    entry = DataEntry(value, expiration, -1)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    data.add_entry(entry)
 
                 elif words[1] == "SOARETRY":
-                    entry = DataEntry(value, expiration, -1)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    data.add_entry(entry)
 
                 elif words[1] == "SOAEXPIRE":
-                    entry = DataEntry(value, expiration, -1)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    data.add_entry(entry)
 
                 elif words[1] == "NS":
-                    entry = DataEntry(value, expiration, priority)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    data.add_entry(entry)
 
                 elif words[1] == "A" and validate_ip(value):
-                    entry = DataEntry(value, expiration, priority)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    data.add_entry(entry)
 
                 elif words[1] == "CNAME":
-                    entry = DataEntry(value, expiration, priority)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    data.add_entry(entry)
 
                 elif words[1] == "MX":
-                    entry = DataEntry(value, expiration, priority)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    data.add_entry(entry)
 
                 elif words[1] == "PTR" and validate_ip(words[0]):
-                    entry = DataEntry(value, expiration, priority)
-                    data.add_entry(entry, value_type, parameter)
+                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    data.add_entry(entry)
 
     f.close()
 
