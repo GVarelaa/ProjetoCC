@@ -80,14 +80,12 @@ class Server:
 
                 for data_entry in response_values:
                     if data_entry.value in self.db.get_parameter_keys("A"):
-                        for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
-                            extra_values.append((de, data_entry.value))
-
+                        extra_values += self.db.get_values_by_type_and_parameter("A", data_entry.value)
                 for data_entry in authorities_values:
                     if data_entry.value in self.db.get_parameter_keys("A"):
-                        for de in self.db.get_values_by_type_and_parameter("A", data_entry.value):
-                            extra_values.append((de, data_entry.value))
+                        extra_values += self.db.get_values_by_type_and_parameter("A", data_entry.value)
 
+                print(extra_values)
                 response = build_query_response(query, response_values, authorities_values, extra_values)
 
                 return (True, response)
@@ -100,12 +98,12 @@ class Server:
 def main():
     args = sys.argv
     config_filepath = args[1]
-    port = args[2]
+    port = int(args[2])
     timeout = args[3]
     mode = args[4]
 
-    if not validate_port(port):
-        return #adicionar log
+    #if not validate_port(port):
+    #    return #adicionar log
 
     server = Server(config_filepath, mode)
     print(server)

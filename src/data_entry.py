@@ -5,13 +5,15 @@
 # Last update: Changed class attributes to a more general entry
 
 class DataEntry: 
-    def __init__(self, value, ttl, priority):
+    def __init__(self, parameter, value_type, value, ttl, priority):
+        self.parameter = parameter
+        self.value_type = value_type
         self.value = value
         self.ttl = ttl
         self.priority = priority
 
     def __str__(self):
-        return str(self.value) + " " + str (self.ttl) + " " + str(self.priority)
+        return self.parameter + " " + self.value_type + " " + self.value + " " + str (self.ttl) + " " + str(self.priority)
 
     def __repr__(self):
-        return str(self.value) + " " + str(self.ttl) + " " + str(self.priority)
+        return self.parameter + " " + self.value_type + " " + self.value + " " + str (self.ttl) + " " + str(self.priority)
