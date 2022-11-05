@@ -1,0 +1,5 @@
+# Configuration file for root file 
+
+. DB /config_files/root.db
+. LG /logs/root.log
+all LG /logs/all.log

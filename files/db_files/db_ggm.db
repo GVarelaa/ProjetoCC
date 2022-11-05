@@ -1,0 +1,32 @@
+# DNS database file domain .ggm
+
+@ DEFAULT ggm.
+TTL DEFAULT 86400
+
+@ SOASP s1.ggm TTL
+@ SOAADMIN ... TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600 TTL
+@ SOAEXPIRE 604800 TTL
+
+@ NS sp.ggm. TTL
+@ NS ss1.ggm. TTL 1
+@ NS ss2.ggm. TTL 2
+
+# Primary server of comcomp.ggm subdomain
+comcomp.@ NS sp.comcomp.@
+
+@ MX ms1.@ TTL 
+@ MX ms2.@ TTL
+
+sp A X.X.X.X TTL
+ss1 A X.X.X.X TTL
+ss2 A X.X.X.X TTL
+mike A X.X.X.X TTL
+gui A X.X.X.X TTL
+gabs A X.X.X.X TTL
+
+miguel CNAME mike TTL
+guilherme CNAME gui TTL 
+gabriela CNAME gabs TTL 
