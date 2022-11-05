@@ -4,7 +4,7 @@
 # Description: PDU of a query: Header, Data
 
 def build_message(name, type_of_value, flag):
-    if flag == None:
+    if flag == "R":
         flag = "Q+R"
     else:
         flag = "Q"
@@ -51,8 +51,8 @@ def build_query_response(message, response_values, authorities_values, extra_val
 
     message_response = message_response[:-1] + ";"
 
-    for (data_entry, name) in extra_values:
-        message_response += name + " " + "A" + " " + data_entry.value + " " + str(data_entry.ttl) + " " + str(data_entry.priority) + ","
+    for data_entry in extra_values:
+        message_response += data_entry.parameter + " " + "A" + " " + data_entry.value + " " + str(data_entry.ttl) + " " + str(data_entry.priority) + ","
 
     message_response = message_response[:-1] + ";"
 

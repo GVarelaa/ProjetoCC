@@ -33,6 +33,7 @@ class Server:
 
         self.root_servers = parser_st(rfp)
         self.db = parser_df(d_fp)
+        self.addresses_from = dict() #estrutura para saber onde mandar a query com message id X
 
     def __str__(self):
         return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
@@ -66,12 +67,12 @@ class Server:
             connection.sendall(msg.encode('utf-8'))
             response = connection.recv(1024)
 
+    def add_address(self, message_id, address):
+        self.addresses_from[message_id] = address
+
+    def get_address(self, message_id):
+        return self.addresses_from[message_id]
     def response_query(self, query): #objeto do tipo message
-        (message_id, flags, name, type_of_value) = parse_message(query)
-
-        response = ""
-
-        if 'Q' in flags:
             response_values = self.db.get_values_by_type_and_parameter(type_of_value, name)
 
             if len(response_values) != 0:     # HIT
@@ -91,7 +92,9 @@ class Server:
                 return (True, response)
 
             else:   # SS
-                if self.server_type == "SS":
+                if self.server_type == "SS": # ver se o parametro da query é subdominio do dominio do servidor
+                                             # se for, contactar SP
+                                             # caso contrario, ir aos ST
                     return (False, self.primary_server) # Caso não encontra, devolve a query original e o ip para onde tem de mandar a query
 
 
@@ -119,19 +122,19 @@ def main():
         msg, address_from = s.recvfrom(1024)
         msg = msg.decode('utf-8')
 
-        (bool, string) = server.response_query(msg)
+        (message_id, flags, name, type_of_value) = parse_message(msg)
 
-        if bool == False: # Se falhar no acesso à base de dados, reenvia para o seu servidor primario
-            substrings = string.split(":")
-            address = substrings[0]
-            if len(substrings) > 1:
-                port = substrings[1]
+        server.add_address(message_id, address_from)
 
-            s.sendto(msg.encode('utf-8'), (address, port))
+        if "Q" in flags: # é uma query
+            (bool, response) = server.response_query(msg)
 
-        else:
-            s.sendto(string.encode('utf-8'), address_from) # Deu hit e envia a resposta para o endereço de onde veio
+            if bool == True:
+                s.sendto(response.encode('utf-8'), address_from)
+            else: # enviar para o seu servidor primario?
 
+        else : # é uma reposta duma query e temos de mandar de volta
+            s.sendto(msg.encode('utf-8'), server.get_address(message_id))
 
         print(f"Recebi uma mensagem do cliente {address_from}")
 
