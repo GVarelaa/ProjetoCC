@@ -47,7 +47,7 @@ class Server:
 
     def zone_transfer_sp(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
-        socket_tcp.bind(("127.0.0.1", 15000))
+        socket_tcp.bind(("127.0.0.1", 20000))
         socket_tcp.listen()
 
         while True:
@@ -59,13 +59,14 @@ class Server:
                 break
 
             msg = msg.decode('utf-8')
-
-            msg = self.interpret_query(msg)
+            msg = self.interpret_query(msg) # Meter numero de linhas do ficherio na query
 
             (message_id, flags, name, type_of_value) = parse_message(msg)
 
             if "A" not in flags:
                 return # Não pode enviar a base de dados
+
+            connection.send(msg.encode('utf-8'))
 
             connection.sendall(file_to_string(self.data_file_path).encode('utf-8'))
 
@@ -73,8 +74,6 @@ class Server:
 
     def zone_transfer_ss(self):
         (ip_address, port) = self.parse_address(self.primary_server)
-        print(ip_address)
-        print(port)
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_tcp.connect((ip_address, port))
@@ -83,10 +82,10 @@ class Server:
 
         msg = build_message(self.domain, "0", "Q+T") # Construir query para pedir transferencia de zona
 
-        socket_tcp.sendall(msg.encode('utf-8'))
+        socket_tcp.sendall(msg.encode('utf-8')) # Envia query a pedir permissao
 
-        msg = socket_tcp.recv(1024).decode('utf-8')
-
+        msg = socket_tcp.recv(1024).decode('utf-8') # Recebe query com o numero de linhas
+        print(msg)
         (message_id, flags, name, type_of_value) = parse_message(msg)
 
         if "A" not in flags:
@@ -101,7 +100,7 @@ class Server:
             if not tmp:
                 break
 
-                b += tmp
+            b += tmp
 
         db = b.decode('utf-8')
         print(db)
@@ -113,7 +112,6 @@ class Server:
         ip_address = substrings[0]
 
         if len(substrings) > 1:
-            print("aqui")
             port = int(substrings[1])
         else:
             port = 5353 # porta default
@@ -181,7 +179,6 @@ def main():
         return #adicionar log
 
     server = Server(config_filepath, mode)
-    #print(server)
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # socket UDP
     socket_udp.bind((ip_address, int(port)))

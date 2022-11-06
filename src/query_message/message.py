@@ -5,7 +5,6 @@
 
 def build_message(name, type_of_value, flag):
     message = "1," + flag + ",0,0,0,0;" + name + "," + type_of_value + ";"
-    print(message)
 
     return message
 
