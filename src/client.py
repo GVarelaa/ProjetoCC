@@ -24,9 +24,9 @@ def main():
 
     name = args[1]
     type_of_value = args[2]
-    flag = None
-    if len(args) == 4:
-        flag = args[3]
+    flag = "Q"
+    if len(args) == 4 and args[3] == "R":
+        flag = "Q+R"
 
     message = build_message(name, type_of_value, flag)
 

@@ -4,11 +4,6 @@
 # Description: PDU of a query: Header, Data
 
 def build_message(name, type_of_value, flag):
-    if flag == "R":
-        flag = "Q+R"
-    else:
-        flag = "Q"
-
     message = "1," + flag + ",0,0,0,0;" + name + "," + type_of_value + ";"
     print(message)
 

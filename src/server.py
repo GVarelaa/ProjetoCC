@@ -59,6 +59,7 @@ class Server:
                 break
 
             msg = msg.decode('utf-8')
+            # invocar interpret query
             print(msg)
 
             if msg == "zone transfer":
@@ -70,15 +71,14 @@ class Server:
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        substrings = sp.split(':')
-        ip_address = substrings[0]
-        port = int(substrings[1])
+        (ip_address, port) = self.parse_address(self.primary_server)
 
         socket_tcp.connect((ip_address, port))
 
         print(f"Estou à escuta no {ip_address}:{port}")
 
-        msg = "zone transfer" # mensagem avisar
+        msg = build_message(self.domain, "", "Q+T") # Construir query para pedir transferencia de zona
+
         socket_tcp.sendall(msg.encode('utf-8'))
 
         b = b'' # Iniciar  com 0 bytes
@@ -95,6 +95,18 @@ class Server:
         db = b.decode('utf-8')
         print(db)
 
+
+    def parse_address(self, address):
+        substrings = address.split(";")
+        ip_address = substrings[0]
+
+        if len(substrings) > 1:
+            port = int(substrings[1])
+        else:
+            port = 5353 # porta default
+
+        return (ip_address, port)
+
     def add_address(self, message_id, address):
         """
         Adiciona um endereço para onde a query com message id tem de retornar
@@ -107,7 +119,7 @@ class Server:
     def get_address(self, message_id):
         return self.addresses_from[message_id]
 
-    def response_query(self, query): #objeto do tipo message
+    def response_query(self, query): # interpret_query
         (message_id, flags, name, type_of_value) = parse_message(query)
         response_values = self.db.get_values_by_type_and_parameter(type_of_value, name)
 
