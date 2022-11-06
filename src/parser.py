@@ -1,8 +1,8 @@
 from database import Database
 from data_entry import DataEntry
+
 def validate_port(port):
-    if 1 > int(port) > 65000:
-        return False
+    return 1 < int(port) < 65000
 
 def validate_ip(ip_address):
     ip_parts = ip_address.split('.')
