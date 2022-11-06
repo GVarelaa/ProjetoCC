@@ -3,7 +3,7 @@
 # Last update: 03/11/12
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
-
+import json
 import socket
 import sys
 import threading
@@ -58,9 +58,12 @@ class Server:
             if not msg:
                 break
 
-            print(msg.decode('utf-8'))
+            msg = msg.decode('utf-8')
+            print(msg)
 
-        connection.close()
+            if msg == "zone transfer":
+                connection.sendall(str(self.db.dict).encode('utf-8'))
+            connection.close()
 
     def zone_transfer_ss(self):
         sp = self.primary_server
@@ -75,9 +78,22 @@ class Server:
 
         print(f"Estou à escuta no {ip_address}:{port}")
 
-        msg = "zone transfer"
+        msg = "zone transfer" # mensagem avisar
         socket_tcp.sendall(msg.encode('utf-8'))
-        #response = socket_tcp.recv(1024)
+
+        b = b'' # Iniciar  com 0 bytes
+        while True:
+            tmp = socket_tcp.recv(1024)
+
+            if not tmp:
+                break
+
+            msg = tmp.decode('utf-8')
+
+            b += tmp
+
+        db = b.decode('utf-8')
+        print(db)
 
     def add_address(self, message_id, address):
         """
@@ -126,7 +142,7 @@ def main():
         return #adicionar log
 
     server = Server(config_filepath, mode)
-    print(server)
+    #print(server)
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # socket UDP
     socket_udp.bind((ip_address, int(port)))
