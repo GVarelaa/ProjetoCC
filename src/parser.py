@@ -168,3 +168,12 @@ def parser_df(file_path):
     f.close()
 
     return data
+
+def file_to_string(file_path):
+    text_file = open(file_path, "r")
+    
+    data = text_file.read()
+
+    text_file.close()
+
+    return data

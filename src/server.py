@@ -47,7 +47,7 @@ class Server:
 
     def zone_transfer_sp(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
-        socket_tcp.bind(("127.0.0.1", 6500))
+        socket_tcp.bind(("127.0.0.1", 15000))
         socket_tcp.listen()
 
         while True:
@@ -59,27 +59,40 @@ class Server:
                 break
 
             msg = msg.decode('utf-8')
-            # invocar interpret query
-            print(msg)
 
-            if msg == "zone transfer":
-                connection.sendall(str(self.db.dict).encode('utf-8'))
+            msg = self.interpret_query(msg)
+
+            (message_id, flags, name, type_of_value) = parse_message(msg)
+
+            if "A" not in flags:
+                return # Não pode enviar a base de dados
+
+            connection.sendall(file_to_string(self.data_file_path).encode('utf-8'))
+
             connection.close()
 
     def zone_transfer_ss(self):
-        sp = self.primary_server
+        (ip_address, port) = self.parse_address(self.primary_server)
+        print(ip_address)
+        print(port)
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        (ip_address, port) = self.parse_address(self.primary_server)
-
         socket_tcp.connect((ip_address, port))
 
         print(f"Estou à escuta no {ip_address}:{port}")
 
-        msg = build_message(self.domain, "", "Q+T") # Construir query para pedir transferencia de zona
+        msg = build_message(self.domain, "0", "Q+T") # Construir query para pedir transferencia de zona
 
         socket_tcp.sendall(msg.encode('utf-8'))
+
+        msg = socket_tcp.recv(1024).decode('utf-8')
+
+        (message_id, flags, name, type_of_value) = parse_message(msg)
+
+        if "A" not in flags:
+            return
+
+        # SS teve autorização para iniciar a transferencia de zone e vai receber a base de dados
 
         b = b'' # Iniciar  com 0 bytes
         while True:
@@ -88,19 +101,19 @@ class Server:
             if not tmp:
                 break
 
-            msg = tmp.decode('utf-8')
-
-            b += tmp
+                b += tmp
 
         db = b.decode('utf-8')
         print(db)
 
 
     def parse_address(self, address):
-        substrings = address.split(";")
+        print(address)
+        substrings = address.split(":")
         ip_address = substrings[0]
 
         if len(substrings) > 1:
+            print("aqui")
             port = int(substrings[1])
         else:
             port = 5353 # porta default
@@ -119,8 +132,22 @@ class Server:
     def get_address(self, message_id):
         return self.addresses_from[message_id]
 
-    def response_query(self, query): # interpret_query
+    def interpret_query(self, query): # interpret_query
         (message_id, flags, name, type_of_value) = parse_message(query)
+
+        response_values = list()
+        authorities_values = list()
+        extra_values = list()
+
+        if "T" in flags and self.domain == name: # Domínios são iguais (?)
+            response = build_query_response(query, response_values, authorities_values, extra_values)
+
+            return response
+
+        elif "T" in flags:
+            return query
+
+
         response_values = self.db.get_values_by_type_and_parameter(type_of_value, name)
 
         if len(response_values) != 0:     # HIT
@@ -176,7 +203,7 @@ def main():
         server.add_address(message_id, address_from)
 
         if "Q" in flags: # é uma query
-            response = server.response_query(msg)
+            response = server.interpret_query(msg)
 
             if response is not None:
                 socket_udp.sendto(response.encode('utf-8'), address_from) # enviar para o destinatário
