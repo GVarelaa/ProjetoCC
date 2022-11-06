@@ -4,7 +4,7 @@
 # Description: Module that implements a database for storing data records (ex: A, NS, CNAME, etc)
 # Last update: Changed data structure to dictionary of dictionaries and implemented the methods of put, get
 
-from data_entry import DataEntry
+from resource_record import ResourceRecord
 
 
 class Database:

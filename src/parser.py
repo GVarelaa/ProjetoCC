@@ -1,5 +1,5 @@
 from database import Database
-from data_entry import DataEntry
+from resource_record import ResourceRecord
 
 def validate_port(port):
     return 1 < int(port) < 65000
@@ -122,47 +122,47 @@ def parser_df(file_path):
                     priority = int("0")
 
                 if words[1] == "SOASP":
-                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
                     data.add_entry(entry)
 
                 elif words[1] == "SOAADMIN":
-                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
                     data.add_entry(entry)
 
                 elif words[1] == "SOASERIAL":
-                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
                     data.add_entry(entry)
 
                 elif words[1] == "SOAREFRESH":
-                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
                     data.add_entry(entry)
 
                 elif words[1] == "SOARETRY":
-                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
                     data.add_entry(entry)
 
                 elif words[1] == "SOAEXPIRE":
-                    entry = DataEntry(parameter, value_type, value, expiration, -1)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
                     data.add_entry(entry)
 
                 elif words[1] == "NS":
-                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
                     data.add_entry(entry)
 
                 elif words[1] == "A" and validate_ip(value):
-                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
                     data.add_entry(entry)
 
                 elif words[1] == "CNAME":
-                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
                     data.add_entry(entry)
 
                 elif words[1] == "MX":
-                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
                     data.add_entry(entry)
 
                 elif words[1] == "PTR" and validate_ip(words[0]):
-                    entry = DataEntry(parameter, value_type, value, expiration, priority)
+                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
                     data.add_entry(entry)
 
     f.close()

@@ -8,8 +8,10 @@ import socket
 import sys
 import threading
 
+from time import sleep
 from parser import *
 from query_message.message import *
+
 class Server:
     def __init__(self, config_file_path, mode):
         (d, d_fp, ps, ss, dd, rfp, lfp) = parser_cf(config_file_path)
@@ -31,6 +33,7 @@ class Server:
 
         self.root_servers = parser_st(rfp)
         self.db = parser_df(d_fp)
+        print(self.db)
         self.addresses_from = dict() #estrutura para saber onde mandar a query com message id X
 
     def __str__(self):
@@ -72,6 +75,16 @@ class Server:
 
             connection.close()
 
+
+    def zone_transfer_caller_ss(self):
+        while True:
+            self.zone_transfer_ss()
+
+            soarefresh = self.db.get_values_by_type_and_parameter("SOAREFRESH", self.domain + ".")[0].value # encapsular
+
+            sleep(int(soarefresh))
+
+
     def zone_transfer_ss(self):
         (ip_address, port) = self.parse_address(self.primary_server)
 
@@ -102,6 +115,7 @@ class Server:
 
             b += tmp
 
+        self.db = parser_df(self.data_file_path) # MUDAR
         db = b.decode('utf-8')
         print(db)
 
@@ -187,7 +201,7 @@ def main():
         threading.Thread(target=server.zone_transfer_sp).start()
 
     if server.server_type == "SS":
-        threading.Thread(target=server.zone_transfer_ss).start()
+        threading.Thread(target=server.zone_transfer_caller_ss).start()
 
     print(f"Estou à  escuta no {ip_address}:{port}")
 
