@@ -47,7 +47,7 @@ class Server:
 
     def zone_transfer_sp(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
-        socket_tcp.bind(("127.0.0.1", 8000))
+        socket_tcp.bind(("127.0.0.1", 6500))
         socket_tcp.listen()
 
         while True:
