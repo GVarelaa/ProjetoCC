@@ -1,0 +1,7 @@
+# Configuration file for primary server for fcp.
+
+fcp DB files/db_files/fcp.db
+fcp SS X.X.X.X
+fcp SS X.X.X.X
+fcp DD Y.Y.Y.Y
+fcp LG files/

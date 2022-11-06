@@ -1,6 +1,6 @@
 # Configuration file for primary server for ggm.
 
-.ggm DB files/db_files/db_.ggm
+.ggm DB files/db_files/ggm.db
 .ggm SS X.X.X.X
 .ggm SS X.X.X.X
 .ggm DD Y.Y.Y.Y
