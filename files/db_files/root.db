@@ -1,0 +1,23 @@
+# DNS database file for root server 
+
+@ DEFAULT .
+TTL DEFAULT 86400
+
+# Config data
+
+@ SOASP . TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+
+ggm. NS ns1.ggm.
+fcp. NS ns1.fcp.
+
+# Addresses
+
+ns1.ggm A 10.3.3.1 TTL
+ns1.fcp A 10.2.2.1 TTL
