@@ -4,21 +4,22 @@
 # Description: Module that implements a database for storing data records (ex: A, NS, CNAME, etc)
 # Last update: Changed data structure to dictionary of dictionaries and implemented the methods of put, get
 
-from resource_record import ResourceRecord
+from resource_record import *
 from datetime import datetime
 
 class Cache:
     def __init__(self, list=[]):
-        record = ResourceRecord(None, None, None, None, None, None)
-        record.status = "FREE"
+        record = create_free_record()
         list.append(record)
         self.list = list
+        self.size = 0
+        self.capacity = 1
 
     def __str__(self):
-        return str(self.list)
+        return str(self.list) + " " + str(self.n)
 
     def __repr__(self):
-        return str(self.list)
+        return str(self.list) + " " + str(self.n)
 
     def find_entry(self, index, name, type):
         i = 1
@@ -36,19 +37,22 @@ class Cache:
         return i
 
     def add_entry(self, new_record):
+        if self.size == self.capacity:
+            self.expand_cache()
+
         if new_record.origin == "SP" or new_record.origin == "FILE":
-            for i in range(len(self.list)):
+            for i in range(self.size):
                 if self.list[i].status == "FREE":
                     new_record.index = i+1
                     new_record.status = "VALID"
                     new_record.timestamp = datetime.timestamp(datetime.now())
                     self.list[i] = new_record
+                    break
 
         else:
-            found = False
             last_free = 0
-
-            for i in range(len(self.list)):
+            found = False
+            for i in range(self.size):
                 if self.list[i].status == "FREE":
                     last_free = i
 
@@ -58,9 +62,16 @@ class Cache:
                         self.list[i].timestamp = datetime.timestamp(datetime.now())
                         self.list[i].status = "VALID"
                         found = True
+                        break
 
             if not found:
+                new_record.origin = "OTHERS"
+                new_record.status = "VALID"
+                new_record.timestamp = datetime.timestamp(datetime.now())
                 self.list[last_free] = new_record
+
+        self.size += 1
+
 
     def get_record_by_name_and_type(self, name, type):
         ind = self.find_entry(1, name, type)
@@ -71,7 +82,7 @@ class Cache:
         return ind
 
     # Gets all entries with the given name and type
-    def get_records_by_name_and_type(self, name, type):
+    def get_records_by_name_and_type(self, name, type): # funcionar mal
         records = []
         record_index = 1
 
@@ -80,3 +91,15 @@ class Cache:
             records.append(self.list[record_index-1]) #ta a adicionar o ultimo elemento mm que ele n de match CORRIGIR
 
         return records
+
+    def update_cache(self, domain): #SOAEXPIRE
+        for record in self.list:
+            if record.name == domain:
+                record.status = "FREE"
+
+    def expand_cache(self):
+        self.capacity = self.size * 2
+        for i in range(self.capacity):
+          if i >= self.size:
+              self.list.append(create_free_record())
+

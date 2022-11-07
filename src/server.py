@@ -32,17 +32,16 @@ class Server:
 
         self.root_servers = parser_st(rfp)
         self.cache = parser_df(d_fp)
-        print(self.cache)
         self.addresses_from = dict() #estrutura para saber onde mandar a query com message id X
 
     def __str__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.cache}\n" \
                f"Servidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\n" \
                f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
     
     def __repr__(self):
-        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.db}\n" \
+        return f"Domínio: {self.domain}\nBase de Dados Diretoria: {self.data_file_path}\nBase de Dados: {self.cache}\n" \
                f"Servidor primário: {self.primary_server}\nServidores secundários: {self.secondary_servers}\n" \
                f"Domínios por defeito: {self.default_domains}\nTipo do servidor: {self.server_type}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
@@ -79,7 +78,7 @@ class Server:
         while True:
             self.zone_transfer_ss()
 
-            soarefresh = self.db.get_values_by_type_and_parameter("SOAREFRESH", self.domain + ".")[0].value # encapsular
+            soarefresh = 10# self.cache.get_records_by_name_and_type(self.domain + ".", "SOAREFRESH")[0].value # encapsular
 
             sleep(int(soarefresh))
 

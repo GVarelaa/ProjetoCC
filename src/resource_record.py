@@ -15,10 +15,16 @@ class Status(Enum):
     FREE = 1
     VALID = 2
 
+def create_free_record():
+    record = ResourceRecord("vazio", "vazio", "vazio", "vazio", "vazio", "vazio")
+    record.status = "FREE"
+
+    return record
+
 class ResourceRecord:
-    def __init__(self, name, value_type, value, ttl, priority, origin):
+    def __init__(self, name, type, value, ttl, priority, origin):
         self.name = name
-        self.value_type = value_type
+        self.type = type
         self.value = value
         self.ttl = ttl
         self.priority = priority
@@ -34,3 +40,5 @@ class ResourceRecord:
     def __repr__(self):
         return self.name + " " + self.value_type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
                + " " + str(self.origin) + " " + str(self.time_stamp) + " " + str(self.index) + " " + str(self.status)
+
+

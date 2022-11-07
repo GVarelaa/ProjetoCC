@@ -167,8 +167,6 @@ def parser_df(file_path):
 
     f.close()
 
-    print(data)
-
     return data
 
 def file_to_string(file_path):
