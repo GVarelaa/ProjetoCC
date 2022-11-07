@@ -68,6 +68,3 @@ class Log:
         sys.stdout.write(dt + " " + message + "\n")
 
 
-
-l = Log("IO/teste.txt")
-l.log_qe("192.168.0.0", "nao sei")

@@ -122,15 +122,10 @@ def parser_df(file_path):
                     priority = int("0")
 
                 if words[1] == "SOASP":
-                    print(value_type)
-                    print(value)
                     record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
-                    print(record)
                     data.add_entry(record)
 
                 elif words[1] == "SOAADMIN":
-                    print(value_type)
-                    print(value)
                     record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
                     data.add_entry(record)
 

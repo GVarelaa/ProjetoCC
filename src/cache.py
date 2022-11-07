@@ -86,7 +86,7 @@ class Cache:
         return ind
 
     # Gets all entries with the given name and type
-    def get_records_by_name_and_type(self, name, type): # funcionar mal
+    def get_records_by_name_and_type(self, name, type):
         records = []
         record_index = 1
 
@@ -97,11 +97,11 @@ class Cache:
                 break
 
             record = self.list[record_index-1]
-            records.append(record) #ta a adicionar o ultimo elemento mm que ele n de match CORRIGIR
+            records.append(record)
 
         return records
 
-    def update_cache(self, domain): #SOAEXPIRE
+    def update_cache(self, domain):
         for record in self.list:
             if record.name == domain:
                 record.status = "FREE"

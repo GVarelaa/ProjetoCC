@@ -10,6 +10,7 @@ import threading
 from time import sleep
 from parser import *
 from query_message.message import *
+from log import *
 
 class Server:
     def __init__(self, config_file_path, mode):
@@ -21,7 +22,8 @@ class Server:
         self.secondary_servers = ss
         self.default_domains = dd
         self.root_servers_file_path = rfp
-        self.log_file_path = lfp
+        #print(lfp)
+       # self.log = Log(lfp) # Objeto do tipo log
 
         if self.primary_server is None:
             self.server_type = "SP"
@@ -32,7 +34,6 @@ class Server:
 
         self.root_servers = parser_st(rfp)
         self.cache = parser_df(d_fp)
-        print(self.cache)
         self.addresses_from = dict() #estrutura para saber onde mandar a query com message id X
 
     def __str__(self):
@@ -120,7 +121,6 @@ class Server:
 
 
     def parse_address(self, address):
-        print(address)
         substrings = address.split(":")
         ip_address = substrings[0]
 
@@ -141,7 +141,7 @@ class Server:
         (message_id, flags, name, type) = parse_message(message)
         self.addresses_from[message_id] = address
 
-    def get_address(self, message_id):
+    def get_address(self, message):
         (message_id, flags, name, type) = parse_message(message)
         return self.addresses_from[message_id]
 
@@ -222,6 +222,8 @@ def main():
         print(f"Recebi uma mensagem do cliente {address_from}")
 
         is_query = server.is_query(message)
+
+        server.log.log_qr(address_from, message)
 
         server.add_address(message, address_from)
 
