@@ -34,11 +34,11 @@ class ResourceRecord:
         self.status = None
 
     def __str__(self):
-        return self.name + " " + self.value_type + " " + self.value + " " + str (self.ttl) + " " + str(self.priority) \
+        return self.name + " " + self.type + " " + self.value + " " + str (self.ttl) + " " + str(self.priority) \
                + " " + str(self.origin) + " " + str(self.time_stamp) + " " + str(self.index) + " " + str(self.status)
 
     def __repr__(self):
-        return self.name + " " + self.value_type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
+        return self.name + " " + self.type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
                + " " + str(self.origin) + " " + str(self.time_stamp) + " " + str(self.index) + " " + str(self.status)
 
 

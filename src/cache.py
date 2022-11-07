@@ -16,23 +16,27 @@ class Cache:
         self.capacity = 1
 
     def __str__(self):
-        return str(self.list) + " " + str(self.n)
+        return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
 
     def __repr__(self):
-        return str(self.list) + " " + str(self.n)
+        return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
 
-    def find_entry(self, index, name, type):
+    def find_valid_entry(self, index, name, type):
         i = 1
+        found = False
 
         for record in self.list:
+            if i > index and record.status == "VALID" and record.name == name and record.type == type:
+                found = True
+                break
+
             if record.origin == "OTHERS" and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #enums
                 record.status = "FREE"
 
-            if i-1 >= index:
-                if record.status == "VALID" and record.name == name and record.type == type:
-                    break
-
             i += 1
+
+        if not found:
+            return -1 # codigo de erro
 
         return i
 
@@ -74,7 +78,7 @@ class Cache:
 
 
     def get_record_by_name_and_type(self, name, type):
-        ind = self.find_entry(1, name, type)
+        ind = self.find_valid_entry(1, name, type)
 
         if ind > len(self.list):
             return None
@@ -86,9 +90,14 @@ class Cache:
         records = []
         record_index = 1
 
-        while record_index < len(self.list):
-            record_index = self.find_entry(record_index, name, type)
-            records.append(self.list[record_index-1]) #ta a adicionar o ultimo elemento mm que ele n de match CORRIGIR
+        while record_index < self.size + 1:
+            record_index = self.find_valid_entry(record_index, name, type)
+
+            if record_index == -1:
+                break
+
+            record = self.list[record_index-1]
+            records.append(record) #ta a adicionar o ultimo elemento mm que ele n de match CORRIGIR
 
         return records
 

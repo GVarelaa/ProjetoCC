@@ -32,6 +32,7 @@ class Server:
 
         self.root_servers = parser_st(rfp)
         self.cache = parser_df(d_fp)
+        print(self.cache)
         self.addresses_from = dict() #estrutura para saber onde mandar a query com message id X
 
     def __str__(self):
@@ -48,7 +49,7 @@ class Server:
 
     def zone_transfer_sp(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
-        socket_tcp.bind(("127.0.0.1", 20000))
+        socket_tcp.bind(("127.0.0.1", 24000))
         socket_tcp.listen()
 
         while True:
@@ -96,7 +97,7 @@ class Server:
         socket_tcp.sendall(msg.encode('utf-8')) # Envia query a pedir permissao
 
         msg = socket_tcp.recv(1024).decode('utf-8') # Recebe query com o numero de linhas
-        print(msg)
+
         (message_id, flags, name, type_of_value) = parse_message(msg)
 
         if "A" not in flags:
@@ -165,14 +166,12 @@ class Server:
             extra_values = list()
 
             for record in response_values:
-                r_to_add = self.cache.get_record_by_name_and_type(record.value, "A")
-                if r_to_add is not None:
-                    extra_values.append(r_to_add)
+                records = self.cache.get_records_by_name_and_type(record.value, "A")
+                extra_values += records
 
             for record in authorities_values:
-                r_to_add = self.cache.get_record_by_name_and_type(record.value, "A")
-                if r_to_add is not None:
-                    extra_values.append(r_to_add)
+                records = self.cache.get_records_by_name_and_type(record.value, "A")
+                extra_values += records
 
             response = build_query_response(query, response_values, authorities_values, extra_values)
 

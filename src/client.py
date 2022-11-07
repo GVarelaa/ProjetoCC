@@ -18,7 +18,7 @@ def main():
     ip_address = args_split[0]
 
     if len(args_split) > 1:
-        port = args_split[1]
+        port = int(args_split[1])
     else:
         port = 6000 # porta default
 
