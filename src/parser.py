@@ -1,4 +1,4 @@
-from database import Database
+from cache import Cache
 from resource_record import ResourceRecord
 
 def validate_port(port):
@@ -83,7 +83,7 @@ def parser_st(file_path):
 def parser_df(file_path):
     f = open(file_path, "r")
 
-    data = Database(dict())
+    data = Cache()
 
     #valores default
     ttl_default = 0
@@ -122,50 +122,52 @@ def parser_df(file_path):
                     priority = int("0")
 
                 if words[1] == "SOASP":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "SOAADMIN":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "SOASERIAL":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "SOAREFRESH":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "SOARETRY":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "SOAEXPIRE":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, -1)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, -1, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "NS":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, priority, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "A" and validate_ip(value):
-                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, priority, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "CNAME":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, priority, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "MX":
-                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, priority, "FILE")
+                    data.add_entry(record)
 
                 elif words[1] == "PTR" and validate_ip(words[0]):
-                    entry = ResourceRecord(parameter, value_type, value, expiration, priority)
-                    data.add_entry(entry)
+                    record = ResourceRecord(parameter, value_type, value, expiration, priority, "FILE")
+                    data.add_entry(record)
 
     f.close()
+
+    print(data)
 
     return data
 

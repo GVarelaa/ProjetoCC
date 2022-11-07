@@ -3,7 +3,6 @@
 # Last update: 03/11/12
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
-import json
 import socket
 import sys
 import threading
@@ -32,8 +31,8 @@ class Server:
             self.server_type = "SR"
 
         self.root_servers = parser_st(rfp)
-        self.db = parser_df(d_fp)
-        print(self.db)
+        self.cache = parser_df(d_fp)
+        print(self.cache)
         self.addresses_from = dict() #estrutura para saber onde mandar a query com message id X
 
     def __str__(self):
@@ -115,7 +114,7 @@ class Server:
 
             b += tmp
 
-        self.db = parser_df(self.data_file_path) # MUDAR
+        self.cache = parser_df(self.data_file_path) # MUDAR
         db = b.decode('utf-8')
         print(db)
 
@@ -145,7 +144,7 @@ class Server:
         return self.addresses_from[message_id]
 
     def interpret_query(self, query): # interpret_query
-        (message_id, flags, name, type_of_value) = parse_message(query)
+        (message_id, flags, name, type) = parse_message(query)
 
         response_values = list()
         authorities_values = list()
@@ -160,18 +159,21 @@ class Server:
             return query
 
 
-        response_values = self.db.get_values_by_type_and_parameter(type_of_value, name)
+        response_values = self.cache.get_records_by_name_and_type(name, type)
 
         if len(response_values) != 0:     # HIT
-            authorities_values = self.db.get_values_by_type_and_parameter("NS", name)
+            authorities_values = self.cache.get_records_by_name_and_type(name, "NS")
             extra_values = list()
 
-            for data_entry in response_values:
-                if data_entry.value in self.db.get_parameter_keys("A"):
-                    extra_values += self.db.get_values_by_type_and_parameter("A", data_entry.value)
-            for data_entry in authorities_values:
-                if data_entry.value in self.db.get_parameter_keys("A"):
-                    extra_values += self.db.get_values_by_type_and_parameter("A", data_entry.value)
+            for record in response_values:
+                r_to_add = self.cache.get_record_by_name_and_type(record.value, "A")
+                if r_to_add is not None:
+                    extra_values.append(r_to_add)
+
+            for record in authorities_values:
+                r_to_add = self.cache.get_record_by_name_and_type(record.value, "A")
+                if r_to_add is not None:
+                    extra_values.append(r_to_add)
 
             response = build_query_response(query, response_values, authorities_values, extra_values)
 
