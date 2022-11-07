@@ -3,8 +3,8 @@
 # Last update: 03/11/22
 # Description: PDU of a query: Header, Data
 
-def build_message(name, type_of_value, flag):
-    message = "1," + flag + ",0,0,0,0;" + name + "," + type_of_value + ";"
+def build_message(name, type, flag):
+    message = "1," + flag + ",0,0,0,0;" + name + "," + type + ";"
 
     return message
 
@@ -16,12 +16,12 @@ def parse_message(message):
     message_id = header_fields[0]
     flags = header_fields[1]
     name = data_fields[0]
-    type_of_value = data_fields[1]
+    type = data_fields[1]
 
-    return (message_id, flags, name, type_of_value)
+    return (message_id, flags, name, type)
 
 def build_query_response(message, response_values, authorities_values, extra_values):
-    (message_id, flags, name, type_of_value) = parse_message(message)
+    (message_id, flags, name, type) = parse_message(message)
 
     message_response = ""
     num_values = len(response_values)
@@ -33,10 +33,10 @@ def build_query_response(message, response_values, authorities_values, extra_val
     else:
         flags_response = "A"
 
-    message_response += message_id + "," + flags_response + ",0" + "," + str(num_values) + "," + str(num_authorities) + "," + str(num_extra) + ";" + name + "," + type_of_value + ";"
+    message_response += message_id + "," + flags_response + ",0" + "," + str(num_values) + "," + str(num_authorities) + "," + str(num_extra) + ";" + name + "," + type + ";"
 
     for record in response_values:
-        message_response += name + " " + type_of_value + " " + record.value + " " + str(record.ttl) + " " + str(record.priority) + ","
+        message_response += name + " " + type + " " + record.value + " " + str(record.ttl) + " " + str(record.priority) + ","
 
     message_response = message_response[:-1] + ";"
 

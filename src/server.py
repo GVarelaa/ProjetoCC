@@ -131,16 +131,18 @@ class Server:
 
         return (ip_address, port)
 
-    def add_address(self, message_id, address):
+    def add_address(self, message, address):
         """
         Adiciona um endereço para onde a query com message id tem de retornar
         :param message_id: Message id da query
         :param address: Endereço a adicionar
         :return: void
         """
+        (message_id, flags, name, type) = parse_message(message)
         self.addresses_from[message_id] = address
 
     def get_address(self, message_id):
+        (message_id, flags, name, type) = parse_message(message)
         return self.addresses_from[message_id]
 
     def interpret_query(self, query): # interpret_query
@@ -158,27 +160,35 @@ class Server:
         elif "T" in flags:
             return query
 
+        elif "R" in flags:
+            return
 
-        response_values = self.cache.get_records_by_name_and_type(name, type)
+        else:
+            response_values = self.cache.get_records_by_name_and_type(name, type)
 
-        if len(response_values) != 0:     # HIT
-            authorities_values = self.cache.get_records_by_name_and_type(name, "NS")
-            extra_values = list()
+            if len(response_values) != 0:  # HIT
+                authorities_values = self.cache.get_records_by_name_and_type(name, "NS")
+                extra_values = list()
 
-            for record in response_values:
-                records = self.cache.get_records_by_name_and_type(record.value, "A")
-                extra_values += records
+                for record in response_values:
+                    records = self.cache.get_records_by_name_and_type(record.value, "A")
+                    extra_values += records
 
-            for record in authorities_values:
-                records = self.cache.get_records_by_name_and_type(record.value, "A")
-                extra_values += records
+                for record in authorities_values:
+                    records = self.cache.get_records_by_name_and_type(record.value, "A")
+                    extra_values += records
 
-            response = build_query_response(query, response_values, authorities_values, extra_values)
+                response = build_query_response(query, response_values, authorities_values, extra_values)
 
-            return response
+                return response
 
-        else:   # MISS
-            return None
+            else:  # MISS
+                return None
+
+    def is_query(self, message):
+        (message_id, flags, name, type) = parse_message(message)
+
+        return "Q" in flags
 
 
 def main():
@@ -197,34 +207,35 @@ def main():
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # socket UDP
     socket_udp.bind((ip_address, int(port)))
 
+    print(f"Estou à  escuta no {ip_address}:{port}")
+
     if server.server_type == "SP":
         threading.Thread(target=server.zone_transfer_sp).start()
 
     if server.server_type == "SS":
         threading.Thread(target=server.zone_transfer_caller_ss).start()
 
-    print(f"Estou à  escuta no {ip_address}:{port}")
-
     while True:
-        msg, address_from = socket_udp.recvfrom(1024)
-        msg = msg.decode('utf-8')
-
-        (message_id, flags, name, type_of_value) = parse_message(msg)
-
-        server.add_address(message_id, address_from)
-
-        if "Q" in flags: # é uma query
-            response = server.interpret_query(msg)
-
-            if response is not None:
-                socket_udp.sendto(response.encode('utf-8'), address_from) # enviar para o destinatário
-            else: #miss
-                return
-
-        else: # é uma reposta duma query e temos de mandar de volta
-            socket_udp.sendto(msg.encode('utf-8'), server.get_address(message_id)) # enviar para o destinatário
+        message, address_from = socket_udp.recvfrom(1024)
+        message = message.decode('utf-8')
 
         print(f"Recebi uma mensagem do cliente {address_from}")
+
+        is_query = server.is_query(message)
+
+        server.add_address(message, address_from)
+
+        if is_query: # é query
+            response = server.interpret_query(message)
+
+            if response:
+                socket_udp.sendto(response.encode('utf-8'), address_from)  # enviar para o destinatário
+            else:
+                return # MISS
+
+        else: # é uma resposta a uma query
+            socket_udp.sendto(message.encode('utf-8'), server.get_address(message))
+
 
     socket_udp.close()
 
