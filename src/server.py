@@ -70,8 +70,8 @@ class Server:
         extra_values = list()
 
         if "T" in flags and self.domain == name: # Domínios são iguais (?)
-            entries = count_file_entries(self.data_file_path)
-            response = build_query_init_transfer_response(query, entries)
+            #entries = count_file_entries(self.data_file_path)
+            #response = build_query_init_transfer_response(query, entries)
 
             return response
 
