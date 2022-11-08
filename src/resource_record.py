@@ -41,4 +41,6 @@ class ResourceRecord:
         return self.name + " " + self.type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
                + " " + str(self.origin) + " " + str(self.time_stamp) + " " + str(self.index) + " " + str(self.status)
 
-
+    def resource_record_to_string(self):
+        string = str(self.name) + " " + str(self.type) + " " + str(self.value) + " " + str(self.ttl) + " " + str(self.priority) + "\n"
+        return string

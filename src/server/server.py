@@ -4,7 +4,6 @@
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 import socket
-import sys
 import threading
 from src.parser import *
 from src.query_message.message import *

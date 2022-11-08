@@ -6,6 +6,7 @@
 
 import socket
 import sys
+from dns import *
 from query_message.message import build_message
 
 def main():
@@ -22,15 +23,16 @@ def main():
     else:
         port = 6000 # porta default
 
-    name = args[1]
-    type_of_value = args[2]
-    flag = "Q"
+    domain_name = args[1]
+    type = args[2]
+    flags = "Q"
+
     if len(args) == 4 and args[3] == "R":
-        flag = "Q+R"
+        flags = "Q+R"
 
-    message = build_message(name, type_of_value, flag)
+    query = DNS(1, flags, domain_name, type)
 
-    s.sendto(message.encode('utf-8'), (ip_address, port))
+    s.sendto(query.dns_to_string().encode('utf-8'), (ip_address, port))
 
     while True:
         msg, add = s.recvfrom(1024)
