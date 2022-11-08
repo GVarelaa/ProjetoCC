@@ -64,7 +64,7 @@ def parser_cf(file_path):
 
     f.close()
 
-    return (domain, data_file_path, primary_server, secundary_servers, default_domains, root_servers_file_path, log_file_path)
+    return (domain+".", data_file_path, primary_server, secundary_servers, default_domains, root_servers_file_path, log_file_path)
 
 def parser_st(file_path):
     f = open(file_path, "r")
@@ -177,3 +177,16 @@ def file_to_string(file_path):
     text_file.close()
 
     return data
+
+def count_file_entries(file_path):
+    f = open(file_path, "r")
+
+    counter = 0
+
+    for line in f.read():
+        if line[0] != "#" and line[0] != "\n":
+            counter += 1
+
+    f.close()
+
+    return counter

@@ -20,6 +20,22 @@ def parse_message(message):
 
     return (message_id, flags, name, type)
 
+def build_query_db_version_response(message, value):
+    (message_id, flags, name, type) = parse_message(message)
+
+    response = ""
+    response += message_id + "," + "V+A" + ",0,0,0,0;" + str(value) + "," + str(type) + ";"
+
+    return response
+
+def build_query_init_transfer_response(message, entries):
+    (message_id, flags, name, type) = parse_message(message)
+
+    response = ""
+    response += message_id + "," + "T+A" + ",0,0,0,0;" + str(name) + "," + str(entries) + ";" #nr entries no type, MUDAR
+
+    return response
+
 def build_query_response(message, response_values, authorities_values, extra_values):
     (message_id, flags, name, type) = parse_message(message)
 

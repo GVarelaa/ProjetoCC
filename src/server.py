@@ -22,8 +22,8 @@ class Server:
         self.secondary_servers = ss
         self.default_domains = dd
         self.root_servers_file_path = rfp
-        #print(lfp)
-       # self.log = Log(lfp) # Objeto do tipo log
+        self.log_file_path = lfp
+        self.log = Log(lfp) # Objeto do tipo log
 
         if self.primary_server is None:
             self.server_type = "SP"
@@ -56,22 +56,21 @@ class Server:
         while True:
             connection, address = socket_tcp.accept()
 
-            msg = connection.recv(1024)
+            query_soaserial = connection.recv(1024).decode('utf-8')
+            soaserial_response = self.interpret_query(query_soaserial) # Meter número da versão
+            connection.sendall(soaserial_response.encode('utf-8')) # Enviar resposta à query com a versão
 
-            if not msg:
-                break
+            query_init_transfer = connection.recv(1024).decode('utf-8') # Recebe query para pedir transferência
+            init_transfer_response = self.interpret_query(query_init_transfer) # Verifica se os domínios são iguais
+            connection.sendall(init_transfer_response.encode('utf-8'))  # Enviar resposta à query da transferência
 
-            msg = msg.decode('utf-8')
-            msg = self.interpret_query(msg) # Meter numero de linhas do ficherio na query
-
-            (message_id, flags, name, type_of_value) = parse_message(msg)
+            (message_id, flags, name, type_of_value) = parse_message(init_transfer_response)
 
             if "A" not in flags:
+                connection.close()
                 return # Não pode enviar a base de dados
 
-            connection.send(msg.encode('utf-8'))
-
-            connection.sendall(file_to_string(self.data_file_path).encode('utf-8'))
+            connection.sendall(file_to_string(self.data_file_path).encode('utf-8')) # Enviar base de dados
 
             connection.close()
 
@@ -80,7 +79,7 @@ class Server:
         while True:
             self.zone_transfer_ss()
 
-            soarefresh = 10# self.cache.get_records_by_name_and_type(self.domain + ".", "SOAREFRESH")[0].value # encapsular
+            soarefresh = self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value
 
             sleep(int(soarefresh))
 
@@ -91,15 +90,23 @@ class Server:
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_tcp.connect((ip_address, port))
 
-        print(f"Estou à escuta no {ip_address}:{port}")
+        message = build_message(self.domain, "SOASERIAL", "Q+V") # Construir query para pedir versão da bd
+        socket_tcp.sendall(message.encode('utf-8')) # Envia query
 
-        msg = build_message(self.domain, "0", "Q+T") # Construir query para pedir transferencia de zona
+        message = socket_tcp.recv(1024).decode('utf-8') # Recebe query com a versão
+        soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value # Pega na versão
 
-        socket_tcp.sendall(msg.encode('utf-8')) # Envia query a pedir permissao
+        (message_id, flags, value, type) = parse_message(message)
 
-        msg = socket_tcp.recv(1024).decode('utf-8') # Recebe query com o numero de linhas
+        if int(value) <= int(soaserial): #mesma versão logo a transferência de zona não se inicia
+            #socket_tcp.close()
+            return
 
-        (message_id, flags, name, type_of_value) = parse_message(msg)
+        query = build_message(self.domain, "0", "Q+T") # Construir query para iniciar transferência de zona
+        socket_tcp.sendall(query.encode('utf-8'))  # Envia query a pedir permissao
+        response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
+
+        (message_id, flags, name, type_of_value) = parse_message(response)
 
         if "A" not in flags:
             return
@@ -115,7 +122,7 @@ class Server:
 
             b += tmp
 
-        self.cache = parser_df(self.data_file_path) # MUDAR
+        #self.cache = parser_df(self.data_file_path) # MUDAR
         db = b.decode('utf-8')
         print(db)
 
@@ -153,7 +160,14 @@ class Server:
         extra_values = list()
 
         if "T" in flags and self.domain == name: # Domínios são iguais (?)
-            response = build_query_response(query, response_values, authorities_values, extra_values)
+            entries = count_file_entries(self.data_file_path)
+            response = build_query_init_transfer_response(query, entries)
+
+            return response
+
+        elif "V" in flags:
+            soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value
+            response = build_query_db_version_response(query, soaserial)
 
             return response
 
