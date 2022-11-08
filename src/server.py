@@ -8,22 +8,20 @@ import sys
 import threading
 
 from log import Log
-from parser import parser_st, parser_df, validate_port, count_file_entries
+from database_parser import *
 from query_message.message import parse_message, build_query_response, build_query_db_version_response, \
     build_query_init_transfer_response
 
 
 class Server:
-    def __init__(self, domain, default_domains, data_path, root_path, log_path):
+    def __init__(self, domain, default_domains, data_path, root_servers, log_path):
         self.mode = None
         self.domain = domain
         self.default_domains = default_domains
-        self.root_path = root_path
         self.log_path = log_path
         self.log = Log(log_path) # Objeto do tipo log
-        self.root_servers = parser_st(root_path)
-        print(data_path)
-        self.cache = parser_df(data_path)
+        self.root_servers = root_servers
+        self.cache = parser_database(data_path)
         print(self.cache)
 
         # self.addresses_from = dict() estrutura para saber onde mandar a query com message id X

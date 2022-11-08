@@ -22,6 +22,20 @@ def validate_ip(ip_address):
     return len(ip_parts) == 4 and all(0 <= int(part) < 256 for part in ip_parts) and port_bool
 
 
+def parser_root_servers(file_path):
+    f = open(file_path, "r")
+
+    servers = list()
+
+    for line in f:
+        if line[0] != "\n" and line[0] != "#":
+            line = line.replace("\n", "")
+            servers.append(line)
+
+    f.close()
+
+    return servers
+
 def parser_configuration(file_path):
     f = open(file_path, "r")
 
@@ -29,8 +43,8 @@ def parser_configuration(file_path):
     data_path = None
     primary_server = None
     secondary_servers = list()
+    root_servers = list()
     default_domains = list()
-    root_path = None
     log_path = None
 
     for line in f:
@@ -58,7 +72,7 @@ def parser_configuration(file_path):
                     default_domains.append(value)
 
                 elif value_type == "ST" and parameter == "root":
-                    root_path = value
+                    root_servers = parser_root_servers(value)
 
                 elif value_type == "LG":
                     log_path = value
@@ -66,8 +80,8 @@ def parser_configuration(file_path):
     f.close()
 
     if primary_server is not None:
-        server = PrimaryServer(domain, default_domains, data_path, root_path, log_path, secondary_servers)
+        server = PrimaryServer(domain, default_domains, data_path, root_servers, log_path, secondary_servers)
     else:
-        server = SecondaryServer(domain, default_domains, data_path, root_path, log_path, primary_server)
+        server = SecondaryServer(domain, default_domains, data_path, root_servers, log_path, primary_server)
 
     return server
