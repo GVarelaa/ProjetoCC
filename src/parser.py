@@ -81,6 +81,9 @@ def parser_st(file_path):
     return servers
 
 def parser_df(file_path):
+    if file_path is None:
+        return Cache()
+
     f = open(file_path, "r")
 
     data = Cache()
@@ -190,3 +193,4 @@ def count_file_entries(file_path):
     f.close()
 
     return counter
+
