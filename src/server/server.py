@@ -6,11 +6,9 @@
 import socket
 import sys
 import threading
-
-from time import sleep
-from parser import *
-from query_message.message import *
-from log import *
+from src.parser import *
+from src.query_message.message import *
+from src.log import *
 
 class Server:
     def __init__(self, domain, data_file_path, default_domains, root_servers_file_path, log_file_path, mode):

@@ -2,8 +2,8 @@ import sys
 import threading
 import server
 import socket
-from parser import *
-from query_message.message import *
+from src.parser import *
+from src.query_message.message import *
 
 class PrimaryServer(server.Server):
     def __init__(self, config_file_path, mode):

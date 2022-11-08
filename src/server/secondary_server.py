@@ -2,9 +2,8 @@ import socket
 import sys
 import threading
 import server
-from time import sleep
-from parser import *
-from query_message.message import *
+from src.parser import *
+from src.query_message.message import *
 
 class SecondaryServer(server.Server):
     def __init__(self, config_file_path, mode):
