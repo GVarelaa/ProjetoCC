@@ -1,17 +1,11 @@
-import socket
-import sys
-import threading
 import server
-from src.parser import *
-from src.query_message.message import *
+from configuration_parser import *
+from parser import *
+from query_message.message import *
 
 class SecondaryServer(server.Server):
-    def __init__(self, config_file_path, mode):
-        (domain, data_file_path, primary_server,
-         secondary_servers, default_domains,
-         root_servers_file_path, log_file_path) = parser_cf(config_file_path)
-
-        super().__init__(domain, data_file_path, default_domains, root_servers_file_path, log_file_path, mode)
+    def __init__(self, domain, default_domains, data_path, root_path, log_path, primary_server):
+        super().__init__(domain, default_domains, data_path, root_path, log_path)
         self.primary_server = primary_server
 
     def __str__(self):
@@ -112,7 +106,7 @@ class SecondaryServer(server.Server):
 
 def main():
     args = sys.argv
-    config_filepath = args[1]
+    config_path = args[1]
     port = args[2]
     timeout = args[3]
     mode = args[4]
@@ -121,7 +115,7 @@ def main():
     if not validate_port(port):
         return  # adicionar log
 
-    server = SecondaryServer(config_filepath, mode)
+    server = parser_configuration(config_path)
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # socket UDP
     socket_udp.bind((ip_address, int(port)))

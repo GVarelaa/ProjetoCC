@@ -4,21 +4,26 @@
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
 import socket
+import sys
 import threading
-from src.parser import *
-from src.query_message.message import *
-from src.log import *
+
+from log import Log
+from parser import parser_st, parser_df, validate_port, count_file_entries
+from query_message.message import parse_message, build_query_response, build_query_db_version_response, \
+    build_query_init_transfer_response
+
 
 class Server:
-    def __init__(self, domain, data_file_path, default_domains, root_servers_file_path, log_file_path, mode):
-        self.mode = mode
+    def __init__(self, domain, default_domains, data_path, root_path, log_path):
+        self.mode = None
         self.domain = domain
         self.default_domains = default_domains
-        self.root_servers_file_path = root_servers_file_path
-        self.log_file_path = log_file_path
-        self.log = Log(log_file_path) # Objeto do tipo log
-        self.root_servers = parser_st(root_servers_file_path)
-        self.cache = parser_df(data_file_path)
+        self.root_path = root_path
+        self.log_path = log_path
+        self.log = Log(log_path) # Objeto do tipo log
+        self.root_servers = parser_st(root_path)
+        print(data_path)
+        self.cache = parser_df(data_path)
         print(self.cache)
 
         # self.addresses_from = dict() estrutura para saber onde mandar a query com message id X
