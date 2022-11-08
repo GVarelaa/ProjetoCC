@@ -8,7 +8,7 @@ import sys
 import threading
 
 from log import Log
-from parser import parser_st, parser_df, validate_port, count_file_entries
+from configuration_parser import parser_configuration, validate_port, count_file_entries
 from query_message.message import parse_message, build_query_response, build_query_db_version_response, \
     build_query_init_transfer_response
 

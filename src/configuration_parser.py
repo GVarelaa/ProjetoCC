@@ -71,3 +71,16 @@ def parser_configuration(file_path):
         server = SecondaryServer(domain, default_domains, data_path, root_path, log_path, primary_server)
 
     return server
+
+def count_file_entries(file_path):
+    f = open(file_path, "r")
+
+    counter = 0
+
+    for line in f.read():
+        if line[0] != "#" and line[0] != "\n":
+            counter += 1
+
+    f.close()
+
+    return counter
