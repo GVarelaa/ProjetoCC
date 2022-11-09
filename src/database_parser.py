@@ -50,9 +50,9 @@ def parser_database(file_path, server):
 
                 # valores default
                 if len(words) == 3 and words[1] == "DEFAULT":
-                    ttl_default, suffix = set_default_values(ttl_default, suffix, words)
+                    ttl_default, suffix = set_default_values(words)
 
-                elif len(words) < 4:
+                elif len(words) <= 4:
                     server.log.log_fl("Arguments missing!")
 
                 else:
