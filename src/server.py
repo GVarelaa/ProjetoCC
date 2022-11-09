@@ -8,6 +8,7 @@ import sys
 import threading
 
 from log import Log
+from dns import *
 from database_parser import *
 from query_message.message import parse_message, build_query_response, build_query_db_version_response, \
     build_query_init_transfer_response
@@ -47,35 +48,30 @@ class Server:
 
 
     def interpret_query(self, query): # interpret_query
-        (message_id, flags, name, type) = parse_message(query)
-
         response_values = list()
         authorities_values = list()
         extra_values = list()
 
-        if "T" in flags and self.domain == name: # Domínios são iguais (?)
+        if "T" in query.flags and self.domain == query.name: # Domínios são iguais (?)
             #entries = count_file_entries(self.data_file_path)
             #response = build_query_init_transfer_response(query, entries)
 
-            return response
+            return query
 
-        elif "V" in flags:
+        elif "V" in query.flags:
             soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value
             response = build_query_db_version_response(query, soaserial)
 
             return response
 
-        elif "T" in flags:
+        elif "T" in query.flags:
             return query
 
-        elif "R" in flags:
-            return
-
         else:
-            response_values = self.cache.get_records_by_name_and_type(name, type)
+            response_values = self.cache.get_records_by_name_and_type(query.domain_name, query.type)
 
             if len(response_values) != 0:  # HIT
-                authorities_values = self.cache.get_records_by_name_and_type(name, "NS")
+                authorities_values = self.cache.get_records_by_name_and_type(query.domain_name, "NS")
                 extra_values = list()
 
                 for record in response_values:
@@ -86,9 +82,16 @@ class Server:
                     records = self.cache.get_records_by_name_and_type(record.value, "A")
                     extra_values += records
 
-                response = build_query_response(query, response_values, authorities_values, extra_values)
+                query.response_values = response_values
+                query.authorities_values = authorities_values
+                query.extra_values = extra_values
 
-                return response
+                if "R" in query.flags:
+                    query.flags = "R+A"
+                else:
+                    query.flags = "A"
+
+                return query
 
             else:  # MISS
                 return None

@@ -34,17 +34,16 @@ def main():
         query = dns.string_to_dns(message.decode('utf-8'))
         #server.log.log_qr(address_from, message)
 
-
         if "Q" in query.flags:  # é query
-            response = server.interpret_query(message)
+            response = server.interpret_query(query) # objeto DNS
 
-            if response:
-                socket_udp.sendto(response.encode('utf-8'), address_from)  # enviar para o destinatário
+            if "A" in response.flags:
+                socket_udp.sendto(response.dns_to_string().encode('utf-8'), address_from)  # enviar para o destinatário
             else:
                 return  # MISS
 
         else:  # é uma resposta a uma query
-            socket_udp.sendto(message.encode('utf-8'), server.get_address(message))
+            socket_udp.sendto(query.dns_to_string().encode('utf-8'), server.get_address(message))
 
 
     socket_udp.close()
