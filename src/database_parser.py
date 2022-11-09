@@ -12,7 +12,7 @@ def concatenate_suffix(suffix, name):
     return name
 
 
-def set_default_values(line):
+def set_default_values(ttl_default, suffix, line):
     if line[0] == "TTL":
         ttl_default = line[2]
 
@@ -44,13 +44,13 @@ def parser_database(file_path, server):
         for line in f:
             words = line.split()
 
-            if len(words) > 0 and words[0][0] != '#': # ignorar linhas vazias ou comentários
+            if len(words) > 0 and words[0][0] != '#':  # ignorar linhas vazias ou comentários
                 if len(words) > 5:
                     server.log.log_fl("Too many arguments!")
 
                 # valores default
                 if len(words) == 3 and words[1] == "DEFAULT":
-                        ttl_default, suffix = set_default_values(words)
+                    ttl_default, suffix = set_default_values(words)
 
                 elif len(words) <= 4:
                     server.log.log_fl("Arguments missing!")
@@ -65,49 +65,55 @@ def parser_database(file_path, server):
                     if len(words) == 5:
                         priority = int(words[4])
 
-                    if words[1] == "SOASP":
+                    if type == "SOASP":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "SOAADMIN":
+                    elif type == "SOAADMIN":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "SOASERIAL":
+                    elif type == "SOASERIAL":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "SOAREFRESH":
+                    elif type == "SOAREFRESH":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "SOARETRY":
+                    elif type == "SOARETRY":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "SOAEXPIRE":
+                    elif type == "SOAEXPIRE":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "NS":
+                    elif type == "NS":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "A" and validate_ip(value):
+                    elif type == "A":
+                        if validate_ip(value):
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                        else:
+                            server.log.log_fl("Invalid IP address!")
+
+                    elif type == "CNAME":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "CNAME":
+                    elif type == "MX":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                         data.add_entry(record)
 
-                    elif words[1] == "MX":
-                        record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
-                        data.add_entry(record)
-
-                    elif words[1] == "PTR" and validate_ip(words[0]):
-                        record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
-                        data.add_entry(record)
+                    elif type == "PTR":
+                        if validate_ip(parameter):
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                        else:
+                            server.log.log_fl("Invalid IP address!")
 
         f.close()
 
