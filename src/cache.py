@@ -77,14 +77,6 @@ class Cache:
         self.size += 1
 
 
-    def get_record_by_name_and_type(self, name, type):
-        ind = self.find_valid_entry(1, name, type)
-
-        if ind > len(self.list):
-            return None
-
-        return ind
-
     # Gets all entries with the given name and type
     def get_records_by_name_and_type(self, name, type):
         records = []

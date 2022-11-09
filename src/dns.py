@@ -31,20 +31,22 @@ class DNS:
                  + str(self.number_of_values) + "," + str(self.number_of_authorities) + "," + str(self.number_of_values) + ";"\
                  + str(self.domain_name) + "," + str(self.type) + ";\n"
 
-        for record in self.extra_values:
-            string += record.resource_record_to_string() +","
+        for record in self.response_values:
+            string += record.resource_record_to_string() + ",\n"
 
-        string = string[:-1] + ";"
+        string = string[:-2] + ";"
+        string += "\n"
 
         for record in self.authorities_values:
-            string += record.resource_record_to_string() + ","
+            string += record.resource_record_to_string() + ",\n"
 
-        string = string[:-1] + ";"
+        string = string[:-2] + ";"
+        string += "\n"
 
         for record in self.extra_values:
-            string += record.resource_record_to_string() + ","
+            string += record.resource_record_to_string() + ",\n"
 
-        string = string[:-1] + ";"
+        string = string[:-2] + ";"
 
         return string
 

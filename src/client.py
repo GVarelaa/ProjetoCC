@@ -28,16 +28,16 @@ def main():
         flags = "Q+R"
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+    print(domain_name)
     query = DNS(1, flags, domain_name, type)
 
     s.sendto(query.dns_to_string().encode('utf-8'), (ip_address, port))
 
     while True:
-        msg, add = s.recvfrom(1024)
-        msg = msg.decode('utf-8')
+        message, add = s.recvfrom(1024)
+        message = message.decode('utf-8')
 
-        print(msg)
+        print(message)
 
 
 if __name__ == "__main__" :
