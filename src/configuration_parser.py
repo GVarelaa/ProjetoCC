@@ -66,4 +66,4 @@ def parser_configuration(file_path):
     else:
         server = SecondaryServer(domain, default_domains, data_path, root_servers, log_path, primary_server)
 
-    return server
+    return (server, data_path)

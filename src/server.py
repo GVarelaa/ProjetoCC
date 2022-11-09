@@ -22,8 +22,7 @@ class Server:
         self.log_path = log_path
         self.log = Log(log_path) # Objeto do tipo log
         self.root_servers = root_servers
-        self.cache = parser_database(data_path)
-        print(self.cache)
+        self.cache = None
 
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \

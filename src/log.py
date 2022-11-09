@@ -44,8 +44,8 @@ class Log:
             message = "EZ " + ip_address + " " + data
             self.add_log(message)
 
-    def log_fl(self, ip_address, info):
-        message = "FL " + ip_address + " " + info
+    def log_fl(self, info):
+        message = "FL 127.0.0.1 " + info
         self.add_log(message)
 
     def log_to(self, ip_address, info):
