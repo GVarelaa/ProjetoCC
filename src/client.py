@@ -6,8 +6,8 @@
 
 import socket
 import sys
+import random
 from dns import *
-from query_message.message import build_message
 
 def main():
     args = sys.argv
@@ -15,6 +15,7 @@ def main():
 
     args_split = args[0].split(":")
 
+    message_id = random.randint(1, 65535)
     ip_address = args_split[0]
     port = 6000 # porta default
     domain_name = args[1]
@@ -28,8 +29,8 @@ def main():
         flags = "Q+R"
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print(domain_name)
-    query = DNS(1, flags, domain_name, type)
+
+    query = DNS(message_id, flags, domain_name, type)
 
     s.sendto(query.dns_to_string().encode('utf-8'), (ip_address, port))
 
