@@ -24,17 +24,15 @@ class Server:
         self.cache = parser_database(data_path)
         print(self.cache)
 
-        # self.addresses_from = dict() estrutura para saber onde mandar a query com message id X
-
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+               f"{self.root_servers}\nFicheiro de Log: {self.log_path}"
     
     def __repr__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log: {self.log_file_path}"
+               f"{self.root_servers}\nFicheiro de Log: {self.log_path}"
 
 
     def parse_address(self, address):
@@ -48,19 +46,6 @@ class Server:
 
         return (ip_address, port)
 
-    def add_address(self, message, address):
-        """
-        Adiciona um endereço para onde a query com message id tem de retornar
-        :param message_id: Message id da query
-        :param address: Endereço a adicionar
-        :return: void
-        """
-        (message_id, flags, name, type) = parse_message(message)
-        self.addresses_from[message_id] = address
-
-    def get_address(self, message):
-        (message_id, flags, name, type) = parse_message(message)
-        return self.addresses_from[message_id]
 
     def interpret_query(self, query): # interpret_query
         (message_id, flags, name, type) = parse_message(query)
