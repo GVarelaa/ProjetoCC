@@ -2,6 +2,7 @@ import server
 from configuration_parser import *
 from query_message.message import *
 
+
 class SecondaryServer(server.Server):
     def __init__(self, domain, default_domains, data_path, root_servers, log_path, primary_server):
         super().__init__(domain, default_domains, data_path, root_servers, log_path)
@@ -14,7 +15,6 @@ class SecondaryServer(server.Server):
     def __repr__(self):
         return super().__str__() + \
                f"Server primário: {self.primary_server}\n"
-
 
     def zone_transfer_caller_ss(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
@@ -30,14 +30,12 @@ class SecondaryServer(server.Server):
             self.zone_transfer_ss(socket_tcp)
         """
 
-
-
     def zone_transfer_initial(self, socket_tcp):
         (ip_address, port) = self.parse_address(self.primary_server)
 
         socket_tcp.connect((ip_address, port))
 
-        query = build_message(self.domain, "0", "Q+T") # Construir query para iniciar transferência de zona
+        query = build_message(self.domain, "0", "Q+T")  # Construir query para iniciar transferência de zona
         socket_tcp.sendall(query.encode('utf-8'))  # Envia query a pedir permissao
         response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
 
@@ -48,7 +46,7 @@ class SecondaryServer(server.Server):
         if "A" not in flags:
             return
 
-        b = b'' # Iniciar  com 0 bytes
+        b = b''  # Iniciar  com 0 bytes
         while True:
             tmp = socket_tcp.recv(1024)
 
@@ -57,28 +55,27 @@ class SecondaryServer(server.Server):
 
             b += tmp
 
-        self.cache = parser_df(b.decode('utf-8')) # MUDAR
+        self.cache = parser_df(b.decode('utf-8'))  # MUDAR
         print(self.cache)
-
 
     def zone_transfer_ss(self, socket_tcp):
         (ip_address, port) = self.parse_address(self.primary_server)
 
         socket_tcp.connect((ip_address, port))
 
-        message = build_message(self.domain, "SOASERIAL", "Q+V") # Construir query para pedir versão da bd
-        socket_tcp.sendall(message.encode('utf-8')) # Envia query
+        message = build_message(self.domain, "SOASERIAL", "Q+V")  # Construir query para pedir versão da bd
+        socket_tcp.sendall(message.encode('utf-8'))  # Envia query
 
-        message = socket_tcp.recv(1024).decode('utf-8') # Recebe query com a versão
-        soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value # Pega na versão
+        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe query com a versão
+        soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value  # Pega na versão
 
         (message_id, flags, value, type) = parse_message(message)
 
-        if int(value) <= int(soaserial): #mesma versão logo a transferência de zona não se inicia
-            #socket_tcp.close()
+        if int(value) <= int(soaserial):  # mesma versão logo a transferência de zona não se inicia
+            # socket_tcp.close()
             return
 
-        query = build_message(self.domain, "0", "Q+T") # Construir query para iniciar transferência de zona
+        query = build_message(self.domain, "0", "Q+T")  # Construir query para iniciar transferência de zona
         socket_tcp.sendall(query.encode('utf-8'))  # Envia query a pedir permissao
         response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
 
@@ -89,7 +86,7 @@ class SecondaryServer(server.Server):
 
         # SS teve autorização para iniciar a transferencia de zone e vai receber a base de dados
 
-        b = b'' # Iniciar  com 0 bytes
+        b = b''  # Iniciar  com 0 bytes
         while True:
             tmp = socket_tcp.recv(1024)
 
@@ -98,6 +95,6 @@ class SecondaryServer(server.Server):
 
             b += tmp
 
-        #self.cache = parser_df(self.data_file_path) # MUDAR
+        # self.cache = parser_df(self.data_file_path) # MUDAR
         db = b.decode('utf-8')
         print(db)
