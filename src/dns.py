@@ -49,9 +49,6 @@ class DNS:
         return string
 
 
-
-
-
 def string_to_dns(query):
     (message_id, flags, response_code, num_response_values,
      num_authorities_values, num_extra_values, name, type) = parse_message(query)

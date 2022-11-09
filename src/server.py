@@ -22,7 +22,6 @@ class Server:
         self.log = Log(log_path) # Objeto do tipo log
         self.root_servers = root_servers
         self.cache = parser_database(data_path)
-        print(self.cache)
 
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
@@ -94,62 +93,5 @@ class Server:
             else:  # MISS
                 return None
 
-    def is_query(self, message):
-        (message_id, flags, name, type) = parse_message(message)
 
-        return "Q" in flags
-
-
-def main():
-    args = sys.argv
-    config_filepath = args[1]
-    port = args[2]
-    timeout = args[3]
-    mode = args[4]
-    ip_address = '127.0.0.1'
-
-    if not validate_port(port):
-        return #adicionar log
-
-    server = Server(config_filepath, mode)
-
-    socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # socket UDP
-    socket_udp.bind((ip_address, int(port)))
-
-    print(f"Estou à  escuta no {ip_address}:{port}")
-
-    if server.server_type == "SP":
-        threading.Thread(target=server.zone_transfer_sp).start()
-
-    if server.server_type == "SS":
-        threading.Thread(target=server.zone_transfer_caller_ss).start()
-
-    while True:
-        message, address_from = socket_udp.recvfrom(1024)
-        message = message.decode('utf-8')
-
-        print(f"Recebi uma mensagem do cliente {address_from}")
-
-        is_query = server.is_query(message)
-
-        server.log.log_qr(address_from, message)
-
-        server.add_address(message, address_from)
-
-        if is_query: # é query
-            response = server.interpret_query(message)
-
-            if response:
-                socket_udp.sendto(response.encode('utf-8'), address_from)  # enviar para o destinatário
-            else:
-                return # MISS
-
-        else: # é uma resposta a uma query
-            socket_udp.sendto(message.encode('utf-8'), server.get_address(message))
-
-
-    socket_udp.close()
-
-if __name__ == "__main__" :
-    main()
 
