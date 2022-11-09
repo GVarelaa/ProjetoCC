@@ -1,9 +1,8 @@
 import socket
 import sys
 import threading
-from configuration_parser import *
-from database_parser import *
 import dns
+from configuration_parser import *
 
 def main():
     args = sys.argv
@@ -16,8 +15,7 @@ def main():
     if not validate_port(port):
         return  # adicionar log
 
-    (server, data_path) = parser_configuration(config_path)
-    server = parser_database(data_path, server)
+    server = parser_configuration(config_path)
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # socket UDP
     socket_udp.bind((ip_address, int(port)))

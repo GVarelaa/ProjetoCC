@@ -7,7 +7,7 @@ from query_message.message import *
 
 class PrimaryServer(server.Server):
     def __init__(self, domain, default_domains, data_path, root_servers, log_path, secondary_servers):
-        super().__init__(domain, default_domains, data_path, root_servers, log_path)
+        super().__init__(domain, default_domains, root_servers, log_path)
         self.data_path = data_path
         self.secondary_servers = secondary_servers
 

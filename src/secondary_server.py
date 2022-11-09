@@ -4,8 +4,8 @@ from query_message.message import *
 
 
 class SecondaryServer(server.Server):
-    def __init__(self, domain, default_domains, data_path, root_servers, log_path, primary_server):
-        super().__init__(domain, default_domains, data_path, root_servers, log_path)
+    def __init__(self, domain, default_domains, root_servers, log_path, primary_server):
+        super().__init__(domain, default_domains, root_servers, log_path)
         self.primary_server = primary_server
 
     def __str__(self):

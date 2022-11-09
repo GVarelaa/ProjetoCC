@@ -1,6 +1,7 @@
 from validation import *
 from primary_server import *
 from secondary_server import *
+from database_parser import *
 
 
 def parser_root_servers(file_path):
@@ -61,9 +62,10 @@ def parser_configuration(file_path):
 
     f.close()
 
-    if primary_server is not None:
+    if primary_server is None:
         server = PrimaryServer(domain, default_domains, data_path, root_servers, log_path, secondary_servers)
+        parser_database(data_path, server)
     else:
-        server = SecondaryServer(domain, default_domains, data_path, root_servers, log_path, primary_server)
+        server = SecondaryServer(domain, default_domains, root_servers, log_path, primary_server)
 
-    return (server, data_path)
+    return server

@@ -15,7 +15,7 @@ from query_message.message import parse_message, build_query_response, build_que
 
 
 class Server:
-    def __init__(self, domain, default_domains, data_path, root_servers, log_path):
+    def __init__(self, domain, default_domains, root_servers, log_path):
         self.mode = None
         self.domain = domain
         self.default_domains = default_domains
