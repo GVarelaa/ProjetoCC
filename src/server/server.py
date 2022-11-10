@@ -45,21 +45,12 @@ class Server:
         authorities_values = list()
         extra_values = list()
 
-        if "T" in query.flags and self.domain == query.name: # Domínios são iguais (?)
-            #entries = count_file_entries(self.data_file_path)
-            #response = build_query_init_transfer_response(queries, entries)
-
-            return query
-
-        elif "V" in query.flags:
-            soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value
-            response = build_query_db_version_response(query, soaserial)
-
-            return response
-
-        elif "T" in query.flags:
-            return query
-
+        if query.flags == "" and query.type == "252": # Query AXFR
+            if(self.domain == query.domain_name):
+                query.flags = "A"
+                return query
+            else:
+                return query
         else:
             response_values = self.cache.get_records_by_name_and_type(query.domain_name, query.type)
 

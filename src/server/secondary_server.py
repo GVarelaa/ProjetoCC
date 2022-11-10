@@ -1,4 +1,6 @@
+import random
 from server import server
+from queries.axfr import *
 
 
 class SecondaryServer(server.Server):
@@ -14,85 +16,5 @@ class SecondaryServer(server.Server):
         return super().__str__() + \
                f"Server primário: {self.primary_server}\n"
 
-    def zone_transfer_caller_ss(self):
-        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
 
-        self.zone_transfer_initial(socket_tcp)
 
-        """
-        while True:
-            soarefresh = self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value
-
-            sleep(int(soarefresh))
-
-            self.zone_transfer_ss(socket_tcp)
-        """
-
-    def zone_transfer_initial(self, socket_tcp):
-        (ip_address, port) = self.parse_address(self.primary_server)
-
-        socket_tcp.connect((ip_address, port))
-
-        query = build_message(self.domain, "0", "Q+T")  # Construir queries para iniciar transferência de zona
-        socket_tcp.sendall(query.encode('utf-8'))  # Envia queries a pedir permissao
-        response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
-
-        (message_id, flags, name, type) = parse_message(response)
-
-        # FAZER INTERPRET RESPONSE
-
-        if "A" not in flags:
-            return
-
-        b = b''  # Iniciar  com 0 bytes
-        while True:
-            tmp = socket_tcp.recv(1024)
-
-            if not tmp:
-                break
-
-            b += tmp
-
-        self.cache = parser_df(b.decode('utf-8'))  # MUDAR
-        print(self.cache)
-
-    def zone_transfer_ss(self, socket_tcp):
-        (ip_address, port) = self.parse_address(self.primary_server)
-
-        socket_tcp.connect((ip_address, port))
-
-        message = build_message(self.domain, "SOASERIAL", "Q+V")  # Construir queries para pedir versão da bd
-        socket_tcp.sendall(message.encode('utf-8'))  # Envia queries
-
-        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe queries com a versão
-        soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value  # Pega na versão
-
-        (message_id, flags, value, type) = parse_message(message)
-
-        if int(value) <= int(soaserial):  # mesma versão logo a transferência de zona não se inicia
-            # socket_tcp.close()
-            return
-
-        query = build_message(self.domain, "0", "Q+T")  # Construir queries para iniciar transferência de zona
-        socket_tcp.sendall(query.encode('utf-8'))  # Envia queries a pedir permissao
-        response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
-
-        (message_id, flags, name, type) = parse_message(response)
-
-        if "A" not in flags:
-            return
-
-        # SS teve autorização para iniciar a transferencia de zone e vai receber a base de dados
-
-        b = b''  # Iniciar  com 0 bytes
-        while True:
-            tmp = socket_tcp.recv(1024)
-
-            if not tmp:
-                break
-
-            b += tmp
-
-        # self.cache = parser_df(self.data_file_path) # MUDAR
-        db = b.decode('utf-8')
-        print(db)

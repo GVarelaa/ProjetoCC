@@ -14,13 +14,13 @@ class Query:
 
     def __str__(self):
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
-               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " + \
+               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " \
                + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
     def __repr__(self):
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
-               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " + \
+               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " "  \
                + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 

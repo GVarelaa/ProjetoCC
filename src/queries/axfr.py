@@ -16,7 +16,9 @@ def string_to_axfr(query):
     (message_id, flags, response_code, num_response_values,
      num_authorities_values, num_extra_values, name, type) = parse_message(query)
 
-    query = AXFR(message_id, flags, name, type)
+    query = AXFR(message_id, name)
+    query.flags = flags
+    query.type = type
     query.response_code = int(response_code)
     query.number_of_values = int(num_response_values)
     query.number_of_authorities = int(num_authorities_values)

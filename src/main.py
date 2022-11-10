@@ -1,4 +1,5 @@
 import sys
+import threading
 from queries import dns
 from parse.configuration_parser import *
 
@@ -15,13 +16,16 @@ def main():
         return  # adicionar log
 
     server = parser_configuration(config_path)
+    print(server.cache)
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # socket UDP
     socket_udp.bind((ip_address, int(port)))
 
+    socket_tcp = s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     print(f"Estou à  escuta no {ip_address}:{port}")
 
-    #threading.Thread(target=server.zone_transfer_sp).start()
+    threading.Thread(target=server.zone_transfer(socket_tcp)).start()
 
     while True:
         message, address_from = socket_udp.recvfrom(1024)
