@@ -1,4 +1,4 @@
-import server
+from server import server
 from query_message.message import *
 
 

@@ -1,6 +1,7 @@
 import socket
-import server
 from query_message.message import *
+from server import server
+
 
 class PrimaryServer(server.Server):
     def __init__(self, domain, default_domains, data_path, root_servers, log_path, secondary_servers):
