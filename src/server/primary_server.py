@@ -1,5 +1,4 @@
 import socket
-from query_message.message import *
 from server import server
 
 
@@ -21,12 +20,12 @@ class PrimaryServer(server.Server):
             """
             query_soaserial = connection.recv(1024).decode('utf-8')
             soaserial_response = self.interpret_query(query_soaserial) # Meter número da versão
-            connection.sendall(soaserial_response.encode('utf-8')) # Enviar resposta à query com a versão
+            connection.sendall(soaserial_response.encode('utf-8')) # Enviar resposta à queries com a versão
             """
 
-            query_init_transfer = connection.recv(1024).decode('utf-8') # Recebe query para pedir transferência
+            query_init_transfer = connection.recv(1024).decode('utf-8') # Recebe queries para pedir transferência
             init_transfer_response = self.interpret_query(query_init_transfer) # Verifica se os domínios são iguais
-            connection.sendall(init_transfer_response.encode('utf-8'))  # Enviar resposta à query da transferência
+            connection.sendall(init_transfer_response.encode('utf-8'))  # Enviar resposta à queries da transferência
 
             (message_id, flags, name, type_of_value) = parse_message(init_transfer_response)
 

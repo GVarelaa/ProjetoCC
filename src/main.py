@@ -1,7 +1,7 @@
-import socket
 import sys
-import dns
+from queries import dns
 from parse.configuration_parser import *
+
 
 def main():
     args = sys.argv
@@ -31,7 +31,7 @@ def main():
         query = dns.string_to_dns(message.decode('utf-8'))
         #server.log.log_qr(address_from, message)
 
-        if "Q" in query.flags:  # é query
+        if "Q" in query.flags:  # é queries
             response = server.interpret_query(query) # objeto DNS
 
             if "A" in response.flags:
@@ -39,7 +39,7 @@ def main():
             else:
                 return  # MISS
 
-        else:  # é uma resposta a uma query
+        else:  # é uma resposta a uma queries
             socket_udp.sendto(query.dns_to_string().encode('utf-8'), server.get_address(message))
 
 

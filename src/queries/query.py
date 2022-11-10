@@ -1,4 +1,4 @@
-class DNS:
+class Query:
     def __init__(self, message_id, flags, domain_name, type):
         self.message_id = message_id
         self.flags = flags
@@ -12,36 +12,32 @@ class DNS:
         self.authorities_values = list()
         self.extra_values = list()
 
-
     def __str__(self):
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
-               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " + str(self.number_of_extra_values) + " " \
-               + str(self.domain_name) + " " + str(self.type) + "\n" \
+               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " + \
+               + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
     def __repr__(self):
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
-               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " + str(self.number_of_extra_values) + " "\
-               + str(self.domain_name) + " " + str(self.type) + "\n" \
+               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " + \
+               + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
-
-    def dns_to_string(self):
+    def query_to_string(self):
         string = str(self.message_id) + "," + str(self.flags) + "," + str(self.response_code) + "," \
-                 + str(self.number_of_values) + "," + str(self.number_of_authorities) + "," + str(self.number_of_values) + ";"\
-                 + str(self.domain_name) + "," + str(self.type) + ";\n"
+                 + str(self.number_of_values) + "," + str(self.number_of_authorities) + "," \
+                 + str(self.number_of_values) + ";" + str(self.domain_name) + "," + str(self.type) + ";\n"
 
         for record in self.response_values:
             string += record.resource_record_to_string() + ",\n"
 
-        string = string[:-2] + ";"
-        string += "\n"
+        string = string[:-2] + ";\n"
 
         for record in self.authorities_values:
             string += record.resource_record_to_string() + ",\n"
 
-        string = string[:-2] + ";"
-        string += "\n"
+        string = string[:-2] + ";\n"
 
         for record in self.extra_values:
             string += record.resource_record_to_string() + ",\n"
@@ -49,19 +45,6 @@ class DNS:
         string = string[:-2] + ";"
 
         return string
-
-
-def string_to_dns(query):
-    (message_id, flags, response_code, num_response_values,
-     num_authorities_values, num_extra_values, name, type) = parse_message(query)
-
-    query = DNS(message_id, flags, name, type)
-    query.response_code = int(response_code)
-    query.number_of_values = int(num_response_values)
-    query.number_of_authorities = int(num_authorities_values)
-    query.number_of_extra_values = int(num_extra_values)
-    #falta meter as listas
-    return query
 
 
 def parse_message(message):

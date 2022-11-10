@@ -1,13 +1,13 @@
 # Author: Guilherme Varela
 # Created at: 29/10/22
 # Last update date: 02/11/12
-# Description: Builds a dns query message and sends it to a server
+# Description: Builds a dns queries message and sends it to a server
 # Last update: 
 
 import socket
 import sys
 import random
-from dns import *
+from queries.dns import *
 
 def main():
     args = sys.argv

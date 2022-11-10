@@ -41,7 +41,7 @@ def main():
 
     # while True:
         # msg, add = s.recvfrom(1024)
-        #### Process query
+        #### Process queries
         #### Identify relevant server
         #### PDU sent to server
 

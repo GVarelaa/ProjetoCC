@@ -1,5 +1,4 @@
 from server import server
-from query_message.message import *
 
 
 class SecondaryServer(server.Server):
@@ -34,8 +33,8 @@ class SecondaryServer(server.Server):
 
         socket_tcp.connect((ip_address, port))
 
-        query = build_message(self.domain, "0", "Q+T")  # Construir query para iniciar transferência de zona
-        socket_tcp.sendall(query.encode('utf-8'))  # Envia query a pedir permissao
+        query = build_message(self.domain, "0", "Q+T")  # Construir queries para iniciar transferência de zona
+        socket_tcp.sendall(query.encode('utf-8'))  # Envia queries a pedir permissao
         response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
 
         (message_id, flags, name, type) = parse_message(response)
@@ -62,10 +61,10 @@ class SecondaryServer(server.Server):
 
         socket_tcp.connect((ip_address, port))
 
-        message = build_message(self.domain, "SOASERIAL", "Q+V")  # Construir query para pedir versão da bd
-        socket_tcp.sendall(message.encode('utf-8'))  # Envia query
+        message = build_message(self.domain, "SOASERIAL", "Q+V")  # Construir queries para pedir versão da bd
+        socket_tcp.sendall(message.encode('utf-8'))  # Envia queries
 
-        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe query com a versão
+        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe queries com a versão
         soaserial = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value  # Pega na versão
 
         (message_id, flags, value, type) = parse_message(message)
@@ -74,8 +73,8 @@ class SecondaryServer(server.Server):
             # socket_tcp.close()
             return
 
-        query = build_message(self.domain, "0", "Q+T")  # Construir query para iniciar transferência de zona
-        socket_tcp.sendall(query.encode('utf-8'))  # Envia query a pedir permissao
+        query = build_message(self.domain, "0", "Q+T")  # Construir queries para iniciar transferência de zona
+        socket_tcp.sendall(query.encode('utf-8'))  # Envia queries a pedir permissao
         response = socket_tcp.recv(1024).decode('utf-8')  # Recebe resposta com o numero de linhas
 
         (message_id, flags, name, type) = parse_message(response)

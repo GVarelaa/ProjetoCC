@@ -5,7 +5,6 @@
 # Last update: Added basic structure
 
 from log import Log
-from query_message.message import build_query_db_version_response
 
 
 class Server:
@@ -48,7 +47,7 @@ class Server:
 
         if "T" in query.flags and self.domain == query.name: # Domínios são iguais (?)
             #entries = count_file_entries(self.data_file_path)
-            #response = build_query_init_transfer_response(query, entries)
+            #response = build_query_init_transfer_response(queries, entries)
 
             return query
 
