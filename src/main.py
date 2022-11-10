@@ -1,8 +1,7 @@
 import socket
 import sys
-import threading
 import dns
-from configuration_parser import *
+from parse.configuration_parser import *
 
 def main():
     args = sys.argv

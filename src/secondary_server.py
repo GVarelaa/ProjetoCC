@@ -1,5 +1,4 @@
 import server
-from configuration_parser import *
 from query_message.message import *
 
 

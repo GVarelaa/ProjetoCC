@@ -1,7 +1,7 @@
-from validation import *
+from parse.validation import *
 from primary_server import *
 from secondary_server import *
-from database_parser import *
+from parse.database_parser import *
 
 
 def parser_root_servers(file_path):

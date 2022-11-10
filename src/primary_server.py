@@ -1,8 +1,5 @@
 import socket
-import threading
 import server
-import sys
-from configuration_parser import *
 from query_message.message import *
 
 class PrimaryServer(server.Server):

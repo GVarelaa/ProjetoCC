@@ -3,15 +3,9 @@
 # Last update: 03/11/12
 # Description: Implements a server, a Primary Server
 # Last update: Added basic structure
-import socket
-import sys
-import threading
 
 from log import Log
-from dns import *
-from database_parser import *
-from query_message.message import parse_message, build_query_response, build_query_db_version_response, \
-    build_query_init_transfer_response
+from query_message.message import build_query_db_version_response
 
 
 class Server:
