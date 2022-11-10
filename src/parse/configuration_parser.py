@@ -1,6 +1,6 @@
 from parse.validation import *
-from primary_server import *
-from secondary_server import *
+from server.primary_server import *
+from server.secondary_server import *
 from parse.database_parser import *
 
 
