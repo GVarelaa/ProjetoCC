@@ -1,6 +1,13 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 08/11/22
+# Data da última atualização: 11/11/22
+# Descrição: Representação de um servidor secundário
+# Última atualização: Header
+
 import random
 from server import server
 from queries.axfr import *
+from parse.database_parser import *
 
 
 class SecondaryServer(server.Server):
@@ -33,6 +40,7 @@ class SecondaryServer(server.Server):
             return
 
         string = ""
+        expected_value = 1
         while True:
             line = socket_tcp.recv(1024).decode('utf-8')
 
@@ -40,3 +48,6 @@ class SecondaryServer(server.Server):
                 break
 
             string += line
+
+        parser_database(self, string, "SP")
+        print(self.cache)

@@ -1,3 +1,9 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 02/11/22
+# Data da última atualização: 11/11/22
+# Descrição: Validação de endereços IP e portas
+# Última atualização: Header
+
 def validate_port(port):
     return 1 < int(port) < 65000
 

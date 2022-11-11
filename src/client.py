@@ -1,13 +1,14 @@
-# Author: Guilherme Varela
-# Created at: 29/10/22
-# Last update date: 02/11/12
-# Description: Builds a dns queries message and sends it to a server
-# Last update: 
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 29/10/22
+# Data da última atualização: 11/11/22
+# Descrição: Criação de query e envio para o servidor
+# Última atualização: Header
 
 import socket
 import sys
 import random
 from queries.dns import *
+
 
 def main():
     args = sys.argv

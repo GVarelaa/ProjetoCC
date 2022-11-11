@@ -1,25 +1,29 @@
-# Author: Gabriela Cunha, Guilherme Varela and Miguel Braga
-# Created at: 30/10/22
-# Last update date: 4/11/22
-# Description: DataBase entries (value, expiration, priority)
-# Last update: Changed class attributes to a more general entry
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 30/10/22
+# Data da última atualização: 11/11/22
+# Descrição: Representação de uma entrada no sistema de cache do servidor
+# Última atualização: Header
 
 from enum import Enum
+
 
 class Origin(Enum):
     FILE = 1
     SP = 2
     OTHERS = 3
 
+
 class Status(Enum):
     FREE = 1
     VALID = 2
+
 
 def create_free_record():
     record = ResourceRecord("vazio", "vazio", "vazio", "vazio", "vazio", "vazio")
     record.status = "FREE"
 
     return record
+
 
 class ResourceRecord:
     def __init__(self, name, type, value, ttl, priority, origin):

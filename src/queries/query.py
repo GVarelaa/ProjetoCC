@@ -1,3 +1,9 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 08/11/22
+# Data da última atualização: 11/11/22
+# Descrição: Representação de queries
+# Última atualização: Header
+
 class Query:
     def __init__(self, message_id, flags, domain_name, type):
         self.message_id = message_id
