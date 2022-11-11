@@ -42,6 +42,9 @@ class SecondaryServer(server.Server):
             socket_tcp.close()  # (?)
             return
 
+        lines_number_record = response.response_values[0]
+        lines_number = lines_number_record.value
+
         string = ""
         expected_value = 1
         while True:
@@ -51,6 +54,10 @@ class SecondaryServer(server.Server):
                 break
 
             string += line
+            expected_value += 1
+
+        if expected_value != lines_number:
+            return  # timeout
 
         parser_database(self, string, "SP")
         print(self.cache)
