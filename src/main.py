@@ -20,9 +20,9 @@ def main():
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # socket UDP
     socket_udp.bind((ip_address, int(port)))
 
-    print(f"Estou à  escuta no {ip_address}:{port}")
+    threading.Thread(target=server.zone_transfer).start()
 
-    threading.Thread(target=server.transfer_zone()).start()
+    print(f"Estou à  escuta no {ip_address}:{port}")
 
     while True:
         message, address_from = socket_udp.recvfrom(1024)
@@ -30,7 +30,7 @@ def main():
         print(f"Recebi uma mensagem do cliente {address_from}")
 
         query = string_to_dns(message.decode('utf-8'))
-        #server.log.log_qr(address_from, message)
+        #server.log.log_qr(address_from, message) corrigir
 
         if "Q" in query.flags:  # é queries
             response = server.interpret_query(query) # objeto DNS

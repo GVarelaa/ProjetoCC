@@ -5,6 +5,7 @@
 # Última atualização: Header
 
 import random
+import socket
 from server import server
 from queries.axfr import *
 from parse.database_parser import *
@@ -23,7 +24,9 @@ class SecondaryServer(server.Server):
         return super().__str__() + \
                f"Server primário: {self.primary_server}\n"
 
-    def zone_transfer(self, socket_tcp):
+    def zone_transfer(self):
+        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         (address, port) = self.parse_address(self.primary_server)
         socket_tcp.connect((address, port))
 
