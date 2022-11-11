@@ -16,5 +16,27 @@ class SecondaryServer(server.Server):
         return super().__str__() + \
                f"Server primário: {self.primary_server}\n"
 
+    def zone_transfer(self, socket_tcp):
+        (address, port) = self.parse_address(self.primary_server)
+        socket_tcp.connect((address, port))
 
+        query = AXFR(random.randint(1, 65535), self.domain)
 
+        socket_tcp.sendall(query.query_to_string().encode('utf-8')) # Envia query a pedir a transferência
+
+        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe a resposta da query
+
+        response = string_to_axfr(message)  # Cria query AXFR
+
+        if "A" not in response.flags:
+            socket_tcp.close()  # (?)
+            return
+
+        string = ""
+        while True:
+            line = socket_tcp.recv(1024).decode('utf-8')
+
+            if not line:
+                break
+
+            string += line
