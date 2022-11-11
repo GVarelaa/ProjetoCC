@@ -9,12 +9,12 @@ from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, domain, default_domains, root_servers, log_path):
-        self.mode = None
+    def __init__(self, domain, default_domains, root_servers, log_path, mode):
+        self.mode = mode
         self.domain = domain
         self.default_domains = default_domains
         self.log_path = log_path
-        self.log = Log(log_path) # Objeto do tipo log
+        self.log = Log(log_path, mode) # Objeto do tipo log
         self.root_servers = root_servers
         self.cache = None
 

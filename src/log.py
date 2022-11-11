@@ -9,8 +9,9 @@ import sys
 
 
 class Log:
-    def __init__(self, filepath):
+    def __init__(self, filepath, mode):
         self.filepath = filepath
+        self.mode = mode
         self.fd = open(filepath, "a")
 
     def __str__(self):
@@ -20,6 +21,7 @@ class Log:
     def log_qe(self, ip_address, data):
         message = "QE " + ip_address + " " + data
         self.add_log(message)
+
 
     def log_qr(self, ip_address, data):
         message = "QR " + ip_address + " " + data
@@ -72,6 +74,8 @@ class Log:
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
         self.fd.write(dt + " " + message + "\n")
-        sys.stdout.write(dt + " " + message + "\n")
+        if self.mode == True:
+            sys.stdout.write(dt + " " + message + "\n")
+
 
 

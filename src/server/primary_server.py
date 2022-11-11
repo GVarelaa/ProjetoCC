@@ -10,14 +10,15 @@ from queries.axfr import *
 
 
 class PrimaryServer(server.Server):
-    def __init__(self, domain, default_domains, data_path, root_servers, log_path, secondary_servers):
-        super().__init__(domain, default_domains, root_servers, log_path)
+    def __init__(self, domain, default_domains, root_servers, log_path, mode, data_path, secondary_servers):
+        super().__init__(domain, default_domains, root_servers, log_path, mode)
         self.data_path = data_path
         self.secondary_servers = secondary_servers
 
-    def zone_transfer(self, socket_tcp):
+    def zone_transfer(self):
+        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         address = '127.0.0.1'
-        port = 26000
+        port = 5570
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 

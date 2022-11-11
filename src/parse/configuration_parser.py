@@ -25,8 +25,13 @@ def parser_root_servers(file_path):
     return servers
 
 
-def parser_configuration(file_path):
+def parser_configuration(file_path, mode):
     f = open(file_path, "r")
+
+    if mode == "debug":
+        mode = True
+    else:
+        mode = False
 
     domain = None
     data_path = None
@@ -73,9 +78,9 @@ def parser_configuration(file_path):
     f.close()
 
     if primary_server is None:
-        server = PrimaryServer(domain, default_domains, data_path, root_servers, log_path, secondary_servers)
+        server = PrimaryServer(domain, default_domains, root_servers, log_path, mode, data_path, secondary_servers)
         parser_database(server, file_content, "FILE")
     else:
-        server = SecondaryServer(domain, default_domains, root_servers, log_path, primary_server)
+        server = SecondaryServer(domain, default_domains, root_servers, log_path, mode, primary_server)
 
     return server
