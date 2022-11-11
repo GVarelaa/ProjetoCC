@@ -78,9 +78,9 @@ def parser_configuration(file_path, mode):
     f.close()
 
     if primary_server is None:
-        server = PrimaryServer(domain, default_domains, root_servers, log_path, mode, data_path, secondary_servers)
+        server = PrimaryServer(domain + ".", default_domains, root_servers, log_path, mode, data_path, secondary_servers)
         parser_database(server, file_content, "FILE")
     else:
-        server = SecondaryServer(domain, default_domains, root_servers, log_path, mode, primary_server)
+        server = SecondaryServer(domain + ".", default_domains, root_servers, log_path, mode, primary_server)
 
     return server

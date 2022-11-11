@@ -21,7 +21,7 @@ class Server:
 
         self.soasp = None
         self.soaadmin = None
-        self.soaserial = None
+        self.soaserial = "-1"
         self.soarefresh = None
         self.soaretry = None
         self.soaexpire = None

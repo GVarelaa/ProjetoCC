@@ -8,6 +8,7 @@ import socket
 import threading
 from server import server
 from queries.axfr import *
+from queries.dns import *
 
 
 class PrimaryServer(server.Server):
@@ -18,7 +19,20 @@ class PrimaryServer(server.Server):
 
     def zone_transfer_process(self, connection, address):
         while True:
-            message = connection.recv(1024).decode('utf-8')
+            message = connection.recv(1024).decode('utf-8')  # Recebe query a pedir versão da BD
+
+            if not message:
+                break
+
+            query = string_to_dns(message)  # Objeto DNS
+
+            if query.flags == "Q":
+                response = self.interpret_query(query)
+                connection.sendall(response.query_to_string().encode('utf-8'))
+            else:
+                return
+
+            message = connection.recv(1024).decode('utf-8')  # Recebe query a pedir transferência
 
             if not message:
                 break
@@ -47,7 +61,7 @@ class PrimaryServer(server.Server):
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         address = '127.0.0.1'
-        port = 6232
+        port = 28000
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 

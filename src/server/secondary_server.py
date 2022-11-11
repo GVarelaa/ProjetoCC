@@ -9,6 +9,7 @@ import socket
 import time
 from server import server
 from queries.axfr import *
+from queries.dns import *
 from parse.database_parser import *
 
 
@@ -31,12 +32,27 @@ class SecondaryServer(server.Server):
         (address, port) = self.parse_address(self.primary_server)
         socket_tcp.connect((address, port))
 
-        query = AXFR(random.randint(1, 65535), self.domain)
-
-        socket_tcp.sendall(query.query_to_string().encode('utf-8')) # Envia query a pedir a transferência
+        query = DNS(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
+        socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
         message = socket_tcp.recv(1024).decode('utf-8')  # Recebe a resposta da query
+        response = string_to_dns(message)  # Cria query DNS
 
+        if "A" not in response.flags:
+            socket_tcp.close()  # (?)
+            return
+
+        version_record = response.response_values[0]
+        version = version_record.value
+
+        if version <= self.soaserial:  # A BD está atualizada, não há transferência de zona
+            socket_tcp.close()
+            return
+
+        query = AXFR(random.randint(1, 65535), self.domain)
+        socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
+
+        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe a resposta da query
         response = string_to_axfr(message)  # Cria query AXFR
 
         if "A" not in response.flags:
