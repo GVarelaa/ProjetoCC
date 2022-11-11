@@ -1,3 +1,9 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 08/11/22
+# Data da última atualização: 11/11/22
+# Descrição: Representação de um servidor secundário
+# Última atualização: Header
+
 import random
 from server import server
 from queries.axfr import *

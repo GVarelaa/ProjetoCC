@@ -1,11 +1,12 @@
-# Authors: Gabriela Cunha, Guilherme Varela and Miguel Braga
-# Created at: 30/10/22
-# Last update date: 4/11/22
-# Description: Module that implements a database for storing data records (ex: A, NS, CNAME, etc)
-# Last update: Changed data structure to dictionary of dictionaries and implemented the methods of put, get
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 30/10/22
+# Data da última atualização: 07/11/22
+# Descrição: Implementação de sistema de cache de um servidor
+# Última atualização: Header
 
 from resource_record import *
 from datetime import datetime
+
 
 class Cache:
     def __init__(self, list=[]):
@@ -75,7 +76,6 @@ class Cache:
                 self.list[last_free] = new_record
 
         self.size += 1
-
 
     # Gets all entries with the given name and type
     def get_records_by_name_and_type(self, name, type):

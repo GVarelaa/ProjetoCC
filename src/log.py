@@ -1,5 +1,12 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 29/10/22
+# Data da última atualização: 11/11/22
+# Descrição: Implementação de logs
+# Última atualização: Header
+
 from datetime import datetime
 import sys
+
 
 class Log:
     def __init__(self, filepath):

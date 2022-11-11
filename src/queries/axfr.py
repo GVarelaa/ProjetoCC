@@ -1,3 +1,9 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 10/11/22
+# Data da última atualização: 10/11/22
+# Descrição: Representação de queries do tipo AXFR, usado na transferência de zona
+# Última atualização: Header
+
 from .query import *
 
 

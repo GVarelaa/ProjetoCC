@@ -1,5 +1,10 @@
-from .query import *
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 10/11/22
+# Data da última atualização: 11/11/22
+# Descrição: Representação de queries do tipo DNS
+# Última atualização: Header
 
+from .query import *
 
 class DNS(Query):
     def __init__(self, message_id, flags, domain_name, type):

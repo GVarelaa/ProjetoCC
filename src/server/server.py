@@ -1,8 +1,8 @@
-# Author: Guilherme Varela
-# Created at: 30/10/22
-# Last update: 03/11/12
-# Description: Implements a server, a Primary Server
-# Last update: Added basic structure
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 30/10/22
+# Data da última atualização: 11/11/22
+# Descrição: Implementação de um servidor
+# Última atualização: Header
 
 from log import Log
 

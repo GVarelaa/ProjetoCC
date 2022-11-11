@@ -1,3 +1,9 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 29/10/22
+# Data da última atualização: 11/11/22
+# Descrição: Parsing de ficheiros de dados de servidores primários
+# Última atualização: Header
+
 from parse.validation import *
 from cache import *
 
