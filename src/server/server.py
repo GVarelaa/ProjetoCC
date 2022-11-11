@@ -48,6 +48,10 @@ class Server:
         if query.flags == "" and query.type == "252": # Query AXFR
             if(self.domain == query.domain_name):
                 query.flags = "A"
+
+
+
+                query.response_values.append(lines_number)
                 return query
             else:
                 return query

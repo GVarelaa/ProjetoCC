@@ -7,6 +7,7 @@
 import random
 from server import server
 from queries.axfr import *
+from parse.database_parser import *
 
 
 class SecondaryServer(server.Server):
@@ -39,6 +40,7 @@ class SecondaryServer(server.Server):
             return
 
         string = ""
+        expected_value = 1
         while True:
             line = socket_tcp.recv(1024).decode('utf-8')
 
@@ -46,3 +48,6 @@ class SecondaryServer(server.Server):
                 break
 
             string += line
+
+        parser_database(self, string, "SP")
+        print(self.cache)

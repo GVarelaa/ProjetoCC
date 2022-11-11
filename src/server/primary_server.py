@@ -17,7 +17,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self, socket_tcp):
         address = '127.0.0.1'
-        port = 5555
+        port = 5560
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 
@@ -30,17 +30,20 @@ class PrimaryServer(server.Server):
 
             query = string_to_axfr(message) # Objeto AXFR
 
-            if "" is query.flags:
+            if query.flags == "":
                 response = self.interpret_query(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
             else:
                 return
 
             file = open(self.data_path, "r")
-
+            i = 1
             for line in file:
+                if len(line) > 1 and line[0] != '#':
+                    line = str(i) + " " + line
+                    connection.sendall(line.encode('utf-8'))
 
-                connection.sendall(line.encode('utf-8'))
+                    i+=1
 
             file.close()
             connection.close()
@@ -51,30 +54,3 @@ class PrimaryServer(server.Server):
 
 
 
-    def zone_transfer_sp(self):
-        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # socket TCP
-        socket_tcp.bind(("127.0.0.1", 24000))
-        socket_tcp.listen()
-
-        while True:
-            connection, address = socket_tcp.accept()
-
-            """
-            query_soaserial = connection.recv(1024).decode('utf-8')
-            soaserial_response = self.interpret_query(query_soaserial) # Meter número da versão
-            connection.sendall(soaserial_response.encode('utf-8')) # Enviar resposta à queries com a versão
-            """
-
-            query_init_transfer = connection.recv(1024).decode('utf-8') # Recebe queries para pedir transferência
-            init_transfer_response = self.interpret_query(query_init_transfer) # Verifica se os domínios são iguais
-            connection.sendall(init_transfer_response.encode('utf-8'))  # Enviar resposta à queries da transferência
-
-            (message_id, flags, name, type_of_value) = parse_message(init_transfer_response)
-
-            if "A" not in flags:
-                connection.close()
-                return # Não pode enviar a base de dados
-
-            connection.sendall(file_to_string(self.data_file_path).encode('utf-8')) # Enviar base de dados
-
-            connection.close()

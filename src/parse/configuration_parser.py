@@ -30,6 +30,7 @@ def parser_configuration(file_path):
 
     domain = None
     data_path = None
+    file_content = None
     primary_server = None
     secondary_servers = list()
     root_servers = list()
@@ -50,6 +51,9 @@ def parser_configuration(file_path):
 
                 if value_type == "DB":
                     data_path = value
+                    f = open(data_path, "r")
+                    file_content = f.read()
+                    f.close()
 
                 elif value_type == "SP" and validate_ip(value):
                     primary_server = value
@@ -70,7 +74,7 @@ def parser_configuration(file_path):
 
     if primary_server is None:
         server = PrimaryServer(domain, default_domains, data_path, root_servers, log_path, secondary_servers)
-        parser_database(data_path, server)
+        parser_database(server, file_content, "FILE")
     else:
         server = SecondaryServer(domain, default_domains, root_servers, log_path, primary_server)
 
