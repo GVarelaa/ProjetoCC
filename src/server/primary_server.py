@@ -5,6 +5,8 @@
 # Última atualização: Header
 
 import socket
+import threading
+
 from server import server
 from queries.axfr import *
 
@@ -15,21 +17,11 @@ class PrimaryServer(server.Server):
         self.data_path = data_path
         self.secondary_servers = secondary_servers
 
-    def zone_transfer(self):
-        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        address = '127.0.0.1'
-        port = 5570
-        socket_tcp.bind((address, port))
-        socket_tcp.listen()
-
-        print(f"Estou à escuta no {address}:{port}")
-
+    def zone_transfer_process(self, connection, address):
         while True:
-            connection, address = socket_tcp.accept()
-
             message = connection.recv(1024).decode('utf-8')
 
-            query = string_to_axfr(message) # Objeto AXFR
+            query = string_to_axfr(message)  # Objeto AXFR
 
             if query.flags == "":
                 response = self.interpret_query(query)
@@ -44,14 +36,25 @@ class PrimaryServer(server.Server):
                     line = str(i) + " " + line
                     connection.sendall(line.encode('utf-8'))
 
-                    i+=1
+                    i += 1
 
             file.close()
-            connection.close()
 
+        connection.close()
+        print("SAI")
 
+    def zone_transfer(self):
+        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        address = '127.0.0.1'
+        port = 5590
+        socket_tcp.bind((address, port))
+        socket_tcp.listen()
+
+        print(f"Estou à escuta no {address}:{port}")
+
+        while True:
+            connection, address = socket_tcp.accept()
+
+            threading.Thread(target=self.zone_transfer_process, args=(connection, address)).start()
 
         socket_tcp.close()
-
-
-
