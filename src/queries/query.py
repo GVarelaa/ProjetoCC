@@ -60,7 +60,7 @@ def parse_message(message):
     fields.remove(fields[-1])
 
     header_fields = fields[0].split(",")
-    data_fields = fields[1].split(",")\
+    data_fields = fields[1].split(",")
 
     message_id = header_fields[0]
     flags = header_fields[1]

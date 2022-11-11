@@ -21,6 +21,9 @@ class PrimaryServer(server.Server):
         while True:
             message = connection.recv(1024).decode('utf-8')
 
+            if not message:
+                break
+
             query = string_to_axfr(message)  # Objeto AXFR
 
             if query.flags == "":
@@ -41,12 +44,11 @@ class PrimaryServer(server.Server):
             file.close()
 
         connection.close()
-        print("SAI")
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         address = '127.0.0.1'
-        port = 5590
+        port = 6231
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 

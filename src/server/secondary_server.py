@@ -43,21 +43,35 @@ class SecondaryServer(server.Server):
             return
 
         lines_number_record = response.response_values[0]
-        lines_number = lines_number_record.value
+        lines_number = int(lines_number_record.value)
 
-        string = ""
+        data = ""
         expected_value = 1
         while True:
-            line = socket_tcp.recv(1024).decode('utf-8')
+            message = socket_tcp.recv(1024).decode('utf-8')
 
-            if not line:
+            if not message:
                 break
 
-            string += line
-            expected_value += 1
+            lines = message.split("\n")
+            if "" in lines:
+                lines.remove("")
 
-        if expected_value != lines_number:
-            return  # timeout
+            for line in lines:
+                fields = line.split(" ")
+                if int(fields[0]) != expected_value:
+                    #timeout
+                    socket_tcp.close()
+                    return
 
-        parser_database(self, string, "SP")
+                expected_value += 1
+
+            data += message
+
+            if lines_number == (expected_value-1):
+                #timeout
+                socket_tcp.close()
+                break
+
+        parser_database(self, data, "SP")
         print(self.cache)
