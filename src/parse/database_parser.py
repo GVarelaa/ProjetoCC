@@ -38,7 +38,7 @@ def set_ttl(ttl_default, word):
 
 
 def parser_database(server, file_content, origin):
-    data = Cache()
+    data = Cache(list())
 
     ttl_default = 0
     suffix = ""
@@ -74,26 +74,32 @@ def parser_database(server, file_content, origin):
                 if type == "SOASP":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                     data.add_entry(record)
+                    server.soasp = value
 
                 elif type == "SOAADMIN":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                     data.add_entry(record)
+                    server.soaadmin = value
 
                 elif type == "SOASERIAL":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                     data.add_entry(record)
+                    server.soaserial = value
 
                 elif type == "SOAREFRESH":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                     data.add_entry(record)
+                    server.soarefresh = int(value)
 
                 elif type == "SOARETRY":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                     data.add_entry(record)
+                    server.soaretry = int(value)
 
                 elif type == "SOAEXPIRE":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                     data.add_entry(record)
+                    server.soaexpire = int(value)
 
                 elif type == "NS":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)

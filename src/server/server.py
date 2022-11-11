@@ -16,7 +16,16 @@ class Server:
         self.log_path = log_path
         self.log = Log(log_path, mode) # Objeto do tipo log
         self.root_servers = root_servers
+
         self.cache = None
+
+        self.soasp = None
+        self.soaadmin = None
+        self.soaserial = None
+        self.soarefresh = None
+        self.soaretry = None
+        self.soaexpire = None
+
 
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \

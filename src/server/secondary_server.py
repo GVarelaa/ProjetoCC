@@ -6,6 +6,7 @@
 
 import random
 import socket
+import time
 from server import server
 from queries.axfr import *
 from parse.database_parser import *
@@ -24,7 +25,7 @@ class SecondaryServer(server.Server):
         return super().__str__() + \
                f"Server primário: {self.primary_server}\n"
 
-    def zone_transfer(self):
+    def zone_transfer_process(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         (address, port) = self.parse_address(self.primary_server)
@@ -75,3 +76,11 @@ class SecondaryServer(server.Server):
 
         parser_database(self, data, "SP")
         print(self.cache)
+
+
+    def zone_transfer(self):
+        while True:
+            self.zone_transfer_process()
+
+            print(self.soarefresh)
+            time.sleep(self.soarefresh)

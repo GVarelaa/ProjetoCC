@@ -6,7 +6,6 @@
 
 import socket
 import threading
-
 from server import server
 from queries.axfr import *
 
@@ -48,7 +47,7 @@ class PrimaryServer(server.Server):
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         address = '127.0.0.1'
-        port = 6231
+        port = 6232
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 
