@@ -1,7 +1,7 @@
 import sys
 import threading
-from queries import dns
 from parse.configuration_parser import *
+from queries.dns import *
 
 
 def main():
@@ -16,7 +16,6 @@ def main():
         return  # adicionar log
 
     server = parser_configuration(config_path)
-    print(server.cache)
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # socket UDP
     socket_udp.bind((ip_address, int(port)))
 
@@ -31,19 +30,19 @@ def main():
 
         print(f"Recebi uma mensagem do cliente {address_from}")
 
-        query = dns.string_to_dns(message.decode('utf-8'))
+        query = string_to_dns(message.decode('utf-8'))
         #server.log.log_qr(address_from, message)
 
         if "Q" in query.flags:  # é queries
             response = server.interpret_query(query) # objeto DNS
 
             if "A" in response.flags:
-                socket_udp.sendto(response.dns_to_string().encode('utf-8'), address_from)  # enviar para o destinatário
+                socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from) # enviar para o destinatário
             else:
                 return  # MISS
 
         else:  # é uma resposta a uma queries
-            socket_udp.sendto(query.dns_to_string().encode('utf-8'), server.get_address(message))
+            socket_udp.sendto(query.query_to_string().encode('utf-8'), server.get_address(message))
 
 
     socket_udp.close()

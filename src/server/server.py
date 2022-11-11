@@ -5,6 +5,7 @@
 # Última atualização: Header
 
 from log import Log
+from resource_record import ResourceRecord
 
 
 class Server:
@@ -39,19 +40,30 @@ class Server:
 
         return (ip_address, port)
 
+    def count_valid_lines(self):
+        f = open(self.data_path, "r")
+        counter = 0
 
-    def interpret_query(self, query): # interpret_query
+        for line in f:
+            if line[0] != "#" and len(line) > 1:
+                counter += 1
+
+        f.close()
+
+        return counter
+
+    def interpret_query(self, query):  # interpret_query
         response_values = list()
         authorities_values = list()
         extra_values = list()
 
-        if query.flags == "" and query.type == "252": # Query AXFR
-            if(self.domain == query.domain_name):
+        if query.flags == "" and query.type == "252":  # Query AXFR
+            if self.domain == query.domain_name:
                 query.flags = "A"
 
+                record = ResourceRecord(query.domain_name, query.type, str(self.count_valid_lines()), -1, -1, "SP")
+                query.response_values.append(record)
 
-
-                query.response_values.append(lines_number)
                 return query
             else:
                 return query

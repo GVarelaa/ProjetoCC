@@ -17,7 +17,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self, socket_tcp):
         address = '127.0.0.1'
-        port = 5560
+        port = 26000
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 

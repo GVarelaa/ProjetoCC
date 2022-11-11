@@ -48,6 +48,9 @@ def parser_database(server, file_content, origin):
     for line in file_content:
         words = line.split()
 
+        if origin == "SP":
+            words.remove(words[0])
+
         if len(words) > 0 and words[0][0] != '#':  # ignorar linhas vazias ou comentários
             if len(words) > 5:
                 server.log.log_fl("Too many arguments!")

@@ -4,6 +4,8 @@
 # Descrição: Representação de queries
 # Última atualização: Header
 
+from resource_record import *
+
 class Query:
     def __init__(self, message_id, flags, domain_name, type):
         self.message_id = message_id
@@ -55,8 +57,10 @@ class Query:
 
 def parse_message(message):
     fields = message.split(";")
+    fields.remove(fields[-1])
+
     header_fields = fields[0].split(",")
-    data_fields = fields[1].split(",")
+    data_fields = fields[1].split(",")\
 
     message_id = header_fields[0]
     flags = header_fields[1]
@@ -68,5 +72,24 @@ def parse_message(message):
     name = data_fields[0]
     type = data_fields[1]
 
-    return (message_id, flags, response_code, num_response_values,
-            num_authorities_values, num_extra_values, name, type)
+    response_values = list()
+    authorities_values = list()
+    extra_values = list()
+
+    if len(fields) > 2:
+        response_values = fields[2]
+        response_values = response_values.replace("\n", "")
+        response_values = response_values.split(",")
+
+    if len(fields) > 3:
+        authorities_values = fields[3]
+        authorities_values = authorities_values.replace("\n", "")
+        authorities_values = authorities_values.split(",")
+
+    if len(fields) > 4:
+        extra_values = fields[4]
+        extra_values = extra_values.replace("\n", "")
+        extra_values = extra_values.split(",")
+
+    return (message_id, flags, response_code, num_response_values, num_authorities_values,
+            num_extra_values, name, type, response_values, authorities_values, extra_values)

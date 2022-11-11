@@ -18,13 +18,43 @@ class DNS(Query):
 
 
 def string_to_dns(query):
-    (message_id, flags, response_code, num_response_values,
-     num_authorities_values, num_extra_values, name, type) = parse_message(query)
+    (message_id, flags, response_code, num_response_values, num_authorities_values,
+     num_extra_values, name, type, response_values, authorities_values, extra_values) = parse_message(query)
 
     query = DNS(message_id, flags, name, type)
     query.response_code = int(response_code)
     query.number_of_values = int(num_response_values)
     query.number_of_authorities = int(num_authorities_values)
     query.number_of_extra_values = int(num_extra_values)
-    # falta meter as listas
+
+    for value in response_values:
+        fields = value.split(" ")
+        priority = -1
+
+        if len(fields) > 4:
+            priority = fields[4]
+
+        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+        query.response_values.append(record)
+
+    for value in authorities_values:
+        fields = value.split(" ")
+        priority = -1
+
+        if len(fields) > 4:
+            priority = fields[4]
+
+        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+        query.authorities_values.append(record)
+
+    for value in extra_values:
+        fields = value.split(" ")
+        priority = -1
+
+        if len(fields) > 4:
+            priority = fields[4]
+
+        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+        query.extra_values.append(record)
+
     return query

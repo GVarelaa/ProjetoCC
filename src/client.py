@@ -33,7 +33,7 @@ def main():
 
     query = DNS(message_id, flags, domain_name, type)
 
-    s.sendto(query.dns_to_string().encode('utf-8'), (ip_address, port))
+    s.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))
 
     while True:
         message, add = s.recvfrom(1024)
