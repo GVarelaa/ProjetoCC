@@ -62,6 +62,8 @@ class SecondaryServer(server.Server):
         lines_number_record = response.response_values[0]
         lines_number = int(lines_number_record.value)
 
+        socket_tcp.sendall(response.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
+
         data = ""
         expected_value = 1
         while True:

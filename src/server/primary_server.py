@@ -19,49 +19,42 @@ class PrimaryServer(server.Server):
 
     def zone_transfer_process(self, connection, address):
         while True:
-            message = connection.recv(1024).decode('utf-8')  # Recebe query a pedir versão da BD
+            message = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
 
             if not message:
                 break
 
-            query = string_to_dns(message)  # Objeto DNS
+            query = string_to_dns(message)
 
-            if query.flags == "Q":
+            if query.flags == "Q": # Pedir versão e envia
                 response = self.interpret_query(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
-            else:
-                return
-
-            message = connection.recv(1024).decode('utf-8')  # Recebe query a pedir transferência
-
-            if not message:
-                break
-
-            query = string_to_axfr(message)  # Objeto AXFR
-
-            if query.flags == "":
+            elif query.flags == "": # Pedir transferência e envia número de linhas
                 response = self.interpret_query(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
+            elif query.flags == "A" and query.type == "252": # Secundário aceitou linhas e respondeu com o nº de linhas
+                lines_number = int(query.response_values[0].value)
+
+                if lines_number == self.count_valid_lines():
+                    file = open(self.data_path, "r")
+                    i = 1
+                    for line in file:
+                        if len(line) > 1 and line[0] != '#':
+                            line = str(i) + " " + line
+                            connection.sendall(line.encode('utf-8'))
+
+                            i += 1
+
+                    file.close()
             else:
-                return
-
-            file = open(self.data_path, "r")
-            i = 1
-            for line in file:
-                if len(line) > 1 and line[0] != '#':
-                    line = str(i) + " " + line
-                    connection.sendall(line.encode('utf-8'))
-
-                    i += 1
-
-            file.close()
+                return # CUIDADO
 
         connection.close()
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         address = '127.0.0.1'
-        port = 28000
+        port = 28004
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 
