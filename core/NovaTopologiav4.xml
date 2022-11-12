@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<scenario name="/media/sf_Shared_folder/NovaTopologiav3.xml">
+<scenario name="/media/sf_Shared_folder/NovaTopologiav4.xml">
   <networks>
     <network id="8" name="Switch2" type="HUB">
       <position x="157" y="70" lat="47.578530419961346" lon="-122.1302064675059" alt="2.0"/>
@@ -121,7 +121,7 @@
       </services>
     </device>
     <device id="17" name="Cigarra" type="PC" class="" image="">
-      <position x="864" y="530" lat="47.57434895876866" lon="-122.1206798339178" alt="2.0"/>
+      <position x="865" y="531" lat="47.57433986827188" lon="-122.12066635918853" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="StaticRoute"/>
@@ -331,6 +331,42 @@
         <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
+        <file name="dns/files/db_files/1_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 1.10.in-addr.reverse domain
+
+# 1.10.in-addr.reverse. DD ______
+1.10.in-addr.reverse. LG dns/files/log_files/1_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db]]></file>
+        <file name="dns/files/db_files/1_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 1.10.in-addr.reverse
+
+@ DEFAULT 1.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.1.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.1.10.in-addr.reverse. TTL
+
+1.@ NS ns1.1.1.10.in-addr.reverse.
+
+# Addresses
+ns1 A 10.2.2.1 TTL
+ns1.1 A 10.3.3.2 TTL
+
+
+
+
+
+]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf]]></file>
         <file name="dns/files/config_files/ggm_primary.txt"><![CDATA[# Configuration file for primary server for ggm domain
 
 ggm DB dns/files/db_files/ggm.db
@@ -341,6 +377,32 @@ ggm LG dns/files/log_files/ggm.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 
+
+
+]]></file>
+        <file name="dns/files/db_files/root.db"><![CDATA[# DNS database file for root server 
+
+@ DEFAULT .
+TTL DEFAULT 86400
+
+# Config data
+
+@ SOASP . TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+
+ggm. NS ns1.ggm.
+fcp. NS ns1.fcp.
+
+# Addresses
+
+ns1.ggm A 10.2.2.1 TTL
+ns1.fcp A 10.2.2.2 TTL
 
 
 ]]></file>
@@ -386,36 +448,6 @@ mail1 CNAME ms1 TTL
 10.2.2.1
 10.3.3.1
 ]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf]]></file>
-        <file name="dns/files/db_files/root.db"><![CDATA[# DNS database file for root server 
-
-@ DEFAULT .
-TTL DEFAULT 86400
-
-# Config data
-
-@ SOASP . TTL
-@ SOADMIN ___ TTL
-@ SOASERIAL 1 TTL
-@ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
-@ SOAEXPIRE 604800 TTL
-
-# Name servers
-
-ggm. NS ns1.ggm.
-fcp. NS ns1.fcp.
-
-# Addresses
-
-ns1.ggm A 10.2.2.1 TTL
-ns1.fcp A 10.2.2.2 TTL
-
-
-]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="12">
@@ -445,6 +477,38 @@ ip route add default via 2001:2:2::254
         <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
+        <file name="dns/files/db_files/2_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 2.10.in-addr.reverse domain
+
+# 2.10.in-addr.reverse. DD ______
+2.10.in-addr.reverse. LG dns/files/log_files/2_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db]]></file>
+        <file name="dns/files/db_files/1_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 2.10.in-addr.reverse
+
+@ DEFAULT 2.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.2.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns2.1.10.in-addr.reverse. TTL
+
+2.@ NS ns1.2.2.10.in-addr.reverse.
+
+# Addresses
+ns1 A 10.2.2.2 TTL
+ns1.2 A 10.3.3.3 TTL
+
+
+
+
+
+]]></file>
         <file name="dns/files/config_files/fcp_primary.txt"><![CDATA[# Configuration file for primary server for fcp domain
 
 fcp DB dns/files/db_files/fcp.db
@@ -458,6 +522,16 @@ root ST dns/files/rootservers.db
 
 
 ]]></file>
+        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1
+10.3.3.1
+
+]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="dns/files/db_files/fcp.db"><![CDATA[# DNS database file for domain .fcp
 
 @ DEFAULT fcp.
@@ -498,16 +572,6 @@ mail1 CNAME ms1 TTL
 
 
 ]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-
-]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="13">
@@ -519,6 +583,31 @@ echo "" >> /etc/resolv.conf ]]></file>
 # auto-generated by DefaultRoute service (utility.py)
 ip route add default via 10.2.2.254
 ip route add default via 2001:2:2::254
+]]></file>
+      </files>
+    </service>
+    <service name="UserDefined" node="14">
+      <startups>
+        <startup>mkdir /run/resolvconf</startup>
+        <startup>touch /run/resolvconf/resolv.conf</startup>
+        <startup>sh preenche_resolvconf.sh</startup>
+      </startups>
+      <files>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf]]></file>
+      </files>
+    </service>
+    <service name="DefaultRoute" node="14">
+      <startups>
+        <startup>bash defaultroute.sh</startup>
+      </startups>
+      <files>
+        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by DefaultRoute service (utility.py)
+ip route add default via 10.1.1.254
+ip route add default via 2001:1:1::254
 ]]></file>
       </files>
     </service>
@@ -538,7 +627,7 @@ ip route add default via 2001:2:2::254
 ]]></file>
       </files>
     </service>
-    <service name="DefaultRoute" node="14">
+    <service name="DefaultRoute" node="15">
       <startups>
         <startup>bash defaultroute.sh</startup>
       </startups>
@@ -550,17 +639,20 @@ ip route add default via 2001:1:1::254
 ]]></file>
       </files>
     </service>
-    <service name="UserDefined" node="14">
+    <service name="StaticRoute" node="15">
       <startups>
-        <startup>mkdir /run/resolvconf</startup>
-        <startup>touch /run/resolvconf/resolv.conf</startup>
-        <startup>sh preenche_resolvconf.sh</startup>
+        <startup>bash staticroute.sh</startup>
       </startups>
       <files>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf]]></file>
+        <file name="staticroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by StaticRoute service (utility.py)
+#
+# NOTE: this service must be customized to be of any use
+#       Below are samples that you can uncomment and edit.
+#
+#/sbin/ip route add 10.9.8.0/24 via 10.4.4.254
+#/sbin/ip route add 3ffe:4::/64 via 2001:4:4::254
+]]></file>
       </files>
     </service>
     <service name="UserDefined" node="15">
@@ -570,6 +662,10 @@ echo "" >> /etc/resolv.conf]]></file>
         <startup>sh preenche_resolvconf.sh</startup>
       </startups>
       <files>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="dns/files/config_files/cc_ggm_primary.txt"><![CDATA[# Configuration file for primary server for cc.ggm domain
 
 cc.ggm SS 10.4.4.2
@@ -581,6 +677,11 @@ root ST dns/files/rootservers.db
 
 
 
+]]></file>
+        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1
+10.3.3.1
 ]]></file>
         <file name="dns/files/db_files/cc_ggm.db"><![CDATA[# DNS database file for domain cc.ggm
 
@@ -609,43 +710,6 @@ ns3 A 10.3.3.3 TTL
 sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
-      </files>
-    </service>
-    <service name="StaticRoute" node="15">
-      <startups>
-        <startup>bash staticroute.sh</startup>
-      </startups>
-      <files>
-        <file name="staticroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by StaticRoute service (utility.py)
-#
-# NOTE: this service must be customized to be of any use
-#       Below are samples that you can uncomment and edit.
-#
-#/sbin/ip route add 10.9.8.0/24 via 10.4.4.254
-#/sbin/ip route add 3ffe:4::/64 via 2001:4:4::254
-]]></file>
-      </files>
-    </service>
-    <service name="DefaultRoute" node="15">
-      <startups>
-        <startup>bash defaultroute.sh</startup>
-      </startups>
-      <files>
-        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by DefaultRoute service (utility.py)
-ip route add default via 10.1.1.254
-ip route add default via 2001:1:1::254
-]]></file>
       </files>
     </service>
     <service name="UserDefined" node="16">
@@ -655,6 +719,61 @@ ip route add default via 2001:1:1::254
         <startup>sh preenche_resolvconf.sh</startup>
       </startups>
       <files>
+        <file name="dns/files/config_files/3_3_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 3.3.10.in-addr.reverse domain
+
+# 3.3.10.in-addr.reverse DD ______
+3.3.10.in-addr.reverse LG dns/files/log_files/3_3_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
+]]></file>
+        <file name="dns/files/config_files/3_3_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 3.3.10.in-addr.reverse
+
+@ DEFAULT 3.3.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.3.3.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.3.3.10.in-addr.reverse. TTL
+
+# Addresses
+ns1 A 10.4.4.1 TTL
+10.3.3.1 PTR _ TTL
+10.3.3.2 PTR _ TTL
+10.3.3.3 PTR _ TTL
+
+
+
+]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf]]></file>
+        <file name="dns/files/config_files/ggm_secondary2.txt"><![CDATA[# Configuration file for secondary server 2 for ggm domain
+
+ggm SP 10.2.2.1
+# ggm DD ______
+ggm LG dns/files/log_files/ggm.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
+]]></file>
+        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1
+10.3.3.1
+
+]]></file>
         <file name="dns/files/config_files/taremi_fcp_primary.txt"><![CDATA[# Configuration file for primary server for taremi.fcp domain
 
 taremi.fcp SS 10.1.1.3
@@ -691,27 +810,18 @@ sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL
 ]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-
+      </files>
+    </service>
+    <service name="DefaultRoute" node="16">
+      <startups>
+        <startup>bash defaultroute.sh</startup>
+      </startups>
+      <files>
+        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by DefaultRoute service (utility.py)
+ip route add default via 10.4.4.254
+ip route add default via 2001:4:4::254
 ]]></file>
-        <file name="dns/files/config_files/ggm_secondary2.txt"><![CDATA[# Configuration file for secondary server 2 for ggm domain
-
-ggm SP 10.2.2.1
-# ggm DD ______
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-
-
-]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf]]></file>
       </files>
     </service>
     <service name="StaticRoute" node="16">
@@ -730,7 +840,60 @@ echo "" >> /etc/resolv.conf]]></file>
 ]]></file>
       </files>
     </service>
-    <service name="DefaultRoute" node="16">
+    <service name="UserDefined" node="17">
+      <startups>
+        <startup>mkdir /run/resolvconf</startup>
+        <startup>touch /run/resolvconf/resolv.conf</startup>
+        <startup>sh preenche_resolvconf.sh</startup>
+      </startups>
+      <files>
+        <file name="dns/files/in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for .in-addr.reverse domain
+
+# in-addr.reverse.ggm DD ______
+in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db]]></file>
+        <file name="dns/files/in-addr_reverse.db"><![CDATA[# DNS database file for .in-addr.reverse domain primary server 
+
+@ DEFAULT .in-addr.reverse.
+TTL DEFAULT 86400
+
+# Config data
+
+@ SOASP .in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+
+10.in-addr.reverse. NS ns1.10.in-addr.reverse.
+
+# Addresses
+
+ns1.10.in-addr A 10.1.1.1 TTL]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
+        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1
+10.3.3.1
+]]></file>
+        <file name="dns/files/config_files/cc_ggm_secondary1.txt"><![CDATA[# Configuration file for secondary server 2 for cc.ggm domain
+
+cc.ggm SP 10.1.1.2
+# cc.ggm DD ______
+cc.ggm LG dns/files/log_files/cc_ggm.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+]]></file>
+      </files>
+    </service>
+    <service name="DefaultRoute" node="17">
       <startups>
         <startup>bash defaultroute.sh</startup>
       </startups>
@@ -740,32 +903,6 @@ echo "" >> /etc/resolv.conf]]></file>
 ip route add default via 10.4.4.254
 ip route add default via 2001:4:4::254
 ]]></file>
-      </files>
-    </service>
-    <service name="UserDefined" node="17">
-      <startups>
-        <startup>mkdir /run/resolvconf</startup>
-        <startup>touch /run/resolvconf/resolv.conf</startup>
-        <startup>sh preenche_resolvconf.sh</startup>
-      </startups>
-      <files>
-        <file name="dns/files/config_files/cc_ggm_secondary1.txt"><![CDATA[# Configuration file for secondary server 2 for cc.ggm domain
-
-cc.ggm SP 10.1.1.2
-# cc.ggm DD ______
-cc.ggm LG dns/files/log_files/cc_ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
       </files>
     </service>
     <service name="StaticRoute" node="17">
@@ -784,18 +921,6 @@ echo "" >> /etc/resolv.conf ]]></file>
 ]]></file>
       </files>
     </service>
-    <service name="DefaultRoute" node="17">
-      <startups>
-        <startup>bash defaultroute.sh</startup>
-      </startups>
-      <files>
-        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by DefaultRoute service (utility.py)
-ip route add default via 10.4.4.254
-ip route add default via 2001:4:4::254
-]]></file>
-      </files>
-    </service>
     <service name="UserDefined" node="18">
       <startups>
         <startup>mkdir /run/resolvconf</startup>
@@ -811,6 +936,42 @@ ip route add default via 2001:4:4::254
         <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
+        <file name="dns/files/db_files/4_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 4.10.in-addr.reverse
+
+@ DEFAULT 4.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.4.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.4.10.in-addr.reverse. TTL
+
+4.@ NS ns1.4.1.10.in-addr.reverse.
+
+# Addresses
+ns1 A 10.3.3.1 TTL
+ns1.4 A 10.4.4.3 TTL
+
+
+
+
+
+]]></file>
+        <file name="dns/files/db_files/4_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 4.10.in-addr.reverse domain
+
+# 4.10.in-addr.reverse. DD ______
+4.10.in-addr.reverse. LG dns/files/log_files/4_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="dns/files/config_files/ggm_secondary1.txt"><![CDATA[# Configuration file for secondary server 1 for ggm domain
 
 ggm SP 10.2.2.1
@@ -827,10 +988,6 @@ root ST dns/files/rootservers.db
 10.2.2.1
 10.3.3.1
 ]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
         <file name="dns/files/db_files/root.db"><![CDATA[# DNS database file for root server 
 
 @ DEFAULT .
@@ -859,6 +1016,18 @@ ns1.fcp A 10.2.2.2 TTL
 ]]></file>
       </files>
     </service>
+    <service name="DefaultRoute" node="18">
+      <startups>
+        <startup>bash defaultroute.sh</startup>
+      </startups>
+      <files>
+        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by DefaultRoute service (utility.py)
+ip route add default via 10.3.3.254
+ip route add default via 2001:3:3::254
+]]></file>
+      </files>
+    </service>
     <service name="StaticRoute" node="18">
       <startups>
         <startup>bash staticroute.sh</startup>
@@ -872,18 +1041,6 @@ ns1.fcp A 10.2.2.2 TTL
 #
 #/sbin/ip route add 10.9.8.0/24 via 10.2.2.254
 #/sbin/ip route add 3ffe:4::/64 via 2001:2:2::254
-]]></file>
-      </files>
-    </service>
-    <service name="DefaultRoute" node="18">
-      <startups>
-        <startup>bash defaultroute.sh</startup>
-      </startups>
-      <files>
-        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by DefaultRoute service (utility.py)
-ip route add default via 10.3.3.254
-ip route add default via 2001:3:3::254
 ]]></file>
       </files>
     </service>
@@ -902,25 +1059,99 @@ ip route add default via 2001:3:3::254
         <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
-        <file name="dns/files/config_files/fcp_secondary1.txt"><![CDATA[# Configuration file for secondary server 1 for fcp domain
+        <file name="dns/files/config_files/1_1_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 1.1.10.in-addr.reverse
 
-fcp SP 10.2.2.2
-# fcp DD ______
-fcp LG dns/files/log_files/fcp.log
+@ DEFAULT 1.1.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.1.1.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.1.1.10.in-addr.reverse. TTL
+
+# Addresses
+ns1 A 10.3.3.2 TTL
+10.1.1.1 PTR _ TTL
+10.1.1.3 PTR _ TTL
+10.1.1.2 PTR _ TTL
+
+
+
+]]></file>
+        <file name="dns/files/config_files/1_1_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 1.1.10.in-addr.reverse domain
+
+# 1.1.10.in-addr.reverse DD ______
+1.1.10.in-addr.reverse LG dns/files/log_files/1_1_10_in-addr_reverse.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 
 
 
 ]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="dns/files/config_files/reverse_primary.txt"><![CDATA[# Configuration file for primary server for .reverse domain
+
+# reverse DD ______
+reverse LG dns/files/log_files/reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
+]]></file>
+        <file name="dns/files/reverse.db"><![CDATA[# DNS database file for reverse domain primary server 
+
+@ DEFAULT .reverse.
+TTL DEFAULT 86400
+
+# Config data
+
+@ SOASP .reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+
+in-addr.reverse. NS ns1.in-addr.reverse.
+
+# Addresses
+
+ns1.in-addr A 10.4.4.2 TTL]]></file>
+        <file name="dns/files/config_files/fcp_secondary1.txt"><![CDATA[# Configuration file for secondary server 1 for .fcp domain
+
+fcp SP 10.2.2.2
+# fcp DD ______
+fcp LG dns/files/log_files/fcp.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+]]></file>
         <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1
 10.3.3.1
+]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
+      </files>
+    </service>
+    <service name="DefaultRoute" node="19">
+      <startups>
+        <startup>bash defaultroute.sh</startup>
+      </startups>
+      <files>
+        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by DefaultRoute service (utility.py)
+ip route add default via 10.3.3.254
+ip route add default via 2001:3:3::254
 ]]></file>
       </files>
     </service>
@@ -937,18 +1168,6 @@ echo "" >> /etc/resolv.conf ]]></file>
 #
 #/sbin/ip route add 10.9.8.0/24 via 10.2.2.1
 #/sbin/ip route add 3ffe:4::/64 via 2001:2:2::1
-]]></file>
-      </files>
-    </service>
-    <service name="DefaultRoute" node="19">
-      <startups>
-        <startup>bash defaultroute.sh</startup>
-      </startups>
-      <files>
-        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by DefaultRoute service (utility.py)
-ip route add default via 10.3.3.254
-ip route add default via 2001:3:3::254
 ]]></file>
       </files>
     </service>
@@ -970,9 +1189,38 @@ ip route add default via 2001:3:3::254
         <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
-        <file name="dns/files/config_files/taremi_fcp_resolver.txt"><![CDATA[
+        <file name="dns/files/db_files/3_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 3.10.in-addr.reverse
+
+@ DEFAULT 3.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.3.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.3.10.in-addr.reverse. TTL
+
+3.@ NS ns1.3.3.10.in-addr.reverse.
+
+# Addresses
+ns1 A 10.2.2.3 TTL
+ns1.3 A 10.4.4.1 TTL
+
+
+
+
 
 ]]></file>
+        <file name="dns/files/db_files/3_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 3.10.in-addr.reverse domain
+
+# 3.10.in-addr.reverse. DD ______
+3.10.in-addr.reverse. LG dns/files/log_files/3_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db]]></file>
         <file name="dns/files/config_files/taremi_fcp_secondary2.txt"><![CDATA[# Configuration file for secondary server 2 for fcp domain
 
 fcp SP 10.2.2.2
@@ -981,16 +1229,19 @@ fcp LG dns/files/log_files/fcp.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="dns/files/config_files/taremi_fcp_resolver.txt"><![CDATA[
+
+]]></file>
         <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1
 10.3.3.1
 
 ]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="20">
@@ -1002,6 +1253,18 @@ echo "" >> /etc/resolv.conf ]]></file>
 # auto-generated by DefaultRoute service (utility.py)
 ip route add default via 10.2.2.254
 ip route add default via 2001:2:2::254
+]]></file>
+      </files>
+    </service>
+    <service name="DefaultRoute" node="21">
+      <startups>
+        <startup>bash defaultroute.sh</startup>
+      </startups>
+      <files>
+        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by DefaultRoute service (utility.py)
+ip route add default via 10.1.1.254
+ip route add default via 2001:1:1::254
 ]]></file>
       </files>
     </service>
@@ -1020,27 +1283,15 @@ taremi.fcp LG dns/files/log_files/taremi_fcp.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1
 10.3.3.1
 
-]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
-      </files>
-    </service>
-    <service name="DefaultRoute" node="21">
-      <startups>
-        <startup>bash defaultroute.sh</startup>
-      </startups>
-      <files>
-        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by DefaultRoute service (utility.py)
-ip route add default via 10.1.1.254
-ip route add default via 2001:1:1::254
 ]]></file>
       </files>
     </service>
@@ -1062,6 +1313,45 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
+        <file name="dns/files/config_files/2_1_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 2.1.10.in-addr.reverse domain
+
+# 2.1.10.in-addr.reverse DD ______
+2.1.10.in-addr.reverse LG dns/files/log_files/2_1_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
+]]></file>
+        <file name="dns/files/config_files/2_2_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 2.2.10.in-addr.reverse
+
+@ DEFAULT 2.2.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.2.2.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.2.2.10.in-addr.reverse. TTL
+
+# Addresses
+ns1 A 10.3.3.3 TTL
+10.3.3.3 PTR _ TTL
+10.3.3.2 PTR _ TTL
+10.3.3.1 PTR _ TTL
+
+
+
+]]></file>
+        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1
+10.3.3.1
+]]></file>
         <file name="dns/files/config_files/cc_ggm_secondary2.txt"><![CDATA[# Configuration file for secondary server 2 for cc.ggm domain
 
 cc.ggm SP 10.1.1.2
@@ -1073,10 +1363,17 @@ root ST dns/files/rootservers.db]]></file>
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 echo "" >> /etc/resolv.conf ]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
+      </files>
+    </service>
+    <service name="DefaultRoute" node="23">
+      <startups>
+        <startup>bash defaultroute.sh</startup>
+      </startups>
+      <files>
+        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
+# auto-generated by DefaultRoute service (utility.py)
+ip route add default via 10.3.3.254
+ip route add default via 2001:3:3::254
 ]]></file>
       </files>
     </service>
@@ -1096,18 +1393,6 @@ echo "" >> /etc/resolv.conf ]]></file>
 ]]></file>
       </files>
     </service>
-    <service name="DefaultRoute" node="23">
-      <startups>
-        <startup>bash defaultroute.sh</startup>
-      </startups>
-      <files>
-        <file name="defaultroute.sh"><![CDATA[#!/bin/sh
-# auto-generated by DefaultRoute service (utility.py)
-ip route add default via 10.3.3.254
-ip route add default via 2001:3:3::254
-]]></file>
-      </files>
-    </service>
     <service name="UserDefined" node="22">
       <startups>
         <startup>mkdir /run/resolvconf</startup>
@@ -1115,6 +1400,40 @@ ip route add default via 2001:3:3::254
         <startup>sh preenche_resolvconf.sh</startup>
       </startups>
       <files>
+        <file name="dns/files/config_files/4_4_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 4.4.10.in-addr.reverse
+
+@ DEFAULT 4.4.10.in-addr.reverse.
+TTL DEFAULT 86400
+
+@ SOASP ns1.4.4.10.in-addr.reverse. TTL
+@ SOADMIN ___ TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.4.4.10.in-addr.reverse. TTL
+
+# Addresses
+ns1 A 10.4.4.3 TTL
+10.4.4.1 PTR _ TTL
+10.4.4.2 PTR _ TTL
+10.4.4.3 PTR _ TTL
+
+
+
+]]></file>
+        <file name="dns/files/config_files/4_4_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 4.4.10.in-addr.reverse domain
+
+# 4.4.10.in-addr.reverse DD ______
+4.4.10.in-addr.reverse LG dns/files/log_files/4_4_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
+]]></file>
         <file name="dns/files/config_files/fcp_secondary2.txt"><![CDATA[# Configuration file for secondary server 2 for fcp domain
 
 fcp SP 10.2.2.2
@@ -1125,15 +1444,15 @@ root ST dns/files/rootservers.db
 
 
 ]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 echo "" >> /etc/resolv.conf
+]]></file>
+        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1
+10.3.3.1
 ]]></file>
       </files>
     </service>

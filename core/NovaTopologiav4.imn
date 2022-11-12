@@ -278,8 +278,62 @@ node n12 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/db_files/root.db', 'preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/db_files/ggm.db', 'dns/files/config_files/ggm_primary.txt', )
+	files=('dns/files/rootservers.db', 'dns/files/db_files/ggm.db', 'dns/files/db_files/root.db', 'dns/files/config_files/ggm_primary.txt', 'preenche_resolvconf.sh', 'dns/files/db_files/1_10_in-addr_reverse.db', 'dns/files/db_files/1_10_in-addr_reverse_primary.txt', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/1_10_in-addr_reverse_primary.txt
+	custom-command dns/files/db_files/1_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 1.10.in-addr.reverse domain
+	
+	# 1.10.in-addr.reverse. DD ______
+	1.10.in-addr.reverse. LG dns/files/log_files/1_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/1_10_in-addr_reverse.db
+	custom-command dns/files/db_files/1_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 1.10.in-addr.reverse
+	
+	@ DEFAULT 1.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.1.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.1.10.in-addr.reverse. TTL
+	
+	1.@ NS ns1.1.1.10.in-addr.reverse.
+	
+	# Addresses
+	ns1 A 10.2.2.1 TTL
+	ns1.1 A 10.3.3.2 TTL
+	
+	
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf
 	}
     }
     custom-config {
@@ -296,6 +350,38 @@ node n12 {
 	all LG dns/files/log_files/all.log
 	root ST dns/files/rootservers.db
 	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/root.db
+	custom-command dns/files/db_files/root.db
+	config {
+	# DNS database file for root server 
+	
+	@ DEFAULT .
+	TTL DEFAULT 86400
+	
+	# Config data
+	
+	@ SOASP . TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	
+	ggm. NS ns1.ggm.
+	fcp. NS ns1.fcp.
+	
+	# Addresses
+	
+	ns1.ggm A 10.2.2.1 TTL
+	ns1.fcp A 10.2.2.2 TTL
 	
 	
 	
@@ -356,48 +442,6 @@ node n12 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
-	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/root.db
-	custom-command dns/files/db_files/root.db
-	config {
-	# DNS database file for root server 
-	
-	@ DEFAULT .
-	TTL DEFAULT 86400
-	
-	# Config data
-	
-	@ SOASP . TTL
-	@ SOADMIN ___ TTL
-	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
-	@ SOARETRY 3600
-	@ SOAEXPIRE 604800 TTL
-	
-	# Name servers
-	
-	ggm. NS ns1.ggm.
-	fcp. NS ns1.fcp.
-	
-	# Addresses
-	
-	ns1.ggm A 10.2.2.1 TTL
-	ns1.fcp A 10.2.2.2 TTL
-	
-	
-	
-	}
-    }
-    custom-config {
 	custom-config-id service:DefaultRoute:defaultroute.sh
 	custom-command defaultroute.sh
 	config {
@@ -445,8 +489,52 @@ node n13 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/db_files/fcp.db', 'dns/files/config_files/fcp_primary.txt', )
+	files=('dns/files/db_files/fcp.db', 'preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/fcp_primary.txt', 'dns/files/db_files/1_10_in-addr_reverse.db', 'dns/files/db_files/2_10_in-addr_reverse_primary.txt', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/2_10_in-addr_reverse_primary.txt
+	custom-command dns/files/db_files/2_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 2.10.in-addr.reverse domain
+	
+	# 2.10.in-addr.reverse. DD ______
+	2.10.in-addr.reverse. LG dns/files/log_files/2_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/1_10_in-addr_reverse.db
+	custom-command dns/files/db_files/1_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 2.10.in-addr.reverse
+	
+	@ DEFAULT 2.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.2.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns2.1.10.in-addr.reverse. TTL
+	
+	2.@ NS ns1.2.2.10.in-addr.reverse.
+	
+	# Addresses
+	ns1 A 10.2.2.2 TTL
+	ns1.2 A 10.3.3.3 TTL
+	
+	
+	
+	
+	
+	
 	}
     }
     custom-config {
@@ -466,6 +554,28 @@ node n13 {
 	
 	
 	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -515,28 +625,6 @@ node n13 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
-	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf 
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
-	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
-	
-	}
-    }
-    custom-config {
 	custom-config-id service:DefaultRoute:defaultroute.sh
 	custom-command defaultroute.sh
 	config {
@@ -581,31 +669,26 @@ node n14 {
     services {DefaultRoute StaticRoute UserDefined}
     interface-peer {eth0 n9}
     custom-config {
-	custom-config-id service:StaticRoute:staticroute.sh
-	custom-command staticroute.sh
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
 	config {
-	#!/bin/sh
-	# auto-generated by StaticRoute service (utility.py)
-	#
-	# NOTE: this service must be customized to be of any use
-	#       Below are samples that you can uncomment and edit.
-	#
-	#/sbin/ip route add 10.9.8.0/24 via 10.4.4.254
-	#/sbin/ip route add 3ffe:4::/64 via 2001:4:4::254
-	
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf
 	}
     }
     custom-config {
-	custom-config-id service:StaticRoute
-	custom-command StaticRoute
+	custom-config-id service:UserDefined
+	custom-command UserDefined
 	config {
 	dirs=()
-	files=('staticroute.sh',)
+	files=('preenche_resolvconf.sh',)
 	startidx=0
-	cmdup=('bash staticroute.sh',)
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh')
 	cmddown=()
 	cmdval=()
-	meta=None
+	meta=Customize this service to do anything upon startup.
 	starttime=0
 	}
     }
@@ -635,26 +718,31 @@ node n14 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
+	custom-config-id service:StaticRoute:staticroute.sh
+	custom-command staticroute.sh
 	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf
+	#!/bin/sh
+	# auto-generated by StaticRoute service (utility.py)
+	#
+	# NOTE: this service must be customized to be of any use
+	#       Below are samples that you can uncomment and edit.
+	#
+	#/sbin/ip route add 10.9.8.0/24 via 10.4.4.254
+	#/sbin/ip route add 3ffe:4::/64 via 2001:4:4::254
+	
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined
-	custom-command UserDefined
+	custom-config-id service:StaticRoute
+	custom-command StaticRoute
 	config {
 	dirs=()
-	files=('preenche_resolvconf.sh',)
+	files=('staticroute.sh',)
 	startidx=0
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh')
+	cmdup=('bash staticroute.sh',)
 	cmddown=()
 	cmdval=()
-	meta=Customize this service to do anything upon startup.
+	meta=None
 	starttime=0
 	}
     }
@@ -678,11 +766,67 @@ node n15 {
     services {DefaultRoute StaticRoute UserDefined}
     interface-peer {eth0 n9}
     custom-config {
-	custom-config-id service:UserDefined
-	custom-command UserDefined
+	custom-config-id service:DefaultRoute:defaultroute.sh
+	custom-command defaultroute.sh
 	config {
-	files=('preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/db_files/cc_ggm.db', 'dns/files/config_files/cc_ggm_primary.txt', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', )
+	#!/bin/sh
+	# auto-generated by DefaultRoute service (utility.py)
+	ip route add default via 10.1.1.254
+	ip route add default via 2001:1:1::254
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:DefaultRoute
+	custom-command DefaultRoute
+	config {
+	dirs=()
+	files=('defaultroute.sh',)
+	startidx=0
+	cmdup=('bash defaultroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
+	}
+    }
+    custom-config {
+	custom-config-id service:StaticRoute:staticroute.sh
+	custom-command staticroute.sh
+	config {
+	#!/bin/sh
+	# auto-generated by StaticRoute service (utility.py)
+	#
+	# NOTE: this service must be customized to be of any use
+	#       Below are samples that you can uncomment and edit.
+	#
+	#/sbin/ip route add 10.9.8.0/24 via 10.4.4.254
+	#/sbin/ip route add 3ffe:4::/64 via 2001:4:4::254
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:StaticRoute
+	custom-command StaticRoute
+	config {
+	dirs=()
+	files=('staticroute.sh',)
+	startidx=0
+	cmdup=('bash staticroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -700,6 +844,17 @@ node n15 {
 	
 	
 	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
 	
 	}
     }
@@ -737,77 +892,16 @@ node n15 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
-	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
-	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf 
-	}
-    }
-    custom-config {
-	custom-config-id service:StaticRoute:staticroute.sh
-	custom-command staticroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by StaticRoute service (utility.py)
-	#
-	# NOTE: this service must be customized to be of any use
-	#       Below are samples that you can uncomment and edit.
-	#
-	#/sbin/ip route add 10.9.8.0/24 via 10.4.4.254
-	#/sbin/ip route add 3ffe:4::/64 via 2001:4:4::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:StaticRoute
-	custom-command StaticRoute
+	custom-config-id service:UserDefined
+	custom-command UserDefined
 	config {
 	dirs=()
-	files=('staticroute.sh',)
+	files=('dns/files/db_files/cc_ggm.db', 'dns/files/rootservers.db', 'dns/files/config_files/cc_ggm_primary.txt', 'preenche_resolvconf.sh')
 	startidx=0
-	cmdup=('bash staticroute.sh',)
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh')
 	cmddown=()
 	cmdval=()
-	meta=None
-	starttime=0
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute:defaultroute.sh
-	custom-command defaultroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by DefaultRoute service (utility.py)
-	ip route add default via 10.1.1.254
-	ip route add default via 2001:1:1::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute
-	custom-command DefaultRoute
-	config {
-	dirs=()
-	files=('defaultroute.sh',)
-	startidx=0
-	cmdup=('bash defaultroute.sh',)
-	cmddown=()
-	cmdval=()
-	meta=None
+	meta=Customize this service to do anything upon startup.
 	starttime=0
 	}
     }
@@ -834,8 +928,93 @@ node n16 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('preenche_resolvconf.sh', 'dns/files/config_files/ggm_secondary2.txt', 'dns/files/rootservers.db', 'dns/files/db_files/taremi_fcp.db', 'dns/files/config_files/taremi_fcp_primary.txt', )
+	files=('dns/files/db_files/taremi_fcp.db', 'dns/files/config_files/taremi_fcp_primary.txt', 'dns/files/rootservers.db', 'dns/files/config_files/ggm_secondary2.txt', 'preenche_resolvconf.sh', 'dns/files/config_files/3_3_10_in-addr_reverse.db', 'dns/files/config_files/3_3_10_in-addr_reverse_primary.txt', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/3_3_10_in-addr_reverse_primary.txt
+	custom-command dns/files/config_files/3_3_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 3.3.10.in-addr.reverse domain
+	
+	# 3.3.10.in-addr.reverse DD ______
+	3.3.10.in-addr.reverse LG dns/files/log_files/3_3_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/3_3_10_in-addr_reverse.db
+	custom-command dns/files/config_files/3_3_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 3.3.10.in-addr.reverse
+	
+	@ DEFAULT 3.3.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.3.3.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.3.3.10.in-addr.reverse. TTL
+	
+	# Addresses
+	ns1 A 10.4.4.1 TTL
+	10.3.3.1 PTR _ TTL
+	10.3.3.2 PTR _ TTL
+	10.3.3.3 PTR _ TTL
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/ggm_secondary2.txt
+	custom-command dns/files/config_files/ggm_secondary2.txt
+	config {
+	# Configuration file for secondary server 2 for ggm domain
+	
+	ggm SP 10.2.2.1
+	# ggm DD ______
+	ggm LG dns/files/log_files/ggm.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
+	
+	
 	}
     }
     custom-config {
@@ -887,42 +1066,28 @@ node n16 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
+	custom-config-id service:DefaultRoute:defaultroute.sh
+	custom-command defaultroute.sh
 	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
+	#!/bin/sh
+	# auto-generated by DefaultRoute service (utility.py)
+	ip route add default via 10.4.4.254
+	ip route add default via 2001:4:4::254
 	
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/config_files/ggm_secondary2.txt
-	custom-command dns/files/config_files/ggm_secondary2.txt
+	custom-config-id service:DefaultRoute
+	custom-command DefaultRoute
 	config {
-	# Configuration file for secondary server 2 for ggm domain
-	
-	ggm SP 10.2.2.1
-	# ggm DD ______
-	ggm LG dns/files/log_files/ggm.log
-	all LG dns/files/log_files/all.log
-	root ST dns/files/rootservers.db
-	
-	
-	
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
-	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf
+	dirs=()
+	files=('defaultroute.sh',)
+	startidx=0
+	cmdup=('bash defaultroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
 	}
     }
     custom-config {
@@ -948,31 +1113,6 @@ node n16 {
 	files=('staticroute.sh',)
 	startidx=0
 	cmdup=('bash staticroute.sh',)
-	cmddown=()
-	cmdval=()
-	meta=None
-	starttime=0
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute:defaultroute.sh
-	custom-command defaultroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by DefaultRoute service (utility.py)
-	ip route add default via 10.4.4.254
-	ip route add default via 2001:4:4::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute
-	custom-command DefaultRoute
-	config {
-	dirs=()
-	files=('defaultroute.sh',)
-	startidx=0
-	cmdup=('bash defaultroute.sh',)
 	cmddown=()
 	cmdval=()
 	meta=None
@@ -994,16 +1134,76 @@ node n17 {
 	!
     }
     canvas c1
-    iconcoords {864.0 530.0}
-    labelcoords {864.0 562.0}
+    iconcoords {865.0 531.0}
+    labelcoords {865.0 563.0}
     services {DefaultRoute StaticRoute UserDefined}
     interface-peer {eth0 n10}
     custom-config {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/cc_ggm_secondary1.txt', )
+	files=('dns/files/config_files/cc_ggm_secondary1.txt', 'dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/in-addr_reverse.db', 'dns/files/in-addr_reverse_primary.txt', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/in-addr_reverse_primary.txt
+	custom-command dns/files/in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for .in-addr.reverse domain
+	
+	# in-addr.reverse.ggm DD ______
+	in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/in-addr_reverse.db
+	custom-command dns/files/in-addr_reverse.db
+	config {
+	# DNS database file for .in-addr.reverse domain primary server 
+	
+	@ DEFAULT .in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	# Config data
+	
+	@ SOASP .in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	
+	10.in-addr.reverse. NS ns1.10.in-addr.reverse.
+	
+	# Addresses
+	
+	ns1.10.in-addr A 10.1.1.1 TTL
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
+	
 	}
     }
     custom-config {
@@ -1021,24 +1221,28 @@ node n17 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
+	custom-config-id service:DefaultRoute:defaultroute.sh
+	custom-command defaultroute.sh
 	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
+	#!/bin/sh
+	# auto-generated by DefaultRoute service (utility.py)
+	ip route add default via 10.4.4.254
+	ip route add default via 2001:4:4::254
 	
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
+	custom-config-id service:DefaultRoute
+	custom-command DefaultRoute
 	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf 
+	dirs=()
+	files=('defaultroute.sh',)
+	startidx=0
+	cmdup=('bash defaultroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
 	}
     }
     custom-config {
@@ -1064,31 +1268,6 @@ node n17 {
 	files=('staticroute.sh',)
 	startidx=0
 	cmdup=('bash staticroute.sh',)
-	cmddown=()
-	cmdval=()
-	meta=None
-	starttime=0
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute:defaultroute.sh
-	custom-command defaultroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by DefaultRoute service (utility.py)
-	ip route add default via 10.4.4.254
-	ip route add default via 2001:4:4::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute
-	custom-command DefaultRoute
-	config {
-	dirs=()
-	files=('defaultroute.sh',)
-	startidx=0
-	cmdup=('bash defaultroute.sh',)
 	cmddown=()
 	cmdval=()
 	meta=None
@@ -1118,8 +1297,62 @@ node n18 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/db_files/root.db', 'preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/ggm_secondary1.txt', )
+	files=('dns/files/db_files/root.db', 'dns/files/rootservers.db', 'dns/files/config_files/ggm_secondary1.txt', 'preenche_resolvconf.sh', 'dns/files/db_files/4_10_in-addr_reverse_primary.txt', 'dns/files/db_files/4_10_in-addr_reverse.db', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/4_10_in-addr_reverse.db
+	custom-command dns/files/db_files/4_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 4.10.in-addr.reverse
+	
+	@ DEFAULT 4.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.4.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.4.10.in-addr.reverse. TTL
+	
+	4.@ NS ns1.4.1.10.in-addr.reverse.
+	
+	# Addresses
+	ns1 A 10.3.3.1 TTL
+	ns1.4 A 10.4.4.3 TTL
+	
+	
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/4_10_in-addr_reverse_primary.txt
+	custom-command dns/files/db_files/4_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 4.10.in-addr.reverse domain
+	
+	# 4.10.in-addr.reverse. DD ______
+	4.10.in-addr.reverse. LG dns/files/log_files/4_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -1148,16 +1381,6 @@ node n18 {
 	10.2.2.1
 	10.3.3.1
 	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
-	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -1193,6 +1416,31 @@ node n18 {
 	}
     }
     custom-config {
+	custom-config-id service:DefaultRoute:defaultroute.sh
+	custom-command defaultroute.sh
+	config {
+	#!/bin/sh
+	# auto-generated by DefaultRoute service (utility.py)
+	ip route add default via 10.3.3.254
+	ip route add default via 2001:3:3::254
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:DefaultRoute
+	custom-command DefaultRoute
+	config {
+	dirs=()
+	files=('defaultroute.sh',)
+	startidx=0
+	cmdup=('bash defaultroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
+	}
+    }
+    custom-config {
 	custom-config-id service:StaticRoute:staticroute.sh
 	custom-command staticroute.sh
 	config {
@@ -1215,31 +1463,6 @@ node n18 {
 	files=('staticroute.sh',)
 	startidx=0
 	cmdup=('bash staticroute.sh',)
-	cmddown=()
-	cmdval=()
-	meta=None
-	starttime=0
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute:defaultroute.sh
-	custom-command defaultroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by DefaultRoute service (utility.py)
-	ip route add default via 10.3.3.254
-	ip route add default via 2001:3:3::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute
-	custom-command DefaultRoute
-	config {
-	dirs=()
-	files=('defaultroute.sh',)
-	startidx=0
-	cmdup=('bash defaultroute.sh',)
 	cmddown=()
 	cmdval=()
 	meta=None
@@ -1269,15 +1492,104 @@ node n19 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/config_files/fcp_secondary1.txt', )
+	files=('preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/fcp_secondary1.txt', 'dns/files/reverse.db', 'dns/files/config_files/reverse_primary.txt', 'dns/files/config_files/1_1_10_in-addr_reverse_primary.txt', 'dns/files/config_files/1_1_10_in-addr_reverse.db', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/1_1_10_in-addr_reverse.db
+	custom-command dns/files/config_files/1_1_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 1.1.10.in-addr.reverse
+	
+	@ DEFAULT 1.1.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.1.1.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.1.1.10.in-addr.reverse. TTL
+	
+	# Addresses
+	ns1 A 10.3.3.2 TTL
+	10.1.1.1 PTR _ TTL
+	10.1.1.3 PTR _ TTL
+	10.1.1.2 PTR _ TTL
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/1_1_10_in-addr_reverse_primary.txt
+	custom-command dns/files/config_files/1_1_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 1.1.10.in-addr.reverse domain
+	
+	# 1.1.10.in-addr.reverse DD ______
+	1.1.10.in-addr.reverse LG dns/files/log_files/1_1_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/reverse_primary.txt
+	custom-command dns/files/config_files/reverse_primary.txt
+	config {
+	# Configuration file for primary server for .reverse domain
+	
+	# reverse DD ______
+	reverse LG dns/files/log_files/reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/reverse.db
+	custom-command dns/files/reverse.db
+	config {
+	# DNS database file for reverse domain primary server 
+	
+	@ DEFAULT .reverse.
+	TTL DEFAULT 86400
+	
+	# Config data
+	
+	@ SOASP .reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	
+	in-addr.reverse. NS ns1.in-addr.reverse.
+	
+	# Addresses
+	
+	ns1.in-addr A 10.4.4.2 TTL
 	}
     }
     custom-config {
 	custom-config-id service:UserDefined:dns/files/config_files/fcp_secondary1.txt
 	custom-command dns/files/config_files/fcp_secondary1.txt
 	config {
-	# Configuration file for secondary server 1 for fcp domain
+	# Configuration file for secondary server 1 for .fcp domain
 	
 	fcp SP 10.2.2.2
 	# fcp DD ______
@@ -1285,8 +1597,16 @@ node n19 {
 	all LG dns/files/log_files/all.log
 	root ST dns/files/rootservers.db
 	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
 	
-	
+	10.2.2.1
+	10.3.3.1
 	
 	}
     }
@@ -1301,14 +1621,28 @@ node n19 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
+	custom-config-id service:DefaultRoute:defaultroute.sh
+	custom-command defaultroute.sh
 	config {
-	# List of root files for topology
+	#!/bin/sh
+	# auto-generated by DefaultRoute service (utility.py)
+	ip route add default via 10.3.3.254
+	ip route add default via 2001:3:3::254
 	
-	10.2.2.1
-	10.3.3.1
-	
+	}
+    }
+    custom-config {
+	custom-config-id service:DefaultRoute
+	custom-command DefaultRoute
+	config {
+	dirs=()
+	files=('defaultroute.sh',)
+	startidx=0
+	cmdup=('bash defaultroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
 	}
     }
     custom-config {
@@ -1340,31 +1674,6 @@ node n19 {
 	starttime=0
 	}
     }
-    custom-config {
-	custom-config-id service:DefaultRoute:defaultroute.sh
-	custom-command defaultroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by DefaultRoute service (utility.py)
-	ip route add default via 10.3.3.254
-	ip route add default via 2001:3:3::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute
-	custom-command DefaultRoute
-	config {
-	dirs=()
-	files=('defaultroute.sh',)
-	startidx=0
-	cmdup=('bash defaultroute.sh',)
-	cmddown=()
-	cmdval=()
-	meta=None
-	starttime=0
-	}
-    }
 }
 
 node n20 {
@@ -1388,17 +1697,52 @@ node n20 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/config_files/taremi_fcp_secondary2.txt', 'dns/files/config_files/taremi_fcp_resolver.txt', )
+	files=('preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/taremi_fcp_resolver.txt', 'dns/files/config_files/taremi_fcp_secondary2.txt', 'dns/files/db_files/3_10_in-addr_reverse_primary.txt', 'dns/files/db_files/3_10_in-addr_reverse.db', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/config_files/taremi_fcp_resolver.txt
-	custom-command dns/files/config_files/taremi_fcp_resolver.txt
+	custom-config-id service:UserDefined:dns/files/db_files/3_10_in-addr_reverse.db
+	custom-command dns/files/db_files/3_10_in-addr_reverse.db
 	config {
+	# DNS database file for domain 3.10.in-addr.reverse
+	
+	@ DEFAULT 3.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.3.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.3.10.in-addr.reverse. TTL
+	
+	3.@ NS ns1.3.3.10.in-addr.reverse.
+	
+	# Addresses
+	ns1 A 10.2.2.3 TTL
+	ns1.3 A 10.4.4.1 TTL
 	
 	
 	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/db_files/3_10_in-addr_reverse_primary.txt
+	custom-command dns/files/db_files/3_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 3.10.in-addr.reverse domain
+	
+	# 3.10.in-addr.reverse. DD ______
+	3.10.in-addr.reverse. LG dns/files/log_files/3_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
 	}
     }
     custom-config {
@@ -1416,13 +1760,12 @@ node n20 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
+	custom-config-id service:UserDefined:dns/files/config_files/taremi_fcp_resolver.txt
+	custom-command dns/files/config_files/taremi_fcp_resolver.txt
 	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf 
+	
+	
+	
 	}
     }
     custom-config {
@@ -1435,6 +1778,16 @@ node n20 {
 	10.3.3.1
 	
 	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -1482,50 +1835,6 @@ node n21 {
     services {DefaultRoute StaticRoute UserDefined}
     interface-peer {eth0 n9}
     custom-config {
-	custom-config-id service:UserDefined
-	custom-command UserDefined
-	config {
-	files=('preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/taremi_fcp_secondary1.txt', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', )
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/config_files/taremi_fcp_secondary1.txt
-	custom-command dns/files/config_files/taremi_fcp_secondary1.txt
-	config {
-	# Configuration file for secondary server 1 for taremi.fcp domain
-	
-	taremi.fcp SP 10.4.4.1
-	# taremi.fcp DD ______
-	taremi.fcp LG dns/files/log_files/taremi_fcp.log
-	all LG dns/files/log_files/all.log
-	root ST dns/files/rootservers.db
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
-	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:preenche_resolvconf.sh
-	custom-command preenche_resolvconf.sh
-	config {
-	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-	echo "domain cc.pt" >> /etc/resolv.conf
-	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf 
-	}
-    }
-    custom-config {
 	custom-config-id service:DefaultRoute:defaultroute.sh
 	custom-command defaultroute.sh
 	config {
@@ -1547,6 +1856,56 @@ node n21 {
 	cmddown=()
 	cmdval=()
 	meta=None
+	starttime=0
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/taremi_fcp_secondary1.txt
+	custom-command dns/files/config_files/taremi_fcp_secondary1.txt
+	config {
+	# Configuration file for secondary server 1 for taremi.fcp domain
+	
+	taremi.fcp SP 10.4.4.1
+	# taremi.fcp DD ______
+	taremi.fcp LG dns/files/log_files/taremi_fcp.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:preenche_resolvconf.sh
+	custom-command preenche_resolvconf.sh
+	config {
+	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+	echo "domain cc.pt" >> /etc/resolv.conf
+	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	dirs=()
+	files=('dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/config_files/taremi_fcp_secondary1.txt')
+	startidx=0
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh')
+	cmddown=()
+	cmdval=()
+	meta=Customize this service to do anything upon startup.
 	starttime=0
 	}
     }
@@ -1573,8 +1932,65 @@ node n23 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/config_files/cc_ggm_secondary2.txt', )
+	files=('preenche_resolvconf.sh', 'dns/files/config_files/cc_ggm_secondary2.txt', 'dns/files/rootservers.db', 'dns/files/config_files/2_2_10_in-addr_reverse.db', 'dns/files/config_files/2_1_10_in-addr_reverse_primary.txt', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/2_1_10_in-addr_reverse_primary.txt
+	custom-command dns/files/config_files/2_1_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 2.1.10.in-addr.reverse domain
+	
+	# 2.1.10.in-addr.reverse DD ______
+	2.1.10.in-addr.reverse LG dns/files/log_files/2_1_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/2_2_10_in-addr_reverse.db
+	custom-command dns/files/config_files/2_2_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 2.2.10.in-addr.reverse
+	
+	@ DEFAULT 2.2.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.2.2.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.2.2.10.in-addr.reverse. TTL
+	
+	# Addresses
+	ns1 A 10.3.3.3 TTL
+	10.3.3.3 PTR _ TTL
+	10.3.3.2 PTR _ TTL
+	10.3.3.1 PTR _ TTL
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
+	
 	}
     }
     custom-config {
@@ -1601,14 +2017,28 @@ node n23 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
+	custom-config-id service:DefaultRoute:defaultroute.sh
+	custom-command defaultroute.sh
 	config {
-	# List of root files for topology
+	#!/bin/sh
+	# auto-generated by DefaultRoute service (utility.py)
+	ip route add default via 10.3.3.254
+	ip route add default via 2001:3:3::254
 	
-	10.2.2.1
-	10.3.3.1
-	
+	}
+    }
+    custom-config {
+	custom-config-id service:DefaultRoute
+	custom-command DefaultRoute
+	config {
+	dirs=()
+	files=('defaultroute.sh',)
+	startidx=0
+	cmdup=('bash defaultroute.sh',)
+	cmddown=()
+	cmdval=()
+	meta=None
+	starttime=0
 	}
     }
     custom-config {
@@ -1640,31 +2070,6 @@ node n23 {
 	starttime=0
 	}
     }
-    custom-config {
-	custom-config-id service:DefaultRoute:defaultroute.sh
-	custom-command defaultroute.sh
-	config {
-	#!/bin/sh
-	# auto-generated by DefaultRoute service (utility.py)
-	ip route add default via 10.3.3.254
-	ip route add default via 2001:3:3::254
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:DefaultRoute
-	custom-command DefaultRoute
-	config {
-	dirs=()
-	files=('defaultroute.sh',)
-	startidx=0
-	cmdup=('bash defaultroute.sh',)
-	cmddown=()
-	cmdval=()
-	meta=None
-	starttime=0
-	}
-    }
 }
 
 node n22 {
@@ -1681,15 +2086,61 @@ node n22 {
     }
     canvas c1
     iconcoords {929.0 477.0}
-    labelcoords {928.0 509.0}
+    labelcoords {929.0 509.0}
     services {DefaultRoute StaticRoute UserDefined}
     interface-peer {eth0 n10}
     custom-config {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('preenche_resolvconf.sh', 'dns/files/rootservers.db', 'dns/files/config_files/fcp_secondary2.txt', )
+	files=('dns/files/rootservers.db', 'preenche_resolvconf.sh', 'dns/files/config_files/fcp_secondary2.txt', 'dns/files/config_files/4_4_10_in-addr_reverse_primary.txt', 'dns/files/config_files/4_4_10_in-addr_reverse.db', )
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/4_4_10_in-addr_reverse.db
+	custom-command dns/files/config_files/4_4_10_in-addr_reverse.db
+	config {
+	# DNS database file for domain 4.4.10.in-addr.reverse
+	
+	@ DEFAULT 4.4.10.in-addr.reverse.
+	TTL DEFAULT 86400
+	
+	@ SOASP ns1.4.4.10.in-addr.reverse. TTL
+	@ SOADMIN ___ TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600
+	@ SOAEXPIRE 604800 TTL
+	
+	# Name servers
+	@ NS ns1.4.4.10.in-addr.reverse. TTL
+	
+	# Addresses
+	ns1 A 10.4.4.3 TTL
+	10.4.4.1 PTR _ TTL
+	10.4.4.2 PTR _ TTL
+	10.4.4.3 PTR _ TTL
+	
+	
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/config_files/4_4_10_in-addr_reverse_primary.txt
+	custom-command dns/files/config_files/4_4_10_in-addr_reverse_primary.txt
+	config {
+	# Configuration file for primary server for 4.4.10.in-addr.reverse domain
+	
+	# 4.4.10.in-addr.reverse DD ______
+	4.4.10.in-addr.reverse LG dns/files/log_files/4_4_10_in-addr_reverse.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	
+	
 	}
     }
     custom-config {
@@ -1709,17 +2160,6 @@ node n22 {
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
-	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
-	}
-    }
-    custom-config {
 	custom-config-id service:UserDefined:preenche_resolvconf.sh
 	custom-command preenche_resolvconf.sh
 	config {
@@ -1727,6 +2167,17 @@ node n22 {
 	echo "domain cc.pt" >> /etc/resolv.conf
 	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 	echo "" >> /etc/resolv.conf
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:dns/files/rootservers.db
+	custom-command dns/files/rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1
+	10.3.3.1
 	
 	}
     }

@@ -1,0 +1,6 @@
+# Configuration file for primary server for 1.10.in-addr.reverse domain
+
+# 1.10.in-addr.reverse. DD ______
+1.10.in-addr.reverse. LG dns/files/log_files/1_10_in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
