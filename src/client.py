@@ -7,7 +7,7 @@
 import socket
 import sys
 import random
-from queries.dns import *
+from dns import *
 
 
 def main():

@@ -8,7 +8,7 @@ import random
 import socket
 import time
 from server import server
-from queries.dns import *
+from dns import *
 from parse.database_parser import *
 
 

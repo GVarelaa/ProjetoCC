@@ -4,10 +4,7 @@
 # Description: Module that implements the main server that receives and forwards dns messages to each of the servers
 # Last update: Added documentation
 
-import sys
-import threading
-import string
-from queries import dns
+import dns
 from parse.configuration_parser import *
 
 

@@ -5,11 +5,8 @@
 # Última atualização: Added comments
 # TODO: Make it work for multiple servers
 
-import sys
-import threading
 from parse.configuration_parser import *
-from queries.dns import *
-from server.server import *
+from dns import *
 from log import *
 
 

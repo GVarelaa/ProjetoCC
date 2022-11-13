@@ -7,7 +7,7 @@
 import socket
 import threading
 from server import server
-from queries.dns import *
+from dns import *
 
 
 class PrimaryServer(server.Server):
