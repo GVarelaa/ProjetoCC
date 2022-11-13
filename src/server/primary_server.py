@@ -28,7 +28,7 @@ class PrimaryServer(server.Server):
             if query.flags == "Q": # Pedir versão e envia
                 response = self.interpret_query(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
-            elif query.flags == "": # Pedir transferência e envia número de linhas
+            elif query.flags == " ": # Pedir transferência e envia número de linhas
                 response = self.interpret_query(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
             elif query.flags == "A" and query.type == "252": # Secundário aceitou linhas e respondeu com o nº de linhas
@@ -53,7 +53,7 @@ class PrimaryServer(server.Server):
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         address = '127.0.0.1'
-        port = 28004
+        port = 28006
         socket_tcp.bind((address, port))
         socket_tcp.listen()
 

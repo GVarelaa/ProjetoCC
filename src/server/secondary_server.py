@@ -51,7 +51,7 @@ class SecondaryServer(server.Server):
                     version = response.response_values[0].value
 
                     if version > self.soaserial:
-                        query = DNS(random.randint(1, 65535), "", self.domain, "252")  # Query AXFR
+                        query = DNS(random.randint(1, 65535), " ", self.domain, "252")  # Query AXFR
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
                     else: # BD está atualizada
                         socket_tcp.close()
