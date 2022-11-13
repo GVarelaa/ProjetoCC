@@ -34,9 +34,7 @@ def main():
     while True:
         message, address_from = socket_udp.recvfrom(1024)                   # Receives a message
 
-        print(f"Recebi uma mensagem do cliente {address_from}")
-
-        message = string_to_dns(message.decode('utf-8'))                      # Decodes and converts to PDU
+        message = string_to_dns(message.decode('utf-8'))                    # Decodes and converts to PDU
 
         if "Q" in message.flags:                                                                          # It is a query
             query = message
