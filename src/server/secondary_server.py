@@ -8,7 +8,6 @@ import random
 import socket
 import time
 from server import server
-from queries.axfr import *
 from queries.dns import *
 from parse.database_parser import *
 

@@ -7,7 +7,6 @@
 import socket
 import threading
 from server import server
-from queries.axfr import *
 from queries.dns import *
 
 
