@@ -13,8 +13,8 @@ from parse.database_parser import *
 
 
 class SecondaryServer(server.Server):
-    def __init__(self, domain, default_domains, root_servers, log_path, mode, primary_server):
-        super().__init__(domain, default_domains, root_servers, log_path, mode)
+    def __init__(self, domain, default_domains, root_servers, log, mode, primary_server):
+        super().__init__(domain, default_domains, root_servers, log, mode)
         self.primary_server = primary_server
 
     def __str__(self):

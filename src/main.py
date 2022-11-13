@@ -22,6 +22,7 @@ def main():
         return  # adicionar log
 
     server = parser_configuration(config_path, mode)                        # Parsing the config and database file, creating a server
+    
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           # Creation of the udp socket
     ip_address = ""                                                         # Default ip
