@@ -65,7 +65,7 @@ def string_to_dns(query):
     query.number_of_values = int(num_response_values)
     query.number_of_authorities = int(num_authorities_values)
     query.number_of_extra_values = int(num_extra_values)
-    print(response_values)
+    #print(response_values)
     for value in response_values:
         fields = value.split(" ")
         priority = -1
