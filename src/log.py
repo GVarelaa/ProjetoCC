@@ -8,11 +8,13 @@ from datetime import datetime
 import sys
 
 
+
 class Log:
-    def __init__(self, filepath, mode):
+    def __init__(self, filepath, mode, lock):
         self.filepath = filepath            # Name of the log file
         self.mode = mode                    # True means DEBUG mode -> also print to stdout
-        self.fd = open(filepath, "a")       # File descriptor
+        self.fd = open(filepath, "a")       # File descripto
+        self.lock = lock
 
     def __str__(self):
         data = self.fd.read()
@@ -72,11 +74,15 @@ class Log:
 
     # Method called by the others
     def add_log(self, message):
+        #self.lock.acquire()
+
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
         self.fd.write(dt + " " + message + "\n")
         if self.mode == True:
             sys.stdout.write(dt + " " + message + "\n")
+
+        #self.lock.release()
 
 
 

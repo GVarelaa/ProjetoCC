@@ -3,18 +3,20 @@
 # Data da última atualização: 11/11/22
 # Descrição: Implementação de um servidor
 # Última atualização: Header
-
-from log import Log
+import socket
+import threading
+from dns import *
 from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, domain, default_domains, root_servers, log, mode):
+    def __init__(self, domain, default_domains, root_servers, log, port, mode):
         self.mode = mode
         self.domain = domain
         self.default_domains = default_domains
         self.log = log
         self.root_servers = root_servers
+        self.port = port
 
         self.cache = None
 
@@ -116,6 +118,44 @@ class Server:
 
             else:  # MISS
                 return query
+
+
+    def run_server(self):
+        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
+        socket_udp.bind(("", int(self.port)))  # Binding to server ip
+
+        self.log.log_ev("fasdfasd", "fasdfasd", "dafsd")
+
+        threading.Thread(target=self.zone_transfer).start()  # New thread for the zone transfer
+
+        while True:
+            message, address_from = socket_udp.recvfrom(1024)  # Receives a message
+
+            message = string_to_dns(message.decode('utf-8'))  # Decodes and converts to PDU
+
+            if "Q" in message.flags:  # It is a query
+                query = message
+
+                self.log.log_qr(str(address_from), query.query_to_string())
+
+                response = self.interpret_query(query)  # Create a response to that query
+
+                if "A" in response.flags:  # Answer in cache/DB
+                    self.log.log_rp(str(address_from), response.query_to_string())
+
+                    socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
+                else:
+                    self.log.log_to(str(address_from), "Query Miss")
+                    return  # MISS
+
+            else:  # It's a response to a query
+                response = message
+
+                self.log.log_rr(str(address_from), response.query_to_string())
+
+                socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
+
+        socket_udp.close()
 
 
 

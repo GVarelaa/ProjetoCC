@@ -26,7 +26,7 @@ def parser_root_servers(file_path):
     return servers
 
 
-def parser_configuration(file_path, mode):
+def parser_configuration(file_path, port, mode, lock):
     f = open(file_path, "r")
 
     if mode == "debug":
@@ -78,14 +78,14 @@ def parser_configuration(file_path, mode):
 
     f.close()
 
-    log = Log(log_path, mode)
+    log = Log(log_path, mode, lock)
     log.log_ev("localhost", "Config file parsed", "")
 
     if primary_server is None:
-        server = PrimaryServer(domain + ".", default_domains, root_servers, log, mode, data_path, secondary_servers)
+        server = PrimaryServer(domain + ".", default_domains, root_servers, log, port, mode, data_path, secondary_servers)
         parser_database(server, file_content, "FILE")
         log.log_ev("localhost", "Database file parsed", "")
     else:
-        server = SecondaryServer(domain + ".", default_domains, root_servers, log, mode, primary_server)
+        server = SecondaryServer(domain + ".", default_domains, root_servers, log, port, mode, primary_server)
 
     return server

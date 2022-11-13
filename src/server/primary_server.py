@@ -11,8 +11,8 @@ from dns import *
 
 
 class PrimaryServer(server.Server):
-    def __init__(self, domain, default_domains, root_servers, log, mode, data_path, secondary_servers):
-        super().__init__(domain, default_domains, root_servers, log, mode)
+    def __init__(self, domain, default_domains, root_servers, log, port, mode, data_path, secondary_servers):
+        super().__init__(domain, default_domains, root_servers, log, port, mode)
         self.data_path = data_path
         self.secondary_servers = secondary_servers
 
