@@ -19,6 +19,7 @@ class Log:
         return data
 
     def log_qe(self, ip_address, data):                                     # Query was sent to the given address
+        message = "QE " + ip_address + " " + data
         self.add_log(message)                   
 
 
