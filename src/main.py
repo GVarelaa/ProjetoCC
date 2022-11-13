@@ -44,7 +44,8 @@ def main():
                 server.log.log_rp(str(address_from), response.query_to_string())
 
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)             # Send it back
-            else:       
+            else:
+                server.log.log_to(str(address_from), "Query Miss")
                 return                                                                                  # MISS
 
         else:                                                                                           # It's a response to a query

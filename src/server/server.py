@@ -113,7 +113,7 @@ class Server:
                 return query
 
             else:  # MISS
-                return None
+                return query
 
 
 
