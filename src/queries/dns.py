@@ -131,49 +131,6 @@ def parse_message(message):
             num_extra_values, name, type, response_values, authorities_values, extra_values)
 
 
-"""
-def parse_message(message):
-    fields = message.split(";")
-    fields.remove(fields[-1])
-
-    header_fields = fields[0].split(",")
-    data_fields = fields[1].split(",")
-
-    message_id = header_fields[0]
-    flags = header_fields[1]
-    response_code = header_fields[2]
-    num_response_values = header_fields[3]
-    num_authorities_values = header_fields[4]
-    num_extra_values = header_fields[5]
-
-    name = data_fields[0]
-    type = data_fields[1]
-
-    response_values = list()
-    authorities_values = list()
-    extra_values = list()
-
-    if len(fields) > 2:
-        response_values = fields[2]
-        response_values = response_values.replace("\n", "")
-        response_values = response_values.split(",")
-        print(response_values)
-
-    if len(fields) > 3:
-        authorities_values = fields[3]
-        authorities_values = authorities_values.replace("\n", "")
-        authorities_values = authorities_values.split(",")
-
-    if len(fields) > 4:
-        extra_values = fields[4]
-        extra_values = extra_values.replace("\n", "")
-        extra_values = extra_values.split(",")
-
-    return (message_id, flags, response_code, num_response_values, num_authorities_values,
-            num_extra_values, name, type, response_values, authorities_values, extra_values)
-            
-"""
-
 def is_query(message): # Verificar função
     fields = message.split(";")
 

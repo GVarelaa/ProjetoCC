@@ -68,9 +68,9 @@ class Server:
 
         if query.flags == " " and query.type == "252":  # Query AXFR
             if self.domain == query.domain_name:
-                query.flags = "A"
-
                 record = ResourceRecord(query.domain_name, query.type, str(self.count_valid_lines()), -1, -1, "SP")
+
+                query.flags = "A"
                 query.response_values.append(record)
                 query.number_of_values = 1
 
