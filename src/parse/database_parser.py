@@ -8,16 +8,6 @@ from parse.validation import *
 from cache import *
 
 
-def concatenate_suffix(suffix, name):
-    if "@" in name:
-        name = name.rstrip(name[-1]) + suffix
-
-    elif name[-1] != ".":
-        name += "." + suffix
-
-    return name
-
-
 def set_default_values(ttl_default, suffix, line):
     if line[0] == "TTL":
         ttl_default = line[2]
@@ -37,6 +27,40 @@ def set_ttl(ttl_default, word):
     return ttl
 
 
+def replace_email(email):
+    parts = email.split("\\.")
+    parts[-1] = parts[-1].replace(".", "@", 1)
+    email = '.'.join(parts)
+
+    return email
+
+
+def concatenate_suffix_aux(suffix, name):
+    if name[-1] != ".":
+        name += "." + suffix
+
+    return name
+
+
+def concatenate_suffix(type, suffix, parameter, value):
+    if type == "SOASERIAL" or type == "SOAREFRESH" or type == "SOARETRY" or type == "SOAEXPIRE" or type == "A":
+        parameter = concatenate_suffix_aux(suffix, parameter)
+
+    elif type == "SOAADMIN":
+        parameter = concatenate_suffix_aux(suffix, parameter)
+        value = replace_email(value)
+        value = concatenate_suffix_aux(suffix, value)
+
+    elif type == "SOASP" or type == "NS" or type == "CNAME" or type == "MX":
+        parameter = concatenate_suffix_aux(suffix, parameter)
+        value = concatenate_suffix_aux(suffix, value)
+
+    elif type == "PTR":
+        value = concatenate_suffix_aux(suffix, value)
+
+    return parameter, value
+
+
 def parser_database(server, file_content, origin):
     data = Cache(list())
 
@@ -45,7 +69,11 @@ def parser_database(server, file_content, origin):
     priority = -1
 
     file_content = file_content.split("\n")
+
     for line in file_content:
+        if suffix != "":
+            line = line.replace("@", suffix)
+
         words = line.split()
 
         if origin == "SP":
@@ -53,19 +81,18 @@ def parser_database(server, file_content, origin):
 
         if len(words) > 0 and words[0][0] != '#':  # ignorar linhas vazias ou comentários
             if len(words) > 5:
-                server.log.log_fl("Too many arguments!")
+                server.log.log_fl("Too many arguments")
 
             # valores default
             if len(words) == 3 and words[1] == "DEFAULT":
                 ttl_default, suffix = set_default_values(ttl_default, suffix, words)
 
             elif len(words) < 4:
-                server.log.log_fl("Arguments missing!")
+                server.log.log_fl("Arguments missing")
 
             else:
-                parameter = concatenate_suffix(suffix, words[0])
                 type = words[1]
-                value = words[2]
+                parameter, value = concatenate_suffix(type, suffix, words[0], words[2])
                 expiration = set_ttl(ttl_default, words[3])
 
                 if len(words) == 5:
@@ -110,7 +137,7 @@ def parser_database(server, file_content, origin):
                         record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                         data.add_entry(record)
                     else:
-                        server.log.log_fl("Invalid IP address!")
+                        server.log.log_fl("Invalid IP address")
 
                 elif type == "CNAME":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
