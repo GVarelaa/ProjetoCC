@@ -91,6 +91,9 @@ class Server:
                     records = self.cache.get_records_by_name_and_type(record.value, "A")
                     extra_values += records
 
+                query.number_of_values = len(response_values)
+                query.number_of_authorities = len(authorities_values)
+                query.number_of_extra_values = len(extra_values)
                 query.response_values = response_values
                 query.authorities_values = authorities_values
                 query.extra_values = extra_values

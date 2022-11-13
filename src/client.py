@@ -30,7 +30,7 @@ def main():
         flags = "Q+R"
 
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+    #print(message_id)
     query = DNS(message_id, flags, domain_name, type)
 
     s.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))

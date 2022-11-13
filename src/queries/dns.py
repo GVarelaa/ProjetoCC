@@ -5,6 +5,7 @@
 # Última atualização: Header
 
 from resource_record import *
+import re
 
 class DNS:
     def __init__(self, message_id, flags, domain_name, type):
@@ -35,7 +36,7 @@ class DNS:
     def query_to_string(self):
         string = str(self.message_id) + "," + str(self.flags) + "," + str(self.response_code) + "," \
                  + str(self.number_of_values) + "," + str(self.number_of_authorities) + "," \
-                 + str(self.number_of_values) + ";" + str(self.domain_name) + "," + str(self.type) + ";\n"
+                 + str(self.number_of_extra_values) + ";" + str(self.domain_name) + "," + str(self.type) + ";\n"
 
         for record in self.response_values:
             string += record.resource_record_to_string() + ",\n"
@@ -64,7 +65,7 @@ def string_to_dns(query):
     query.number_of_values = int(num_response_values)
     query.number_of_authorities = int(num_authorities_values)
     query.number_of_extra_values = int(num_extra_values)
-
+    print(response_values)
     for value in response_values:
         fields = value.split(" ")
         priority = -1
@@ -99,6 +100,39 @@ def string_to_dns(query):
 
 
 def parse_message(message):
+    message = message.replace("\n", "")
+    fields = re.split(";|,", message)
+    fields.remove("")
+
+    message_id = fields[0]
+    flags = fields[1]
+    response_code = fields[2]
+    num_response_values = fields[3]
+    num_authorities_values = fields[4]
+    num_extra_values = fields[5]
+    name = fields[6]
+    type = fields[7]
+
+    response_values = list()
+    authorities_values = list()
+    extra_values = list()
+
+    for i in range(1, int(num_response_values)+1):
+        response_values.append(fields[7+i])
+
+    for i in range(1, int(num_authorities_values)):
+        authorities_values.append(fields[7+int(num_response_values)+i])
+
+    for i in range(1, int(num_extra_values)):
+        extra_values.append(fields[7+int(num_response_values)+int(num_authorities_values)+i])
+    
+
+    return (message_id, flags, response_code, num_response_values, num_authorities_values,
+            num_extra_values, name, type, response_values, authorities_values, extra_values)
+
+
+"""
+def parse_message(message):
     fields = message.split(";")
     fields.remove(fields[-1])
 
@@ -123,6 +157,7 @@ def parse_message(message):
         response_values = fields[2]
         response_values = response_values.replace("\n", "")
         response_values = response_values.split(",")
+        print(response_values)
 
     if len(fields) > 3:
         authorities_values = fields[3]
@@ -136,49 +171,8 @@ def parse_message(message):
 
     return (message_id, flags, response_code, num_response_values, num_authorities_values,
             num_extra_values, name, type, response_values, authorities_values, extra_values)
-
-def string_to_dns(query):
-    (message_id, flags, response_code, num_response_values, num_authorities_values,
-     num_extra_values, name, type, response_values, authorities_values, extra_values) = parse_message(query)
-
-    query = DNS(message_id, flags, name, type)
-    query.response_code = int(response_code)
-    query.number_of_values = int(num_response_values)
-    query.number_of_authorities = int(num_authorities_values)
-    query.number_of_extra_values = int(num_extra_values)
-
-    for value in response_values:
-        fields = value.split(" ")
-        priority = -1
-
-        if len(fields) > 4:
-            priority = fields[4]
-
-        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
-        query.response_values.append(record)
-
-    for value in authorities_values:
-        fields = value.split(" ")
-        priority = -1
-
-        if len(fields) > 4:
-            priority = fields[4]
-
-        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
-        query.authorities_values.append(record)
-
-    for value in extra_values:
-        fields = value.split(" ")
-        priority = -1
-
-        if len(fields) > 4:
-            priority = fields[4]
-
-        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
-        query.extra_values.append(record)
-
-    return query
-
+            
+"""
 
 def is_query(message): # Verificar função
     fields = message.split(";")
