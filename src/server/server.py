@@ -83,8 +83,10 @@ class Server:
             response_values = self.cache.get_records_by_name_and_type(query.domain_name, query.type)
 
             if len(response_values) == 0 and query.type == "A": # Vai ver o seu CNAME
-                cname = self.cache.get_records_by_name_and_type(query.domain_name, query.type)[0]
-                response_values = self.cache.get_records_by_name_and_type(cname, query.type)
+                cname = self.cache.get_records_by_name_and_type(query.domain_name, "CNAME")
+                if len(cname) > 0:
+                    cname = cname[0]
+                    response_values = self.cache.get_records_by_name_and_type(cname, query.type)
 
             if len(response_values) != 0:  # HIT
                 authorities_values = self.cache.get_records_by_name_and_type(query.domain_name, "NS")
