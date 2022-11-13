@@ -46,12 +46,10 @@ def concatenate_suffix(type, suffix, parameter, value):
     if type == "SOASERIAL" or type == "SOAREFRESH" or type == "SOARETRY" or type == "SOAEXPIRE" or type == "A":
         parameter = concatenate_suffix_aux(suffix, parameter)
 
-    elif type == "SOAADMIN":
-        parameter = concatenate_suffix_aux(suffix, parameter)
-        value = replace_email(value)
-        value = concatenate_suffix_aux(suffix, value)
+    elif type == "SOASP" or type == "NS" or type == "CNAME" or type == "MX" or type == "SOAADMIN":
+        if type == "SOAADMIN":
+            value = replace_email(value)
 
-    elif type == "SOASP" or type == "NS" or type == "CNAME" or type == "MX":
         parameter = concatenate_suffix_aux(suffix, parameter)
         value = concatenate_suffix_aux(suffix, value)
 
@@ -71,6 +69,8 @@ def parser_database(server, file_content, origin):
     file_content = file_content.split("\n")
 
     for line in file_content:
+        line = line.split("#")[0]  # ignorar comentários
+
         if suffix != "":
             line = line.replace("@", suffix)
 
@@ -79,7 +79,7 @@ def parser_database(server, file_content, origin):
         if origin == "SP":
             words.remove(words[0])
 
-        if len(words) > 0 and words[0][0] != '#':  # ignorar linhas vazias ou comentários
+        if len(words) > 0:  # ignorar linhas vazias
             if len(words) > 5:
                 server.log.log_fl("Too many arguments")
 
@@ -152,6 +152,9 @@ def parser_database(server, file_content, origin):
                         record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                         data.add_entry(record)
                     else:
-                        server.log.log_fl("Invalid IP address!")
+                        server.log.log_fl("Invalid IP address")
+
+                else:
+                    server.log.log_fl("Invalid type")
 
         server.cache = data
