@@ -17,6 +17,8 @@ class PrimaryServer(server.Server):
         self.secondary_servers = secondary_servers
 
     def zone_transfer_process(self, connection, address):
+        self.log.log_zt(str(address), "SP", "0")
+
         while True:
             message = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
 
@@ -46,18 +48,16 @@ class PrimaryServer(server.Server):
 
                     file.close()
             else:
+                self.log.log_ez(str(address), "SP : Unexpected message")
+                connection.close()
                 return # CUIDADO
 
+        self.log.log_zt(str(address), "SP : Zone Transfer concluded successfully", "0")
         connection.close()
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        address = '127.0.0.1'
-        port = 28006
-        socket_tcp.bind((address, port))
         socket_tcp.listen()
-
-        print(f"Estou à escuta no {address}:{port}")
 
         while True:
             connection, address = socket_tcp.accept()
