@@ -9,6 +9,8 @@ import sys
 import threading
 from parse.configuration_parser import *
 from queries.dns import *
+from server.server import *
+from log import *
 
 
 def main():
@@ -30,20 +32,19 @@ def main():
 
     threading.Thread(target=server.zone_transfer).start()                   # New thread for the zone transfer
 
-    #print(f"Estou à  escuta no {ip_address}:{port}")
+    #print(f"Estou à escuta no {ip_address}:{port}")
 
     while True:
         message, address_from = socket_udp.recvfrom(1024)                   # Receives a message
 
-        print(f"Recebi uma mensagem do cliente {address_from}")
-
         query = string_to_dns(message.decode('utf-8'))                      # Decodes and converts to PDU
-        #server.log.log_qr(address_from, message) corrigir
-
+        (Log) ((Server) (server).log).log_qr(address_from, message.decode('utf-8')) 
+        print(server)
         if "Q" in query.flags:                                                                          # It is a query
             response = server.interpret_query(query)                                                    # Create a response to that query
 
             if "A" in response.flags:                                                                   # Answer in cache/DB
+                (Log) ((Server) (server).log).log_rp(address_from, response.query_to_string())                                                               
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)             # Send it back
             else:       
                 return                                                                                  # MISS
