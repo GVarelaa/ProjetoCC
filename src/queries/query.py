@@ -93,3 +93,21 @@ def parse_message(message):
 
     return (message_id, flags, response_code, num_response_values, num_authorities_values,
             num_extra_values, name, type, response_values, authorities_values, extra_values)
+
+
+
+def is_query(message): # Verificar função
+    fields = message.split(";")
+
+    if len(fields) < 2:
+        return False
+
+    fields.remove(fields[-1])
+
+    header_fields = fields[0].split(",")
+    data_fields = fields[1].split(",")
+
+    if len(header_fields) < 6 or len(data_fields) < 2:
+        return False
+
+    return True

@@ -32,65 +32,57 @@ class SecondaryServer(server.Server):
         (address, port) = self.parse_address(self.primary_server)
         socket_tcp.connect((address, port))
 
+        data = ""
+        expected_value = 1
+        lines_number = 0
+
         query = DNS(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
-        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe a resposta da query
-        response = string_to_dns(message)  # Cria query DNS
-
-        if "A" not in response.flags:
-            socket_tcp.close()  # (?)
-            return
-
-        version_record = response.response_values[0]
-        version = version_record.value
-
-        if version <= self.soaserial:  # A BD está atualizada, não há transferência de zona
-            socket_tcp.close()
-            return
-
-        query = AXFR(random.randint(1, 65535), self.domain)
-        socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
-
-        message = socket_tcp.recv(1024).decode('utf-8')  # Recebe a resposta da query
-        response = string_to_axfr(message)  # Cria query AXFR
-
-        if "A" not in response.flags:
-            socket_tcp.close()  # (?)
-            return
-
-        lines_number_record = response.response_values[0]
-        lines_number = int(lines_number_record.value)
-
-        socket_tcp.sendall(response.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
-
-        data = ""
-        expected_value = 1
         while True:
-            message = socket_tcp.recv(1024).decode('utf-8')
+            message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
 
-            if not message:
+            if not message: # sentido?
                 break
 
-            lines = message.split("\n")
-            if "" in lines:
-                lines.remove("")
+            if is_query(message):
+                response = string_to_dns(message)  # Cria query DNS
 
-            for line in lines:
-                fields = line.split(" ")
-                if int(fields[0]) != expected_value:
+                if response.flags == "A" and response.type == "SOASERIAL":
+                    version = response.response_values[0].value
+
+                    if version > self.soaserial:
+                        query = DNS(random.randint(1, 65535), "", self.domain, "252")  # Query AXFR
+                        socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
+                    else: # BD está atualizada
+                        socket_tcp.close()
+                        return
+
+                elif response.flags == "A" and response.type == "252":
+                    lines_number = int(response.response_values[0].value)
+                    #Confirma nº de linhas ?
+                    socket_tcp.sendall(response.query_to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
+
+            else:
+                lines = message.split("\n")
+                if "" in lines:
+                    lines.remove("")
+
+                for line in lines:
+                    fields = line.split(" ")
+                    if int(fields[0]) != expected_value:
+                        #timeout
+                        socket_tcp.close()
+                        return
+
+                    expected_value += 1
+
+                data += message
+
+                if lines_number == (expected_value-1):
                     #timeout
                     socket_tcp.close()
-                    return
-
-                expected_value += 1
-
-            data += message
-
-            if lines_number == (expected_value-1):
-                #timeout
-                socket_tcp.close()
-                break
+                    break
 
         parser_database(self, data, "SP")
         print(self.cache)
@@ -98,7 +90,7 @@ class SecondaryServer(server.Server):
 
     def zone_transfer(self):
         while True:
-            self.zone_transfer_process()
+            self.zone_transfer_process() # Criar thread ?
 
             print(self.soarefresh)
             time.sleep(self.soarefresh)
