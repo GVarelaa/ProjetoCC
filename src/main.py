@@ -9,6 +9,8 @@ import sys
 import threading
 from parse.configuration_parser import *
 from queries.dns import *
+from server.server import *
+from log import *
 
 
 def main():
