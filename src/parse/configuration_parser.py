@@ -41,7 +41,8 @@ def parser_configuration(file_path, port, mode, lock):
     secondary_servers = list()
     root_servers = list()
     default_domains = list()
-    log_path = None
+    domain_log_path = None
+    all_log_path = None
 
     for line in f:
         words = line.split()
@@ -73,12 +74,15 @@ def parser_configuration(file_path, port, mode, lock):
                 elif value_type == "ST" and parameter == "root":
                     root_servers = parser_root_servers(value)
 
+                elif parameter == "all" and value_type == "LG":
+                    all_log_path = value
+
                 elif value_type == "LG":
-                    log_path = value
+                    domain_log_path = value
 
     f.close()
 
-    log = Log(log_path, mode, lock)
+    log = Log(domain_log_path, mode, lock)
     log.log_ev("localhost", "Config file parsed", "")
 
     if primary_server is None:
