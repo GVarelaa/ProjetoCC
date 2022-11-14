@@ -8,7 +8,6 @@ import threading
 from dns import *
 from resource_record import ResourceRecord
 
-
 class Server:
     def __init__(self, domain, default_domains, root_servers, domain_log, all_log, port, mode):
         self.mode = mode
@@ -157,6 +156,4 @@ class Server:
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
 
         socket_udp.close()
-
-
 

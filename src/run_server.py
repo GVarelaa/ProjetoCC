@@ -1,15 +1,12 @@
-# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 13/11/22
 # Data da última atualização: 13/11/22
 # Descrição: Receives queries for a given server
 # Última atualização: Added comments
 # TODO: Make it work for multiple servers
+import socket
 import threading
-
-from parse.configuration_parser import *
 from dns import *
-from log import *
-
+from parse.configuration_parser import *
 
 def main():
     args = sys.argv
@@ -21,7 +18,7 @@ def main():
     if not validate_port(port):
         return  # adicionar log
 
-    server = parser_configuration(config_path, port, mode, threading.Lock())                        # Parsing the config and database file, creating a server
+    server = parser_configuration(config_path, port, mode, threading.Lock())   # Parsing the config and database file, creating a server
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           # Creation of the udp socket
     socket_udp.bind(("", int(port)))                                # Binding to server ip

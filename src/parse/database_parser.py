@@ -139,14 +139,14 @@ def parser_database(server, file_content, origin):
                         data.add_entry(record)
                         names_list.append(parameter)
                     else:
-                        server.log.log_fl("Invalid IP address")
+                        server.domain_log.log_fl("Invalid IP address")
 
                 elif type == "CNAME":
                     if value in names_list:
                         record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                         data.add_entry(record)
                     else:
-                        server.log.log_fl("Name not found")
+                        server.domain_log.log_fl("Name not found")
 
                 elif type == "MX":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
@@ -157,9 +157,9 @@ def parser_database(server, file_content, origin):
                         record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                         data.add_entry(record)
                     else:
-                        server.log.log_fl("Invalid IP address")
+                        server.domain_log.log_fl("Invalid IP address")
 
                 else:
-                    server.log.log_fl("Invalid type")
+                    server.domain_log.log_fl("Invalid type")
 
         server.cache = data
