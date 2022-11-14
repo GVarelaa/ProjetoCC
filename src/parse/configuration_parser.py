@@ -45,12 +45,13 @@ def parser_configuration(file_path, port, mode, lock):
     all_log_path = None
 
     for line in f:
+        line = line.split("#")[0]  # ignorar comentários
         words = line.split()
 
-        if len(words) > 0 and words[0][0] != '#':
+        if len(words) > 0:
             if len(words) == 3:
                 if words[0] != "root" and words[0] != "all":
-                    domain = words[0]
+                    domain = words[0] + "."
 
                 parameter = words[0]
                 value_type = words[1]
@@ -88,10 +89,10 @@ def parser_configuration(file_path, port, mode, lock):
     all_log = Log(all_log_path, mode, None)
 
     if primary_server is None:
-        server = PrimaryServer(domain + ".", default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers)
+        server = PrimaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers)
         parser_database(server, file_content, "FILE")
         domain_log.log_ev("localhost", "Database file parsed", "")
     else:
-        server = SecondaryServer(domain + ".", default_domains, root_servers, domain_log, all_log, port, mode, primary_server)
+        server = SecondaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, primary_server)
 
     return server
