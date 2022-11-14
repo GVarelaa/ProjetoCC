@@ -8,9 +8,12 @@ from parse.validation import *
 from cache import *
 
 
-def set_default_values(ttl_default, suffix, line):
+def set_default_values(server, ttl_default, suffix, line):
     if line[0] == "TTL":
-        ttl_default = line[2]
+        if line[2].isnumeric():
+            ttl_default = line[2]
+        else:
+            server.domain_log.log_fl("Invalid value for TTL")
 
     elif line[0] == "@":
         suffix = line[2]
@@ -18,11 +21,13 @@ def set_default_values(ttl_default, suffix, line):
     return ttl_default, suffix
 
 
-def set_ttl(ttl_default, word):
+def set_ttl(server, ttl_default, word):
     if word == "TTL":
         ttl = ttl_default
-    else:
+    elif word.isnumeric():
         ttl = int(word)
+    else:
+        server.domain_log.log_fl("Invalid value for TTL")
 
     return ttl
 
@@ -86,7 +91,7 @@ def parser_database(server, file_content, origin):
 
             # valores default
             if len(words) == 3 and words[1] == "DEFAULT":
-                ttl_default, suffix = set_default_values(ttl_default, suffix, words)
+                ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
 
             elif len(words) < 4:
                 server.domain_log.log_fl("Arguments missing")
@@ -94,10 +99,13 @@ def parser_database(server, file_content, origin):
             else:
                 type = words[1]
                 parameter, value = concatenate_suffix(type, suffix, words[0], words[2])
-                expiration = set_ttl(ttl_default, words[3])
+                expiration = set_ttl(server, ttl_default, words[3])
 
                 if len(words) == 5:
-                    priority = int(words[4])
+                    if words[4].isnumeric() and 0 <= int(words[4]) < 256:
+                        priority = int(words[4])
+                    else:
+                        server.domain_log.log_fl("Invalid value for priority")
 
                 if type == "SOASP":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
