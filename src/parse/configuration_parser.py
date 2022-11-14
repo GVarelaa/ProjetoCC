@@ -82,14 +82,16 @@ def parser_configuration(file_path, port, mode, lock):
 
     f.close()
 
-    log = Log(domain_log_path, mode, lock)
-    log.log_ev("localhost", "Config file parsed", "")
+    domain_log = Log(domain_log_path, mode, lock)
+    domain_log.log_ev("localhost", "Config file parsed", "")
+
+    all_log = Log(all_log_path, mode, None)
 
     if primary_server is None:
-        server = PrimaryServer(domain + ".", default_domains, root_servers, log, port, mode, data_path, secondary_servers)
+        server = PrimaryServer(domain + ".", default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers)
         parser_database(server, file_content, "FILE")
-        log.log_ev("localhost", "Database file parsed", "")
+        domain_log.log_ev("localhost", "Database file parsed", "")
     else:
-        server = SecondaryServer(domain + ".", default_domains, root_servers, log, port, mode, primary_server)
+        server = SecondaryServer(domain + ".", default_domains, root_servers, domain_log, all_log, port, mode, primary_server)
 
     return server

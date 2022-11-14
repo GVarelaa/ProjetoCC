@@ -81,14 +81,14 @@ def parser_database(server, file_content, origin):
 
         if len(words) > 0:  # ignorar linhas vazias
             if len(words) > 5:
-                server.log.log_fl("Too many arguments")
+                server.domain_log.log_fl("Too many arguments")
 
             # valores default
             if len(words) == 3 and words[1] == "DEFAULT":
                 ttl_default, suffix = set_default_values(ttl_default, suffix, words)
 
             elif len(words) < 4:
-                server.log.log_fl("Arguments missing")
+                server.domain_log.log_fl("Arguments missing")
 
             else:
                 type = words[1]

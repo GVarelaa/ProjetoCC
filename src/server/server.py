@@ -10,11 +10,12 @@ from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, domain, default_domains, root_servers, log, port, mode):
+    def __init__(self, domain, default_domains, root_servers, domain_log, all_log, port, mode):
         self.mode = mode
         self.domain = domain
         self.default_domains = default_domains
-        self.log = log
+        self.domain_log = domain_log
+        self.all_log = all_log
         self.root_servers = root_servers
         self.port = port
 
@@ -27,7 +28,7 @@ class Server:
         self.soaretry = None
         self.soaexpire = None
 
-        self.log.log_st("localhost", "1", "100", mode)
+        self.domain_log.log_st("localhost", "1", "100", mode)
 
 
 
@@ -124,7 +125,7 @@ class Server:
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
         socket_udp.bind(("", int(self.port)))  # Binding to server ip
 
-        self.log.log_ev("fasdfasd", "fasdfasd", "dafsd")
+        self.domain_log.log_ev("fasdfasd", "fasdfasd", "dafsd")
 
         threading.Thread(target=self.zone_transfer).start()  # New thread for the zone transfer
 
@@ -136,22 +137,22 @@ class Server:
             if "Q" in message.flags:  # It is a query
                 query = message
 
-                self.log.log_qr(str(address_from), query.query_to_string())
+                self.domain_log.log_qr(str(address_from), query.query_to_string())
 
                 response = self.interpret_query(query)  # Create a response to that query
 
                 if "A" in response.flags:  # Answer in cache/DB
-                    self.log.log_rp(str(address_from), response.query_to_string())
+                    self.domain_log.log_rp(str(address_from), response.query_to_string())
 
                     socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
                 else:
-                    self.log.log_to(str(address_from), "Query Miss")
+                    self.domain_log.log_to(str(address_from), "Query Miss")
                     return  # MISS
 
             else:  # It's a response to a query
                 response = message
 
-                self.log.log_rr(str(address_from), response.query_to_string())
+                self.domain_log.log_rr(str(address_from), response.query_to_string())
 
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
 

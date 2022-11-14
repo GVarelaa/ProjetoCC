@@ -24,8 +24,7 @@ def main():
     server = parser_configuration(config_path, port, mode, threading.Lock())                        # Parsing the config and database file, creating a server
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           # Creation of the udp socket
-    ip_address = ""                                                         # Default ip
-    socket_udp.bind((ip_address, int(port)))                                # Binding to server ip
+    socket_udp.bind(("", int(port)))                                # Binding to server ip
 
     threading.Thread(target=server.zone_transfer).start()                   # New thread for the zone transfer
 
@@ -37,12 +36,12 @@ def main():
         if "Q" in message.flags:                                                                          # It is a query
             query = message
 
-            server.log.log_qr(str(address_from), query.query_to_string())
+            server.domain_log.log_qr(str(address_from), query.query_to_string())
 
             response = server.interpret_query(query)                                                    # Create a response to that query
 
             if "A" in response.flags:                                                                   # Answer in cache/DB
-                server.log.log_rp(str(address_from), response.query_to_string())
+                server.domain_log.log_rp(str(address_from), response.query_to_string())
 
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)             # Send it back
             else:
@@ -52,7 +51,7 @@ def main():
         else:                                                                                           # It's a response to a query
             response = message
 
-            server.log.log_rr(str(address_from), response.query_to_string())
+            server.domain_log.log_rr(str(address_from), response.query_to_string())
 
             socket_udp.sendto(response.query_to_string().encode('utf-8'), server.get_address(message))
 
