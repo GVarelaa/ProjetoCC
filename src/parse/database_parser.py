@@ -65,6 +65,7 @@ def parser_database(server, file_content, origin):
     ttl_default = 0
     suffix = ""
     priority = -1
+    names_list = list()
 
     file_content = file_content.split("\n")
 
@@ -136,12 +137,16 @@ def parser_database(server, file_content, origin):
                     if validate_ip(value):
                         record = ResourceRecord(parameter, type, value, expiration, priority, origin)
                         data.add_entry(record)
+                        names_list.append(parameter)
                     else:
                         server.log.log_fl("Invalid IP address")
 
                 elif type == "CNAME":
-                    record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                    data.add_entry(record)
+                    if value in names_list:
+                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
+                        data.add_entry(record)
+                    else:
+                        server.log.log_fl("Name not found")
 
                 elif type == "MX":
                     record = ResourceRecord(parameter, type, value, expiration, priority, origin)
