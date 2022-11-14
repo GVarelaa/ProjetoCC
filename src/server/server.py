@@ -72,17 +72,14 @@ class Server:
         authorities_values = list()
         extra_values = list()
 
-        if query.flags == " " and query.type == "252":  # Query AXFR
-            if self.domain == query.domain_name:
-                record = ResourceRecord(query.domain_name, query.type, str(self.count_valid_lines()), -1, -1, "SP")
+        if query.flags == " " and query.type == "252" and self.domain == query.domain_name:  # Query AXFR
+            record = ResourceRecord(query.domain_name, query.type, str(self.count_valid_lines()), -1, -1, "SP")
 
-                query.flags = "A"
-                query.response_values.append(record)
-                query.number_of_values = 1
+            query.flags = "A"
+            query.response_values.append(record)
+            query.number_of_values = 1
 
-                return query
-            else:
-                return query
+            return query
         else:
             domain_name = query.domain_name # por causa do cname
             response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
