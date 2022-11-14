@@ -8,6 +8,7 @@ import threading
 from dns import *
 from parse.configuration_parser import *
 
+
 def main():
     args = sys.argv
     config_path = args[1]       # Path of the config file of the server
@@ -20,37 +21,16 @@ def main():
 
     server = parser_configuration(config_path, port, mode, threading.Lock())   # Parsing the config and database file, creating a server
 
-    socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           # Creation of the udp socket
-    socket_udp.bind(("", int(port)))                                # Binding to server ip
+    threading.Thread(target=server.zone_transfer).start()  # New thread for the zone transfer
 
-    threading.Thread(target=server.zone_transfer).start()                   # New thread for the zone transfer
+    socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)           # Creation of the udp socket
+    socket_udp.bind(("127.0.0.1", int(port)))                                # Binding to server ip
 
     while True:
         message, address_from = socket_udp.recvfrom(1024)                   # Receives a message
 
-        message = string_to_dns(message.decode('utf-8'))                    # Decodes and converts to PDU
+        threading.Thread(target=server.receive_queries, args=(message, address_from, socket_udp)).start()
 
-        if "Q" in message.flags:                                                                          # It is a query
-            query = message
-
-            server.domain_log.log_qr(str(address_from), query.query_to_string())
-
-            response = server.interpret_query(query)                                                    # Create a response to that query
-
-            if "A" in response.flags:                                                                   # Answer in cache/DB
-                server.domain_log.log_rp(str(address_from), response.query_to_string())
-
-                socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)             # Send it back
-            else:
-                server.log.log_to(str(address_from), "Query Miss")
-                return                                                                                  # MISS
-
-        else:                                                                                           # It's a response to a query
-            response = message
-
-            server.domain_log.log_rr(str(address_from), response.query_to_string())
-
-            socket_udp.sendto(response.query_to_string().encode('utf-8'), server.get_address(message))
 
 
     socket_udp.close()

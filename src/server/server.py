@@ -5,6 +5,8 @@
 # Última atualização: Header
 import socket
 import threading
+import time
+
 from dns import *
 from resource_record import ResourceRecord
 
@@ -82,16 +84,17 @@ class Server:
             else:
                 return query
         else:
-            response_values = self.cache.get_records_by_name_and_type(query.domain_name, query.type)
+            domain_name = query.domain_name # por causa do cname
+            response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
 
             if len(response_values) == 0 and query.type == "A": # Vai ver o seu CNAME
-                cname = self.cache.get_records_by_name_and_type(query.domain_name, "CNAME")
+                cname = self.cache.get_records_by_name_and_type(domain_name, "CNAME")
                 if len(cname) > 0:
-                    cname = cname[0].value
-                    response_values = self.cache.get_records_by_name_and_type(cname, query.type)
+                    domain_name = cname[0].value
+                    response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
 
             if len(response_values) != 0:  # HIT
-                authorities_values = self.cache.get_records_by_name_and_type(query.domain_name, "NS")
+                authorities_values = self.cache.get_records_by_name_and_type(domain_name, "NS")
                 extra_values = list()
 
                 for record in response_values:
@@ -120,40 +123,28 @@ class Server:
                 return query
 
 
-    def run_server(self):
-        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
-        socket_udp.bind(("", int(self.port)))  # Binding to server ip
+    def receive_queries(self, message, address_from, socket_udp):
+        message = string_to_dns(message.decode('utf-8'))  # Decodes and converts to PDU
 
-        self.domain_log.log_ev("fasdfasd", "fasdfasd", "dafsd")
+        if "Q" in message.flags:  # It is a query
+            query = message
 
-        threading.Thread(target=self.zone_transfer).start()  # New thread for the zone transfer
+            self.domain_log.log_qr(str(address_from), query.query_to_string())
 
-        while True:
-            message, address_from = socket_udp.recvfrom(1024)  # Receives a message
+            response = self.interpret_query(query)  # Create a response to that query
 
-            message = string_to_dns(message.decode('utf-8'))  # Decodes and converts to PDU
+            if "A" in response.flags:  # Answer in cache/DB
+                self.domain_log.log_rp(str(address_from), response.query_to_string())
 
-            if "Q" in message.flags:  # It is a query
-                query = message
+                socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
+            else:
+                self.domain_log.log_to(str(address_from), "Query Miss")
+                return  # MISS
 
-                self.domain_log.log_qr(str(address_from), query.query_to_string())
+        else:  # It's a response to a query
+            response = message
 
-                response = self.interpret_query(query)  # Create a response to that query
+            self.domain_log.log_rr(str(address_from), response.query_to_string())
 
-                if "A" in response.flags:  # Answer in cache/DB
-                    self.domain_log.log_rp(str(address_from), response.query_to_string())
-
-                    socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
-                else:
-                    self.domain_log.log_to(str(address_from), "Query Miss")
-                    return  # MISS
-
-            else:  # It's a response to a query
-                response = message
-
-                self.domain_log.log_rr(str(address_from), response.query_to_string())
-
-                socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
-
-        socket_udp.close()
+            socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
 

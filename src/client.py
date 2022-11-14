@@ -35,11 +35,10 @@ def main():
 
     s.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
 
-    while True:
-        message, add = s.recvfrom(1024)     # Blocks until response received
-        message = message.decode('utf-8')
+    message, address = s.recvfrom(1024)     # Blocks until response received
+    message = message.decode('utf-8')
 
-        print(message) 
+    print(message)
 
 
 if __name__ == "__main__" :
