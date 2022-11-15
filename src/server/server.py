@@ -105,22 +105,22 @@ class Server:
         if "Q" in message.flags:  # It is a query
             query = message
 
-            self.domain_log.log_qr(str(address_from), query.query_to_string())
+            self.all_log.log_qr(str(address_from), query.query_to_string())
 
             response = self.interpret_query(query)  # Create a response to that query
 
             if "A" in response.flags:  # Answer in cache/DB
-                self.domain_log.log_rp(str(address_from), response.query_to_string())
+                self.all_log.log_rp(str(address_from), response.query_to_string())
 
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
             else:
-                self.domain_log.log_to(str(address_from), "Query Miss")
+                self.all_log.log_to(str(address_from), "Query Miss")
                 return  # MISS
 
         else:  # It's a response to a query
             response = message
 
-            self.domain_log.log_rr(str(address_from), response.query_to_string())
+            self.all_log.log_rr(str(address_from), response.query_to_string())
 
             socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
 

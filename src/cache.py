@@ -90,7 +90,6 @@ class Cache:
 
         return entries
 
-
     def get_num_valid_entries(self):
         return len(self.get_valid_entries())
 
@@ -139,3 +138,8 @@ class Cache:
                 len += 1
 
         return len == 0
+
+    def free_sp_entries(self):
+        for record in self.list:
+            if record.origin == "SP":
+                record.status = "FREE"

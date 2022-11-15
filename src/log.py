@@ -37,9 +37,8 @@ class Log:
         self.add_log(message)                   
 
     def log_zt(self, ip_address, data, duration):                           # Zone transfer process to the other end (ip) was successfully terminated
-        if data == "SP" or data == "SS":                                        # Data - Role of the local server + duration and @TODO total_bytes transferred
-            message = "ZT " + ip_address + " " + data + " " + duration
-            self.add_log(message)
+        message = "ZT " + ip_address + " " + data + " " + duration
+        self.add_log(message)
 
     def log_ev(self, ip_address, event, event_data):                        # Misc event in the component
         message = "EV " + ip_address + " " + event + " " + event_data
@@ -50,9 +49,8 @@ class Log:
         self.add_log(message)                                                   # info - where the error was, what was possible to decode
 
     def log_ez(self, ip_address, data):                                     # Zone transfer error
-        if data == "SP" or data == "SS":                                        # ip_address - the address of the "other" server
-            message = "EZ " + ip_address + " " + data                           # data - role of the local server
-            self.add_log(message)               
+        message = "EZ " + ip_address + " " + data                           # data - role of the local server
+        self.add_log(message)
 
     def log_fl(self, info):                                                 # Internal server error
         message = "FL 127.0.0.1 " + info                                        # Info - reason (parsing errors, decoding errors, etc)

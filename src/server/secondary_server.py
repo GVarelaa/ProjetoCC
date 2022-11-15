@@ -31,7 +31,7 @@ class SecondaryServer(server.Server):
 
         (address, port) = self.parse_address(self.primary_server)
         socket_tcp.connect((address, port))
-        
+
         self.domain_log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
         expected_value = 1
@@ -64,10 +64,10 @@ class SecondaryServer(server.Server):
                     else:
                         ss_version = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value
 
-
                     sp_version = response.response_values[0].value
 
                     if float(sp_version) > float(ss_version):
+                        self.cache.free_sp_entries()                                    # apagar as entradas "SP"
                         query = DNS(random.randint(1, 65535), " ", self.domain, "252")  # Query AXFR
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
                     else: # BD está atualizada
