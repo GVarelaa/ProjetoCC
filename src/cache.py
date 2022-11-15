@@ -1,12 +1,12 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 30/10/22
-# Data da última atualização: 07/11/22
+# Data da última atualização: 15/11/22
 # Descrição: Implementação de sistema de cache de um servidor
-# Última atualização: Header
+# Última atualização: Implementação da funcionalidade SOAEXPIRE (hardcoded)
 
 from resource_record import *
 from datetime import datetime
-
+import time
 
 class Cache:
     def __init__(self, list=[]):
@@ -15,6 +15,8 @@ class Cache:
         self.list = list
         self.size = 0
         self.capacity = 1
+        self.timestamp = time.localtime() # Time of the last SOAEXPIRE update
+        self.soaexpire = 100 # Hardcoded for now
 
     def __str__(self):
         return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
@@ -79,6 +81,7 @@ class Cache:
 
     # Gets all entries with the given name and type
     def get_records_by_name_and_type(self, name, type):
+        
         records = []
         record_index = 1
 
@@ -92,6 +95,11 @@ class Cache:
             records.append(record)
 
         return records
+
+    def test_soaexpire(self): # If SOAEXPIRE is valid, update all records relative to the domain that expired
+        if (time.mktime(time.localtime()) - time.mktime(self.timestamp) > self.soaexpire):
+            self.update_cache("")
+            self.timestamp = time.localtime()
 
     def update_cache(self, domain):
         for record in self.list:
