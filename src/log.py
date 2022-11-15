@@ -69,7 +69,7 @@ class Log:
 
     def log_st(self, ip_address, port, timeout, mode):                      # Component (server) started
         if mode == "shy" or mode == "debug":
-            message = "ST " + ip_address + " " + port + " " + timeout
+            message = "ST " + ip_address + " " + port + " " + timeout + " " + mode
             self.add_log(message)
 
     # Method called by the others

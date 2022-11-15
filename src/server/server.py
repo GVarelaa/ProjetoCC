@@ -29,9 +29,6 @@ class Server:
         self.soaretry = None
         self.soaexpire = None
 
-        self.domain_log.log_st("localhost", "1", "100", mode)
-
-
 
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \

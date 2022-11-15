@@ -15,10 +15,10 @@ def main():
     timeout = args[3]           # Time the server waits for a response
     mode = args[4]              # Debug enabled or disabled
 
-    if not validate_port(port):
-        return  # adicionar log
+    server = parser_configuration(config_path, port, timeout, mode)   # Parsing the config and database file, creating a server
 
-    server = parser_configuration(config_path, port, mode, threading.Lock())   # Parsing the config and database file, creating a server
+    if server is None:
+        return
 
     threading.Thread(target=server.zone_transfer).start()  # New thread for the zone transfer
 
