@@ -30,9 +30,6 @@ class SecondaryServer(server.Server):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         (address, port) = self.parse_address(self.primary_server)
-        port = 6001
-        print(str(address))
-        print(str(port))
         socket_tcp.connect((address, port))
         
         
@@ -57,7 +54,6 @@ class SecondaryServer(server.Server):
 
         while True:
             message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
-            print(message)
 
             if not message: # sentido?
                 break
@@ -72,7 +68,7 @@ class SecondaryServer(server.Server):
                         query = DNS(random.randint(1, 65535), " ", self.domain, "252")  # Query AXFR
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
                     else: # BD está atualizada
-                        self.log.log_zt(str(address), "SS : Database is up-to-date", "0")
+                        self.domain_log.log_zt(str(address), "SS : Database is up-to-date", "0")
                         socket_tcp.close()
                         return
 
@@ -90,7 +86,7 @@ class SecondaryServer(server.Server):
                     fields = line.split(" ")
                     if int(fields[0]) != expected_value:
                         #timeout
-                        self.log.log_ez(str(address), "SS : Expected value does not match")
+                        self.domain_log.log_ez(str(address), "SS : Expected value does not match")
                         socket_tcp.close()
                         return
 
@@ -99,13 +95,11 @@ class SecondaryServer(server.Server):
                 data += message
 
                 if lines_number == (expected_value-1):
-                    self.log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
+                    self.domain_log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
                     socket_tcp.close()
                     break
-                else:
-                    #self.log.log_ez(str(address), "SS : Final lines number does not match")
-                    socket_tcp.close()
-                    return
+                #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
+
 
         parser_database(self, data, "SP")
         print(self.cache)
