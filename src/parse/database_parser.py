@@ -64,122 +64,122 @@ def concatenate_suffix(type, suffix, parameter, value):
     return parameter, value
 
 
-def parser_database(server, file_content, origin):
+def parser_database(server, file_path):
     data = Cache(list())
 
-    ttl_default = 0
-    suffix = ""
-    priority = -1
-    names_list = list()
+    if file_path is not None:
+        f = open(file_path, "r")
 
-    file_content = file_content.split("\n")
+        ttl_default = 0
+        suffix = ""
+        priority = -1
+        names_list = list()
 
-    for line in file_content:
-        line = line.split("#")[0]  # ignorar comentários
+        for line in f:
+            line = line.split("#")[0]  # ignorar comentários
 
-        if suffix != "":
-            line = line.replace("@", suffix)
+            if suffix != "":
+                line = line.replace("@", suffix)
 
-        words = line.split()
+            words = line.split()
 
-        if origin == "SP":
-            words.remove(words[0])
+            if len(words) > 0:  # ignorar linhas vazias
+                if len(words) > 5:
+                    server.domain_log.log_fl("Too many arguments")
 
-        if len(words) > 0:  # ignorar linhas vazias
-            if len(words) > 5:
-                server.domain_log.log_fl("Too many arguments")
+                # valores default
+                if len(words) == 3 and words[1] == "DEFAULT":
+                    ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
 
-            # valores default
-            if len(words) == 3 and words[1] == "DEFAULT":
-                ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
-
-            elif len(words) < 4:
-                server.domain_log.log_fl("Arguments missing")
-
-            else:
-                type = words[1]
-                parameter, value = concatenate_suffix(type, suffix, words[0], words[2])
-                expiration = set_ttl(server, ttl_default, words[3])
-
-                if len(words) == 5:
-                    if words[4].isnumeric() and 0 <= int(words[4]) < 256:
-                        priority = int(words[4])
-                    else:
-                        server.domain_log.log_fl("Invalid value for priority")
-
-                if type == "SOASP":
-                    record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                    data.add_entry(record)
-                    server.soasp = value
-
-                elif type == "SOAADMIN":
-                    record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                    data.add_entry(record)
-                    server.soaadmin = value
-
-                elif type == "SOASERIAL":
-                    if value.isnumeric():
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                        server.soaserial = value
-                    else:
-                        server.domain_log.log_fl("Invalid value for SOASERIAL")
-
-                elif type == "SOAREFRESH":
-                    if value.isnumeric():
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                        server.soarefresh = int(value)
-                    else:
-                        server.domain_log.log_fl("Invalid value for SOAREFRESH")
-
-                elif type == "SOARETRY":
-                    if value.isnumeric():
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                        server.soaretry = int(value)
-                    else:
-                        server.domain_log.log_fl("Invalid value for SOARETRY")
-
-                elif type == "SOAEXPIRE":
-                    if value.isnumeric():
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                        server.soaexpire = int(value)
-                    else:
-                        server.domain_log.log_fl("Invalid value for SOAEXPIRE")
-
-                elif type == "NS":
-                    record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                    data.add_entry(record)
-
-                elif type == "A":
-                    if validate_ip(value):
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                        names_list.append(parameter)
-                    else:
-                        server.domain_log.log_fl("Invalid IP address")
-
-                elif type == "CNAME":
-                    if value in names_list:
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                    else:
-                        server.domain_log.log_fl("Name not found")
-
-                elif type == "MX":
-                    record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                    data.add_entry(record)
-
-                elif type == "PTR":
-                    if validate_ip(parameter):
-                        record = ResourceRecord(parameter, type, value, expiration, priority, origin)
-                        data.add_entry(record)
-                    else:
-                        server.domain_log.log_fl("Invalid IP address")
+                elif len(words) < 4:
+                    server.domain_log.log_fl("Arguments missing")
 
                 else:
-                    server.domain_log.log_fl("Invalid type")
+                    type = words[1]
+                    parameter, value = concatenate_suffix(type, suffix, words[0], words[2])
+                    expiration = set_ttl(server, ttl_default, words[3])
+
+                    if len(words) == 5:
+                        if words[4].isnumeric() and 0 <= int(words[4]) < 256:
+                            priority = int(words[4])
+                        else:
+                            server.domain_log.log_fl("Invalid value for priority")
+
+                    if type == "SOASP":
+                        record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                        data.add_entry(record)
+                        server.soasp = value
+
+                    elif type == "SOAADMIN":
+                        record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                        data.add_entry(record)
+                        server.soaadmin = value
+
+                    elif type == "SOASERIAL":
+                        if value.isnumeric():
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                            server.soaserial = value
+                        else:
+                            server.domain_log.log_fl("Invalid value for SOASERIAL")
+
+                    elif type == "SOAREFRESH":
+                        if value.isnumeric():
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                            server.soarefresh = int(value)
+                        else:
+                            server.domain_log.log_fl("Invalid value for SOAREFRESH")
+
+                    elif type == "SOARETRY":
+                        if value.isnumeric():
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                            server.soaretry = int(value)
+                        else:
+                            server.domain_log.log_fl("Invalid value for SOARETRY")
+
+                    elif type == "SOAEXPIRE":
+                        if value.isnumeric():
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                            server.soaexpire = int(value)
+                        else:
+                            server.domain_log.log_fl("Invalid value for SOAEXPIRE")
+
+                    elif type == "NS":
+                        record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                        data.add_entry(record)
+
+                    elif type == "A":
+                        if validate_ip(value):
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                            names_list.append(parameter)
+                        else:
+                            server.domain_log.log_fl("Invalid IP address")
+
+                    elif type == "CNAME":
+                        if value in names_list:
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                        else:
+                            server.domain_log.log_fl("Name not found")
+
+                    elif type == "MX":
+                        record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                        data.add_entry(record)
+
+                    elif type == "PTR":
+                        if validate_ip(parameter):
+                            record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
+                            data.add_entry(record)
+                        else:
+                            server.domain_log.log_fl("Invalid IP address")
+
+                    else:
+                        server.domain_log.log_fl("Invalid type")
+
+        f.close()
 
         server.cache = data
