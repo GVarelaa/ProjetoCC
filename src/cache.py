@@ -25,7 +25,7 @@ class Cache:
         return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
 
     def find_valid_entry(self, index, name, type):
-        i = 1
+        i = 0
         found = False
 
         for record in self.list:
@@ -50,8 +50,7 @@ class Cache:
         if new_record.origin == "SP" or new_record.origin == "FILE":
             for i in range(self.size):
                 if self.list[i].status == "FREE":
-                    new_record.index = i+1
-                    new_record.status = "VALID"
+                    new_record.status = "V  ALID"
                     new_record.timestamp = datetime.timestamp(datetime.now())
                     self.list[i] = new_record
                     break
@@ -81,17 +80,16 @@ class Cache:
 
     # Gets all entries with the given name and type
     def get_records_by_name_and_type(self, name, type):
-        
         records = []
-        record_index = 1
+        record_index = 0
 
-        while record_index < self.size + 1:
+        while record_index < self.size:
             record_index = self.find_valid_entry(record_index, name, type)
 
             if record_index == -1:
                 break
 
-            record = self.list[record_index-1]
+            record = self.list[record_index]
             records.append(record)
 
         return records
