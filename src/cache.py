@@ -96,15 +96,17 @@ class Cache:
 
         return records
 
-    def test_soaexpire(self): # If SOAEXPIRE is valid, update all records relative to the domain that expired
+    def test_soaexpire(self): # If SOAEXPIRE is valid, update all records relative to the domain that expired (???)
         if (time.mktime(time.localtime()) - time.mktime(self.timestamp) > self.soaexpire):
-            self.update_cache("")
+            self.free_cache("")
             self.timestamp = time.localtime()
 
-    def update_cache(self, domain):
+
+    def free_cache(self, domain): #SOAEXPIRE
         for record in self.list:
             if record.name == domain:
                 record.status = "FREE"
+
 
     def expand_cache(self):
         self.capacity = self.size * 2

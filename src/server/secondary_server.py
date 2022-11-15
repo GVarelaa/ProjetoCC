@@ -32,9 +32,7 @@ class SecondaryServer(server.Server):
         (address, port) = self.parse_address(self.primary_server)
         socket_tcp.connect((address, port))
         
-        
-
-        #self.log.log_zt(str(address), "SS : Zone Transfer started", "0")
+        self.domain_log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
         data = ""
         expected_value = 1
@@ -64,7 +62,7 @@ class SecondaryServer(server.Server):
                 if response.flags == "A" and response.type == "SOASERIAL":
                     version = response.response_values[0].value
 
-                    if version > self.soaserial:
+                    if float(version) > float(self.soaserial):
                         query = DNS(random.randint(1, 65535), " ", self.domain, "252")  # Query AXFR
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
                     else: # BD está atualizada
@@ -84,6 +82,7 @@ class SecondaryServer(server.Server):
 
                 for line in lines:
                     fields = line.split(" ")
+
                     if int(fields[0]) != expected_value:
                         #timeout
                         self.domain_log.log_ez(str(address), "SS : Expected value does not match")
@@ -102,7 +101,7 @@ class SecondaryServer(server.Server):
 
 
         parser_database(self, data, "SP")
-        print(self.cache)
+        #print(self.cache)
 
 
 

@@ -53,11 +53,11 @@ class PrimaryServer(server.Server):
 
                     file.close()
             else:
-                self.log.log_ez(str(address), "SP : Unexpected message")
+                self.domain_log.log_ez(str(address), "SP : Unexpected message")
                 connection.close()
                 return # CUIDADO
 
-        #self.log.log_zt(str(address), "SP : Zone Transfer concluded successfully", "0")
+        self.domain_log.log_zt(str(address), "SP : Zone Transfer concluded successfully", "0")
         connection.close()
 
     def zone_transfer(self):
