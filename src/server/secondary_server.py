@@ -10,6 +10,7 @@ import time
 from server import server
 from dns import *
 from parse.database_parser import *
+import select
 
 
 class SecondaryServer(server.Server):
@@ -29,9 +30,14 @@ class SecondaryServer(server.Server):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         (address, port) = self.parse_address(self.primary_server)
+        port = 6001
+        print(str(address))
+        print(str(port))
         socket_tcp.connect((address, port))
+        
+        
 
-        self.log.log_zt(str(address), "SS : Zone Transfer started", "0")
+        #self.log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
         data = ""
         expected_value = 1
@@ -40,8 +46,18 @@ class SecondaryServer(server.Server):
         query = DNS(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
+        while True: 
+            ready = select.select([socket_tcp], [], [], 2) #socket_tcp.recv(1024).decode('utf-8') # Recebe versão da BD
+            if ready[0]:
+                #message = socket_tcp.recv(1024).decode('utf-8')
+                break
+            else: 
+                print("Vou dormir")
+                time.sleep(2) 
+
         while True:
             message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
+            print(message)
 
             if not message: # sentido?
                 break
@@ -87,7 +103,7 @@ class SecondaryServer(server.Server):
                     socket_tcp.close()
                     break
                 else:
-                    self.log.log_ez(str(address), "SS : Final lines number does not match")
+                    #self.log.log_ez(str(address), "SS : Final lines number does not match")
                     socket_tcp.close()
                     return
 

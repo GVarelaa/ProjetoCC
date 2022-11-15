@@ -1,7 +1,7 @@
 # Configuration file for secondary server 1 for ggm domain
 
-ggm SP 10.3.3.1
+ggm SP 10.2.2.1
 # ggm DD ______
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
+ggm LG ../files/log_files/ggm.log
+all LG ../files/log_files/all.log
+root ST ../files/rootservers.db

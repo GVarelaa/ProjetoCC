@@ -8,6 +8,7 @@ import socket
 import threading
 from server import server
 from dns import *
+import time
 
 
 class PrimaryServer(server.Server):
@@ -17,10 +18,12 @@ class PrimaryServer(server.Server):
         self.secondary_servers = secondary_servers
 
     def zone_transfer_process(self, connection, address):
-        self.log.log_zt(str(address), "SP", "0")
+        #self.log.log_zt(str(address), "SP", "0")
 
         while True:
             message = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
+
+            #time.sleep(10)
 
             if not message:
                 break
@@ -52,11 +55,13 @@ class PrimaryServer(server.Server):
                 connection.close()
                 return # CUIDADO
 
-        self.log.log_zt(str(address), "SP : Zone Transfer concluded successfully", "0")
+        #self.log.log_zt(str(address), "SP : Zone Transfer concluded successfully", "0")
         connection.close()
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_tcp.bind(("", 6001))
+        print(socket_tcp.getsockname())
         socket_tcp.listen()
 
         while True:
