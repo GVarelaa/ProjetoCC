@@ -42,14 +42,6 @@ class ResourceRecord:
             self.priority)
         return string
 
-
-def create_free_record():
-    record = ResourceRecord("vazio", "vazio", "vazio", "vazio", "vazio", "vazio")
-    record.status = "FREE"
-
-    return record
-
-
 def string_to_record(string):
     fields = string.split(" ")
     priority = -1
@@ -60,3 +52,11 @@ def string_to_record(string):
     record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
 
     return record
+
+
+def create_free_record():
+    record = ResourceRecord("vazio", "vazio", "vazio", "vazio", "vazio", "vazio")
+    record.status = "FREE"
+
+    return record
+

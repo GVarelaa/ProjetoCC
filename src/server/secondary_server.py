@@ -83,25 +83,25 @@ class SecondaryServer(server.Server):
                 for line in lines:
                     fields = line.split(" ")
 
-                    if int(fields[0]) != expected_value:
-                        #timeout
+                    if int(fields[0]) != expected_value: # timeout
                         self.domain_log.log_ez(str(address), "SS : Expected value does not match")
                         socket_tcp.close()
                         return
 
-                    expected_value += 1
+                    fields.remove(fields[0])
 
-                data += message
+                    record = " ".join(fields)
+                    record = string_to_record(record)
+
+                    self.cache.add_entry(record)
+
+                    expected_value += 1
 
                 if lines_number == (expected_value-1):
                     self.domain_log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
                     socket_tcp.close()
                     break
                 #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
-
-
-        parser_database(self, data, "SP")
-        #print(self.cache)
 
 
 

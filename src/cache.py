@@ -78,21 +78,38 @@ class Cache:
 
         self.size += 1
 
+    def get_valid_entries(self):
+        entries = list()
+
+        for record in self.list:
+            if record.status == "VALID":
+                entries.append(record)
+
+            if record.origin == "OTHERS" and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
+                record.status = "FREE"
+
+        return entries
+
+
+    def get_num_valid_entries(self):
+        return len(self.get_valid_entries())
+
     # Gets all entries with the given name and type
     def get_records_by_name_and_type(self, name, type):
         records = []
-        record_index = 0
+        index = 0
 
-        while record_index < self.size:
-            record_index = self.find_valid_entry(record_index, name, type)
+        while index < self.size:
+            index = self.find_valid_entry(index, name, type)
 
-            if record_index == -1:
+            if index == -1:
                 break
 
-            record = self.list[record_index]
+            record = self.list[index]
             records.append(record)
 
         return records
+
 
     def test_soaexpire(self): # If SOAEXPIRE is valid, update all records relative to the domain that expired (???)
         if (time.mktime(time.localtime()) - time.mktime(self.timestamp) > self.soaexpire):

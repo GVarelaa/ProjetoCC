@@ -18,12 +18,10 @@ class PrimaryServer(server.Server):
         self.secondary_servers = secondary_servers
 
     def zone_transfer_process(self, connection, address):
-        #self.log.log_zt(str(address), "SP", "0")
+        self.domain_log.log_zt(str(address), "SP", "0")
 
         while True:
             message = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
-
-            #time.sleep(10)
 
             if not message:
                 break
@@ -41,17 +39,17 @@ class PrimaryServer(server.Server):
             elif query.flags == "A" and query.type == "252": # Secundário aceitou linhas e respondeu com o nº de linhas
                 lines_number = int(query.response_values[0].value)
 
-                if lines_number == self.count_valid_lines():
-                    file = open(self.data_path, "r")
-                    i = 1
-                    for line in file:
-                        if len(line) > 1 and line[0] != '#':
-                            line = str(i) + " " + line
-                            connection.sendall(line.encode('utf-8'))
+                if lines_number == self.cache.get_num_valid_entries():
+                    entries = self.cache.get_valid_entries()
 
-                            i += 1
+                    counter = 1
+                    for record in entries:
+                        if record.origin == "FILE":
+                            record = str(counter) + " " + record.resource_record_to_string() + "\n"
+                            connection.sendall(record.encode('utf-8'))
 
-                    file.close()
+                            counter += 1
+
             else:
                 self.domain_log.log_ez(str(address), "SP : Unexpected message")
                 connection.close()
@@ -62,7 +60,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", 28006))
+        socket_tcp.bind(("", 28007))
         socket_tcp.listen()
 
         while True:

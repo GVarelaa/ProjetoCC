@@ -106,5 +106,6 @@ def parser_configuration(file_path, port, timeout, mode):
         domain_log.log_ev("localhost", "db-file-read", data_path)
     else:
         server = SecondaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, primary_server)
+        server.cache = Cache(list())
 
     return server

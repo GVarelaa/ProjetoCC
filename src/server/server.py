@@ -52,17 +52,6 @@ class Server:
 
         return (ip_address, port)
 
-    def count_valid_lines(self):
-        f = open(self.data_path, "r")
-        counter = 0
-
-        for line in f:
-            if line[0] != "#" and len(line) > 1:
-                counter += 1
-
-        f.close()
-
-        return counter
 
     def interpret_query(self, query):  # interpret_query
         response_values = list()
@@ -70,7 +59,7 @@ class Server:
         extra_values = list()
 
         if query.flags == " " and query.type == "252" and self.domain == query.domain_name:  # Query AXFR
-            record = ResourceRecord(query.domain_name, query.type, str(self.count_valid_lines()), -1, -1, "SP")
+            record = ResourceRecord(query.domain_name, query.type, str(self.cache.get_num_valid_entries()), -1, -1, "SP")
 
             query.flags = "A"
             query.response_values.append(record)
