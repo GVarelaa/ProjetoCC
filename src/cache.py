@@ -48,9 +48,9 @@ class Cache:
             self.expand_cache()
 
         if new_record.origin == "SP" or new_record.origin == "FILE":
-            for i in range(self.size):
+            for i in range(self.capacity):
                 if self.list[i].status == "FREE":
-                    new_record.status = "V  ALID"
+                    new_record.status = "VALID"
                     new_record.timestamp = datetime.timestamp(datetime.now())
                     self.list[i] = new_record
                     break
@@ -58,7 +58,7 @@ class Cache:
         else:
             last_free = 0
             found = False
-            for i in range(self.size):
+            for i in range(self.capacity):
                 if self.list[i].status == "FREE":
                     last_free = i
 

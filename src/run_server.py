@@ -5,7 +5,6 @@
 # TODO: Make it work for multiple servers
 import socket
 import threading
-from dns import *
 from parse.configuration_parser import *
 
 
@@ -30,8 +29,6 @@ def main():
         message, address_from = socket_udp.recvfrom(1024)                   # Receives a message
 
         threading.Thread(target=server.receive_queries, args=(message, address_from, socket_udp)).start()
-
-
 
     socket_udp.close()
 
