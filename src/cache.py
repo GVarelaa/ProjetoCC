@@ -129,3 +129,13 @@ class Cache:
           if i >= self.size:
               self.list.append(create_free_record())
 
+    def is_empty(self):
+        len = 0
+        for record in self.list:
+            if record.origin == "OTHERS" and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
+                record.status = "FREE"
+
+            if record.status == "VALID":
+                len += 1
+
+        return len == 0

@@ -34,7 +34,6 @@ class SecondaryServer(server.Server):
         
         self.domain_log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
-        data = ""
         expected_value = 1
         lines_number = 0
 
@@ -60,9 +59,15 @@ class SecondaryServer(server.Server):
                 response = string_to_dns(message)  # Cria query DNS
 
                 if response.flags == "A" and response.type == "SOASERIAL":
-                    version = response.response_values[0].value
+                    if self.cache.is_empty():
+                        ss_version = "-1"
+                    else:
+                        ss_version = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value
 
-                    if float(version) > float(self.soaserial):
+
+                    sp_version = response.response_values[0].value
+
+                    if float(sp_version) > float(ss_version):
                         query = DNS(random.randint(1, 65535), " ", self.domain, "252")  # Query AXFR
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
                     else: # BD está atualizada
@@ -105,8 +110,10 @@ class SecondaryServer(server.Server):
 
 
 
+
     def zone_transfer(self):
         while True:
             self.zone_transfer_process() # Criar thread ?
 
-            time.sleep(self.soarefresh)
+            soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
+            time.sleep(soarefresh)

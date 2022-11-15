@@ -22,13 +22,6 @@ class Server:
 
         self.cache = None
 
-        self.soasp = None
-        self.soaadmin = None
-        self.soaserial = "-1"
-        self.soarefresh = None
-        self.soaretry = None
-        self.soaexpire = None
-
 
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \

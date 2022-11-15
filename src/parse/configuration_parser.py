@@ -34,7 +34,6 @@ def parser_configuration(file_path, port, timeout, mode):
 
     domain = None
     data_path = None
-    file_content = None
     primary_server = None
     secondary_servers = list()
     root_servers = list()
@@ -59,9 +58,6 @@ def parser_configuration(file_path, port, timeout, mode):
 
                 if value_type == "DB":
                     data_path = value
-                    f = open(data_path, "r")
-                    file_content = f.read()
-                    f.close()
 
                 elif value_type == "SP" and validate_ip(value):
                     primary_server = value
@@ -102,7 +98,7 @@ def parser_configuration(file_path, port, timeout, mode):
 
     if primary_server is None:
         server = PrimaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers)
-        parser_database(server, file_content, "FILE")
+        parser_database(server, data_path)
         domain_log.log_ev("localhost", "db-file-read", data_path)
     else:
         server = SecondaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, primary_server)
