@@ -79,8 +79,8 @@ def parser_configuration(file_path, port, timeout, mode):
 
     f.close()
 
-    domain_log = Log(domain_log_path, mode_bool, None)
-    all_log = Log(all_log_path, mode_bool, None)
+    domain_log = Log(domain_log_path, mode_bool)
+    all_log = Log(all_log_path, mode_bool)
 
     if not validate_port(port):
         domain_log.log_sp("localhost", "invalid port")
@@ -98,6 +98,7 @@ def parser_configuration(file_path, port, timeout, mode):
 
     if primary_server is None:
         server = PrimaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers)
+
         parser_database(server, data_path)
         all_log.log_ev("localhost", "db-file-read", data_path)
     else:

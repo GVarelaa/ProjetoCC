@@ -22,7 +22,6 @@ class Server:
 
         self.cache = None
 
-
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
@@ -32,7 +31,6 @@ class Server:
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log_path}"
-
 
     def parse_address(self, address):
         substrings = address.split(":")
@@ -45,8 +43,7 @@ class Server:
 
         return (ip_address, port)
 
-
-    def interpret_query(self, query):  # interpret_query
+    def build_response(self, query):  # interpret_query
         response_values = list()
         authorities_values = list()
         extra_values = list()
@@ -98,8 +95,7 @@ class Server:
             else:  # MISS
                 return query
 
-
-    def receive_queries(self, message, address_from, socket_udp):
+    def interpret_message(self, message, address_from, socket_udp):
         message = string_to_dns(message.decode('utf-8'))  # Decodes and converts to PDU
 
         if "Q" in message.flags:  # It is a query
@@ -107,7 +103,7 @@ class Server:
 
             self.all_log.log_qr(str(address_from), query.query_to_string())
 
-            response = self.interpret_query(query)  # Create a response to that query
+            response = self.build_response(query)  # Create a response to that query
 
             if "A" in response.flags:  # Answer in cache/DB
                 self.all_log.log_rp(str(address_from), response.query_to_string())
@@ -123,4 +119,17 @@ class Server:
             self.all_log.log_rr(str(address_from), response.query_to_string())
 
             socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
+
+    def receive_queries(self, port):
+        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
+        socket_udp.bind(("127.0.0.1", int(port)))  # Binding to server ip
+
+        while True:
+            message, address_from = socket_udp.recvfrom(1024)  # Receives a message
+
+            threading.Thread(target=self.interpret_message, args=(message, address_from, socket_udp)).start()
+
+        socket_udp.close()
+
+
 
