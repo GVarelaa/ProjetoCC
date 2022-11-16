@@ -6,15 +6,15 @@
 
 from datetime import datetime
 import sys
+import threading
 
 
 
 class Log:
-    def __init__(self, filepath, mode, lock):
+    def __init__(self, filepath, mode):
         self.filepath = filepath            # Name of the log file
         self.mode = mode                    # True means DEBUG mode -> also print to stdout
-        #self.fd = open(filepath, "a")       # File descripto
-        self.lock = lock
+        self.lock = threading.Lock()
 
     def __str__(self):
         data = self.fd.read()
@@ -72,7 +72,8 @@ class Log:
 
     # Method called by the others
     def add_log(self, message):
-        #self.lock.acquire()
+        self.lock.acquire()
+
         fd = open(self.filepath, "a")
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
@@ -81,7 +82,8 @@ class Log:
             sys.stdout.write(dt + " " + message + "\n")
 
         fd.close()
-        #self.lock.release()
+
+        self.lock.release()
 
 
 
