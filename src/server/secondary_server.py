@@ -7,6 +7,7 @@
 import random
 import socket
 import time
+import threading
 from server import server
 from dns import *
 from parse.database_parser import *
@@ -108,12 +109,20 @@ class SecondaryServer(server.Server):
                     break
                 #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
 
+    def soa_expire(self):
+        soaexpire = int(self.cache.get_records_by_name_and_type(self.domain, "SOAEXPIRE")[0].value)
 
+        time.sleep(soaexpire)
 
+        self.cache.free_cache(self.domain)
 
     def zone_transfer(self):
         while True:
             self.zone_transfer_process() # Criar thread ?
 
             soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
+
+            threading.Thread(target=self.soa_expire)
+
             time.sleep(soarefresh)
+

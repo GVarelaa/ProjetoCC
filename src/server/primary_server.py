@@ -29,11 +29,11 @@ class PrimaryServer(server.Server):
             query = string_to_dns(message)
 
             if query.flags == "Q": # Pedir versão e envia
-                response = self.interpret_query(query)
+                response = self.build_response(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
 
             elif query.flags == " ": # Pedir transferência e envia número de linhas
-                response = self.interpret_query(query)
+                response = self.build_response(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
 
             elif query.flags == "A" and query.type == "252": # Secundário aceitou linhas e respondeu com o nº de linhas
@@ -60,7 +60,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", 28008)) #TIRAR ISOTO
+        socket_tcp.bind(("", 28009)) #TIRAR ISOTO
         socket_tcp.listen()
 
         while True:
