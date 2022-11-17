@@ -67,8 +67,6 @@ class SecondaryServer(server.Server):
                     else:
                         ss_version = list[0].value
 
-                    print(ss_version)
-
                     sp_version = response.response_values[0].value
 
                     if float(sp_version) > float(ss_version):
