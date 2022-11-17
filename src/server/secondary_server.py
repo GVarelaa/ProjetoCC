@@ -10,7 +10,6 @@ import time
 import threading
 from server import server
 from dns import *
-from parse.database_parser import *
 import select
 
 
@@ -18,6 +17,7 @@ class SecondaryServer(server.Server):
     def __init__(self, domain, default_domains, root_servers, domain_log, all_log, port, mode, primary_server):
         super().__init__(domain, default_domains, root_servers, domain_log, all_log, port, mode)
         self.primary_server = primary_server
+        self.thread_expire = False
 
     def __str__(self):
         return super().__str__() + \
@@ -60,10 +60,14 @@ class SecondaryServer(server.Server):
                 response = string_to_dns(message)  # Cria query DNS
 
                 if response.flags == "A" and response.type == "SOASERIAL":
-                    if self.cache.is_empty():
-                        ss_version = "-1"
+                    list = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")
+
+                    if len(list) == 0:
+                        ss_version = -1
                     else:
-                        ss_version = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")[0].value
+                        ss_version = list[0].value
+
+                    print(ss_version)
 
                     sp_version = response.response_values[0].value
 
@@ -111,18 +115,22 @@ class SecondaryServer(server.Server):
 
     def soa_expire(self):
         soaexpire = int(self.cache.get_records_by_name_and_type(self.domain, "SOAEXPIRE")[0].value)
-
+        print(soaexpire)
         time.sleep(soaexpire)
 
         self.cache.free_cache(self.domain)
 
+        self.thread_expire = False
+
     def zone_transfer(self):
         while True:
-            self.zone_transfer_process() # Criar thread ?
+            self.zone_transfer_process()   #Criar thread ?
 
             soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
 
-            threading.Thread(target=self.soa_expire)
+            if self.thread_expire == False:
+                self.thread_expire = True
+                threading.Thread(target=self.soa_expire).start()
 
             time.sleep(soarefresh)
 
