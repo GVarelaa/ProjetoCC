@@ -1,12 +1,12 @@
-# DNS database file for reverse domain primary server 
+# DNS database file for reverse domain.
 
 @ DEFAULT .reverse.
 TTL DEFAULT 86400
 
 # Config data
 
-@ SOASP .reverse. TTL
-@ SOADMIN ___ TTL
+@ SOASP ns1.reverse. TTL
+@ SOADMIN gabs\.ggm. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600
@@ -14,8 +14,11 @@ TTL DEFAULT 86400
 
 # Name servers
 
-in-addr.reverse. NS ns1.in-addr.reverse.
+@ NS ns1.reverse. TTL 
+in-addr.reverse. NS ns1.in-addr.reverse. TTL
 
 # Addresses
 
-ns1.in-addr A 10.4.4.2 TTL
+ns1 A 10.3.3.2:2012 TTL
+ns1.in-addr A 10.4.4.2:2013 TTL
+

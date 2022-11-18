@@ -1,0 +1,6 @@
+# Configuration file for name resolver for taremi.fcp domain
+
+taremi.fcp DD 10.4.4.1:2009
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+

@@ -1,0 +1,7 @@
+# Configuration file for secondary server 1 for taremi.fcp domain
+
+taremi.fcp SP 10.4.4.1:2009
+taremi.fcp LG dns/files/log_files/taremi_fcp.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+

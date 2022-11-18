@@ -5,8 +5,8 @@ TTL DEFAULT 86400
 
 # Config data
 
-@ SOASP . TTL
-@ SOADMIN ___ TTL
+@ SOASP sp. TTL
+@ SOADMIN mike\.ggm. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600
@@ -16,8 +16,13 @@ TTL DEFAULT 86400
 
 ggm. NS ns1.ggm.
 fcp. NS ns1.fcp.
+reverse. NS ns1.reverse.
 
 # Addresses
 
-ns1.ggm A 10.2.2.1 TTL
-ns1.fcp A 10.2.2.2 TTL
+ns1.ggm A 10.2.2.1:2000 TTL
+ns1.fcp A 10.2.2.2:2003 TTL
+ns1.reverse A 10.3.3.2:2012 TTL
+
+
+

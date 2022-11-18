@@ -1,6 +1,6 @@
 # Configuration file for primary server for .in-addr.reverse domain
 
-# in-addr.reverse.ggm DD ______
 in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
+
