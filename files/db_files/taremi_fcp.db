@@ -1,0 +1,36 @@
+# DNS database file for domain taremi.fcp
+
+@ DEFAULT .taremi.fcp
+TTL DEFAULT 86400
+
+@ SOASP ns1.taremi.fcp. TTL
+@ SOADMIN admin\.taremin.fcp. TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.taremi.fcp. TTL
+@ NS ns2.taremi.fcp. TTL
+@ NS ns3.taremi.fcp. TTL
+
+# MAIL SERVERS
+@ MX ms1.@ TTL 
+
+# Addresses
+ns1 A 10.4.4.1:2009 TTL
+ns2 A 10.1.1.3:2010 TTL
+ns3 A 10.2.2.3:2011 TTL
+taremi A 10.3.3.3 TTL
+pepe A 10.4.4.3 TTL
+zaidu A 10.3.3.2 TTL
+ms1 A 10.3.3.1 TTL
+sr 10.2.2.3 TTL 
+
+sp CNAME ns1 TTL
+ss1 CNAME ns2 TTL
+ss2 CNAME ns3 TTL
+
+
+

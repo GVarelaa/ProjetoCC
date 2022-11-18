@@ -4,7 +4,7 @@
 TTL DEFAULT 86400
 
 @ SOASP ns1.fcp. TTL
-@ SOADMIN ___ TTL
+@ SOADMIN admin.\fcp. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600
@@ -21,17 +21,20 @@ taremi.@ NS ns1.taremi.fcp.
 @ MX ms1.fcp. TTL
 
 # Addresses
-ns1 A 10.2.2.1 TTL
-ns2 A 10.2.2.2 TTL
-ns3 A 10.2.2.3 TTL
-ns1.taremi A 10.1.1.1 TTL
+ns1 A 10.2.2.2:2003 TTL
+ns2 A 10.3.3.2:2004 TTL
+ns3 A 10.4.4.3:2005 TTL
+ns1.taremi A 10.4.4.1:2009 TTL
 ms1 A 10.2.2.1 TTL
 pdc A 10.4.4.1 TTL
+avb A 10.4.4.2 TTL 
 
 sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL
 mail1 CNAME ms1 TTL
+
+
 
 
 

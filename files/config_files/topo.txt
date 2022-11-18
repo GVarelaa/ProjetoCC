@@ -1,5 +1,7 @@
-# Configuration file for root file 
+# Configuration file for root server
 
-. DB /config_files/root.db
-. LG /logs/root.log
-all LG /logs/all.log
+. DB dns/files/config_files/root.db
+. LG dns/files/log_files/root.log
+all LG dns/files/log_files/all.log
+
+

@@ -1,7 +1,7 @@
 # Configuration file for secondary server 1 for fcp domain
 
-fcp SP 10.2.2.1
-# fcp DD ______
+fcp SP 10.2.2.2:2003
 fcp LG dns/files/log_files/fcp.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
+

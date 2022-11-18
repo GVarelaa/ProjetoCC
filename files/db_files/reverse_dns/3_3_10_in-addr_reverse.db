@@ -4,7 +4,7 @@
 TTL DEFAULT 86400
 
 @ SOASP ns1.3.3.10.in-addr.reverse. TTL
-@ SOADMIN ___ TTL
+@ SOADMIN gabs\.ggm TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600
@@ -15,6 +15,7 @@ TTL DEFAULT 86400
 
 # Addresses
 ns1 A 10.4.4.1 TTL
-10.3.3.1 PTR _ TTL
-10.3.3.2 PTR _ TTL
-10.3.3.3 PTR _ TTL
+10.3.3.1 PTR [s1. , ss1.ggm. , sp.4.10.in-addr.reverse , ms1.ggm.] TTL
+10.3.3.2 PTR [ss1.fcp. , sp.reverse. , sp.1.1.19.in-addr.reverse. , gabs.ggm] TTL
+10.3.3.3 PTR [ss2.cc.ggm. , sp.2.2.10.in-addr.reverse , ms2.ggm] TTL
+

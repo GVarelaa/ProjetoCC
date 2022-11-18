@@ -1,6 +1,6 @@
 # Configuration file for primary server for .reverse domain
 
-# reverse DD ______
 reverse LG dns/files/log_files/reverse.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
+
