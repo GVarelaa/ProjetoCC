@@ -25,12 +25,12 @@ class Server:
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log: {self.log_path}"
+               f"{self.root_servers}\nFicheiro de Log Domínio: {self.domain_log}\nFicheiro de Log All{self.all_log}"
     
     def __repr__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log: {self.log_path}"
+               f"{self.root_servers}\nFicheiro de Log Domínio: {self.domain_log}\nFicheiro de Log All{self.all_log}"
 
     def parse_address(self, address):
         substrings = address.split(":")
@@ -68,7 +68,6 @@ class Server:
 
             if len(response_values) != 0:  # HIT
                 authorities_values = self.cache.get_records_by_name_and_type(domain_name, "NS")
-                extra_values = list()
 
                 for record in response_values:
                     records = self.cache.get_records_by_name_and_type(record.value, "A")
@@ -101,16 +100,20 @@ class Server:
         if "Q" in message.flags:  # It is a query
             query = message
 
+            self.domain_log.log_qr(str(address_from), query.query_to_string())
             self.all_log.log_qr(str(address_from), query.query_to_string())
 
             response = self.build_response(query)  # Create a response to that query
 
             if "A" in response.flags:  # Answer in cache/DB
+                self.domain_log.log_rp(str(address_from), response.query_to_string())
                 self.all_log.log_rp(str(address_from), response.query_to_string())
 
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
             else:
+                self.domain_log.log_to(str(address_from), "Query Miss")
                 self.all_log.log_to(str(address_from), "Query Miss")
+                #timeout
                 return  # MISS
 
         else:  # It's a response to a query

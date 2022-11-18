@@ -19,9 +19,10 @@ class PrimaryServer(server.Server):
 
     def zone_transfer_process(self, connection, address):
         self.domain_log.log_zt(str(address), "SP", "0")
+        self.all_log.log_zt(str(address), "SP", "0")
 
         while True:
-            message = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
+            message, address_from = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
 
             if not message:
                 break
@@ -29,10 +30,16 @@ class PrimaryServer(server.Server):
             query = string_to_dns(message)
 
             if query.flags == "Q": # Pedir versão e envia
+                self.domain_log.log_qr(str(address_from), query.query_to_string())
+                self.all_log.log_qr(str(address_from), query.query_to_string())
+
                 response = self.build_response(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
 
             elif query.flags == " ": # Pedir transferência e envia número de linhas
+                self.domain_log.log_qr(str(address_from), query.query_to_string())
+                self.all_log.log_qr(str(address_from), query.query_to_string())
+
                 response = self.build_response(query)
                 connection.sendall(response.query_to_string().encode('utf-8'))
 
@@ -50,17 +57,22 @@ class PrimaryServer(server.Server):
 
                             counter += 1
 
+                self.domain_log.log_zt(str(address), "SP : All entries sent", "0")
+                self.all_log.log_zt(str(address), "SP : All entries sent", "0")
+
             else:
                 self.domain_log.log_ez(str(address), "SP : Unexpected message")
-                connection.close()
-                return # CUIDADO
+                self.all_log.log_ez(str(address), "SP : Unexpected message")
 
-        self.domain_log.log_zt(str(address), "SP : Zone Transfer concluded successfully", "0")
+                connection.close()
+
+                break # CUIDADO
+
         connection.close()
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", 28009)) #TIRAR ISOTO
+        socket_tcp.bind(("", 28009)) #TIRAR ISTO
         socket_tcp.listen()
 
         while True:
