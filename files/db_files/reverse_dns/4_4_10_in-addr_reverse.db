@@ -15,6 +15,7 @@ TTL DEFAULT 86400
 
 # Addresses
 ns1 A 10.4.4.3 TTL
-10.4.4.1 PTR _ TTL
-10.4.4.2 PTR _ TTL
-10.4.4.3 PTR _ TTL
+10.4.4.1 PTR [ss2.ggm. , sp.taremi.fcp. , sp.3.3.10.in-addr.reverse. , pdc.fcp. , gui.ggm.] TTL
+10.4.4.2 PTR [ss2.fcp. , sp.4.4.10.in-addr.reverse, ms1.cc.ggm. , avb.fcp.] TTL
+10.4.4.3 PTR [ss1.cc.ggm. , sp.in-addr.reverse.] TTL
+

@@ -25,9 +25,12 @@ ns3 A 10.2.2.3:2011 TTL
 taremi A 10.3.3.3 TTL
 pepe A 10.4.4.3 TTL
 zaidu A 10.3.3.2 TTL
-ms1 A 10.3.3.1 TTL 
+ms1 A 10.3.3.1 TTL
+sr 10.2.2.3 TTL 
 
 sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL
+
+
 
