@@ -5,7 +5,7 @@
 # Última atualização: Header
 
 def validate_port(port):
-    return 1 < int(port) < 65000
+    return 1 < int(port) < 65535
 
 
 def validate_ip(ip_address):
