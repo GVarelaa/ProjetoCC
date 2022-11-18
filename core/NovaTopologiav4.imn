@@ -278,52 +278,15 @@ node n12 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/rootservers.db', 'dns/files/db_files/ggm.db', 'dns/files/db_files/root.db', 'dns/files/config_files/ggm_primary.txt', 'preenche_resolvconf.sh', 'dns/files/db_files/1_10_in-addr_reverse.db', 'dns/files/db_files/1_10_in-addr_reverse_primary.txt', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	files=('preenche_resolvconf.sh', 'setup.sh', )
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', 'bash setup.sh', )
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/1_10_in-addr_reverse_primary.txt
-	custom-command dns/files/db_files/1_10_in-addr_reverse_primary.txt
+	custom-config-id service:UserDefined:setup.sh
+	custom-command setup.sh
 	config {
-	# Configuration file for primary server for 1.10.in-addr.reverse domain
-	
-	# 1.10.in-addr.reverse. DD ______
-	1.10.in-addr.reverse. LG dns/files/log_files/1_10_in-addr_reverse.log
-	all LG dns/files/log_files/all.log
-	root ST dns/files/rootservers.db
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/1_10_in-addr_reverse.db
-	custom-command dns/files/db_files/1_10_in-addr_reverse.db
-	config {
-	# DNS database file for domain 1.10.in-addr.reverse
-	
-	@ DEFAULT 1.10.in-addr.reverse.
-	TTL DEFAULT 86400
-	
-	@ SOASP ns1.1.10.in-addr.reverse. TTL
-	@ SOADMIN ___ TTL
-	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
-	@ SOARETRY 3600
-	@ SOAEXPIRE 604800 TTL
-	
-	# Name servers
-	@ NS ns1.1.10.in-addr.reverse. TTL
-	
-	1.@ NS ns1.1.1.10.in-addr.reverse.
-	
-	# Addresses
-	ns1 A 10.2.2.1 TTL
-	ns1.1 A 10.3.3.2 TTL
-	
-	
-	
-	
-	
-	
+	copy /home/core/ProjetoCC/ ~
 	}
     }
     custom-config {
@@ -334,111 +297,6 @@ node n12 {
 	echo "domain cc.pt" >> /etc/resolv.conf
 	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 	echo "" >> /etc/resolv.conf
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/config_files/ggm_primary.txt
-	custom-command dns/files/config_files/ggm_primary.txt
-	config {
-	# Configuration file for primary server for ggm domain
-	
-	ggm DB dns/files/db_files/ggm.db
-	ggm SS 10.3.3.1
-	ggm SS 10.4.1.1
-	# ggm DD ______
-	ggm LG dns/files/log_files/ggm.log
-	all LG dns/files/log_files/all.log
-	root ST dns/files/rootservers.db
-	
-	
-	
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/root.db
-	custom-command dns/files/db_files/root.db
-	config {
-	# DNS database file for root server 
-	
-	@ DEFAULT .
-	TTL DEFAULT 86400
-	
-	# Config data
-	
-	@ SOASP . TTL
-	@ SOADMIN ___ TTL
-	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
-	@ SOARETRY 3600
-	@ SOAEXPIRE 604800 TTL
-	
-	# Name servers
-	
-	ggm. NS ns1.ggm.
-	fcp. NS ns1.fcp.
-	
-	# Addresses
-	
-	ns1.ggm A 10.2.2.1 TTL
-	ns1.fcp A 10.2.2.2 TTL
-	
-	
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/ggm.db
-	custom-command dns/files/db_files/ggm.db
-	config {
-	# DNS database file for domain .fcp
-	
-	@ DEFAULT ggm.
-	TTL DEFAULT 86400
-	
-	@ SOASP ns1.ggm. TTL
-	@ SOADMIN ___ TTL
-	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
-	@ SOARETRY 3600
-	@ SOAEXPIRE 604800 TTL
-	
-	# Name servers
-	@ NS ns1.ggm. TTL
-	@ NS ns2.ggm. TTL
-	@ NS ns3.ggm. TTL
-	
-	cc.@ NS ns1.cc.ggm.
-	
-	# MAIL SERVERS
-	@ MX ms1.fcp. TTL
-	
-	# Addresses
-	ns1 A 10.2.2.1 TTL
-	ns2 A 10.3.3.1 TTL
-	ns3 A 10.4.4.1 TTL
-	ns1.cc A 10.1.1.2 TTL
-	ms1 A 10.3.3.2 TTL
-	
-	sp CNAME ns1 TTL
-	ss1 CNAME ns2 TTL
-	ss2 CNAME ns3 TTL
-	mail1 CNAME ms1 TTL
-	
-	
-	
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
-	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
 	}
     }
     custom-config {

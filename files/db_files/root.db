@@ -19,5 +19,5 @@ fcp. NS ns1.fcp.
 
 # Addresses
 
-ns1.ggm A 10.3.3.1 TTL
-ns1.fcp A 10.2.2.1 TTL
+ns1.ggm A 10.2.2.1 TTL
+ns1.fcp A 10.2.2.2 TTL
