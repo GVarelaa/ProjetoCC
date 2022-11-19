@@ -13,7 +13,11 @@ def main():
     config_path = args[1]       # Path of the config file of the server
     port = args[2]              # Port the server will be listening
     timeout = args[3]           # Time the server waits for a response
-    mode = args[4]              # Debug enabled or disabled
+
+    if len(args) > 4:
+        mode = args[4]              # Debug enabled or disabled
+    else:
+        mode = "debug"
 
     server = parser_configuration(config_path, port, timeout, mode)   # Parsing the config and database file, creating a server
 

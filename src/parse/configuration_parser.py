@@ -27,11 +27,6 @@ def parser_root_servers(file_path):
 
 
 def parser_configuration(file_path, port, timeout, mode):
-    if mode == "debug":
-        mode_bool = True
-    else:
-        mode_bool = False
-
     domain = None
     data_path = None
     primary_server = None
@@ -40,6 +35,7 @@ def parser_configuration(file_path, port, timeout, mode):
     default_domains = list()
     domain_log_path = None
     all_log_path = None
+    is_debug = False
 
     f = open(file_path, "r")
 
@@ -91,17 +87,20 @@ def parser_configuration(file_path, port, timeout, mode):
 
     f.close()
 
+
+    if mode != "shy" and mode != "debug":
+        sys.stdout.write("Error running server configurations: Invalid server mode\n")
+        return None
+
+    if mode == "debug":
+        is_debug = True
+
     domain_log = Log(domain_log_path, False)
-    all_log = Log(all_log_path, mode_bool)
+    all_log = Log(all_log_path, is_debug)
 
     if not validate_port(port):
         domain_log.log_sp("localhost", "invalid port")
         all_log.log_sp("localhost", "invalid port")
-        return None
-
-    if mode != "shy" and mode != "debug":
-        domain_log.log_sp("localhost", "invalid server mode")
-        all_log.log_sp("localhost", "invalid server mode")
         return None
 
     domain_log.log_st("localhost", port, timeout, mode)
