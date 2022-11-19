@@ -21,13 +21,13 @@ def set_default_values(server, ttl_default, suffix, line):
     return ttl_default, suffix
 
 
-def set_ttl(server, ttl_default, word):
+def set_ttl(ttl_default, word):
     if word == "TTL":
         ttl = ttl_default
     elif word.isnumeric():
         ttl = int(word)
     else:
-        server.domain_log.log_fl("Invalid value for TTL")
+        ttl = -1
 
     return ttl
 
@@ -107,7 +107,12 @@ def parser_database(server, file_path):
                 else:
                     type = words[1]
                     parameter, value = concatenate_suffix(type, suffix, words[0], words[2])
-                    expiration = set_ttl(server, ttl_default, words[3])
+                    expiration = set_ttl(ttl_default, words[3])
+
+                    if expiration == -1:
+                        server.domain_log.log_fl("Invalid value for TTL")
+                        server.all_log.log_fl("Invalid value for TTL")
+                        continue
 
                     if len(words) == 5:
                         if words[4].isnumeric() and 0 <= int(words[4]) < 256:
@@ -115,6 +120,7 @@ def parser_database(server, file_path):
                         else:
                             server.domain_log.log_fl("Invalid value for priority")
                             server.all_log.log_fl("Invalid value for priority")
+                            continue
 
                     if type == "SOASP":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
