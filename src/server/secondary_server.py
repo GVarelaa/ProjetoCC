@@ -34,6 +34,7 @@ class SecondaryServer(server.Server):
         socket_tcp.connect((address, port))
 
         self.domain_log.log_zt(str(address), "SS : Zone Transfer started", "0")
+        self.all_log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
         expected_value = 1
         lines_number = 0
@@ -75,6 +76,8 @@ class SecondaryServer(server.Server):
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
                     else: # BD está atualizada
                         self.domain_log.log_zt(str(address), "SS : Database is up-to-date", "0")
+                        self.all_log.log_zt(str(address), "SS : Database is up-to-date", "0")
+
                         socket_tcp.close()
                         return
 
@@ -93,6 +96,8 @@ class SecondaryServer(server.Server):
 
                     if int(fields[0]) != expected_value: # timeout
                         self.domain_log.log_ez(str(address), "SS : Expected value does not match")
+                        self.all_log.log_ez(str(address), "SS : Expected value does not match")
+
                         socket_tcp.close()
                         return
 
@@ -107,18 +112,11 @@ class SecondaryServer(server.Server):
 
                 if lines_number == (expected_value-1):
                     self.domain_log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
+                    self.all_log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
+
                     socket_tcp.close()
                     break
                 #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
-
-    def soa_expire(self):
-        soaexpire = int(self.cache.get_records_by_name_and_type(self.domain, "SOAEXPIRE")[0].value)
-        print(soaexpire)
-        time.sleep(soaexpire)
-
-        self.cache.free_cache(self.domain)
-
-        self.thread_expire = False
 
     def zone_transfer(self):
         while True:
@@ -126,9 +124,4 @@ class SecondaryServer(server.Server):
 
             soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
 
-            if self.thread_expire == False:
-                self.thread_expire = True
-                threading.Thread(target=self.soa_expire).start()
-
             time.sleep(soarefresh)
-
