@@ -18,12 +18,10 @@ def main():
     server = parser_configuration(config_path, port, timeout, mode)   # Parsing the config and database file, creating a server
 
     if server is None:
-        sys.stdout.write("Error running server configurations.")
         return
 
     threading.Thread(target=server.zone_transfer).start()    # New thread for the zone transfer
     threading.Thread(target=server.receive_queries, args=(port,)).start()  # New thread for receiving messages from UDP
-
 
 
 if __name__ == "__main__":
