@@ -48,7 +48,7 @@ class Server:
         authorities_values = list()
         extra_values = list()
 
-        if query.flags == " " and query.type == "252" and self.domain == query.domain_name:  # Query AXFR
+        if query.type == "AXFR" and self.domain == query.domain_name:  # Query AXFR
             record = ResourceRecord(query.domain_name, query.type, str(self.cache.get_num_valid_entries()), -1, -1, "SP")
 
             query.flags = "A"

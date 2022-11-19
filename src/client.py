@@ -29,16 +29,18 @@ def main():
     if len(args) == 4 and args[3] == "R":   # If recursive mode enabled
         flags = "Q+R"
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    # Creation of a socket UDP
+    socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    # Creation of a socket UDP
 
     query = DNS(message_id, flags, domain_name, type)   # Creation of the query message
 
-    s.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
+    socket_udp.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
 
-    message, address = s.recvfrom(1024)     # Blocks until response received
+    message, address = socket_udp.recvfrom(1024)     # Blocks until response received
     message = message.decode('utf-8')
 
-    print(message)
+    sys.stdout.write(message)
+
+    socket_udp.close()
 
 
 if __name__ == "__main__" :
