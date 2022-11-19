@@ -84,13 +84,21 @@ def parser_database(server, file_path):
             words = line.split()
 
             if len(words) > 0:  # ignorar linhas vazias
-                if len(words) > 5:
+                if len(words) < 3:
+                    server.domain_log.log_fl("Arguments missing")
+                    server.all_log.log_fl("Arguments missing")
+
+                elif words[1] == "DEFAULT":
+                    if len(words) == 3:
+                        ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
+
+                    else:
+                        server.domain_log.log_fl("Too many arguments")
+                        server.all_log.log_fl("Too many arguments")
+
+                elif len(words) > 5:
                     server.domain_log.log_fl("Too many arguments")
                     server.all_log.log_fl("Too many arguments")
-
-                # valores default
-                if len(words) == 3 and words[1] == "DEFAULT":
-                    ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
 
                 elif len(words) < 4:
                     server.domain_log.log_fl("Arguments missing")
