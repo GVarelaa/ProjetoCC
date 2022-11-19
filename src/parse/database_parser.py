@@ -65,6 +65,9 @@ def concatenate_suffix(type, suffix, parameter, value):
 
 
 def parser_database(server, file_path):
+    server.domain_log.log_ev("localhost", "db-file-read", file_path)
+    server.all_log.log_ev("localhost", "db-file-read", file_path)
+
     data = Cache(list())
 
     if file_path is not None:

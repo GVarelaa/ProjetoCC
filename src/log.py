@@ -9,11 +9,10 @@ import sys
 import threading
 
 
-
 class Log:
-    def __init__(self, filepath, mode):
-        self.filepath = filepath            # Name of the log file
-        self.mode = mode                    # True means DEBUG mode -> also print to stdout
+    def __init__(self, filepath, is_debug):
+        self.filepath = filepath              # Name of the log file
+        self.is_debug = is_debug                    # True means DEBUG mode -> also print to stdout
         self.lock = threading.Lock()
 
     def __str__(self):
@@ -52,8 +51,8 @@ class Log:
         message = "EZ " + ip_address + " " + data                           # data - role of the local server
         self.add_log(message)
 
-    def log_fl(self, info):                                                 # Internal server error
-        message = "FL 127.0.0.1 " + info                                        # Info - reason (parsing errors, decoding errors, etc)
+    def log_fl(self, entry, info):                                                 # Internal server error
+        message = "FL 127.0.0.1 | Entry: " + entry + " | " + info                                        # Info - reason (parsing errors, decoding errors, etc)
         self.add_log(message)               
 
     def log_to(self, ip_address, info):                                     # Timeout detected in the response of the server identified by ip
@@ -78,7 +77,7 @@ class Log:
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
         fd.write(dt + " " + message + "\n")
-        if self.mode == True:
+        if self.is_debug == True:
             sys.stdout.write(dt + " " + message + "\n")
 
         fd.close()

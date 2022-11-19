@@ -72,7 +72,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", 28009)) #TIRAR ISTO
+        socket_tcp.bind(("", 28010)) #TIRAR ISTO
         socket_tcp.listen()
 
         while True:

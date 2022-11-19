@@ -94,6 +94,17 @@ class Server:
             else:  # MISS
                 return query
 
+    def receive_queries(self, port):
+        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
+        socket_udp.bind(("127.0.0.1", int(port)))  # Binding to server ip
+
+        while True:
+            message, address_from = socket_udp.recvfrom(1024)  # Receives a message
+
+            threading.Thread(target=self.interpret_message, args=(message, address_from, socket_udp)).start()  # Thread per connection
+
+        socket_udp.close()
+
     def interpret_message(self, message, address_from, socket_udp):
         message = string_to_dns(message.decode('utf-8'))  # Decodes and converts to PDU
 
@@ -105,7 +116,7 @@ class Server:
 
             response = self.build_response(query)  # Create a response to that query
 
-            if "A" in response.flags:  # Answer in cache/DB
+            if "A" in response.flags:  # Answer in cache
                 self.domain_log.log_rp(str(address_from), response.query_to_string())
                 self.all_log.log_rp(str(address_from), response.query_to_string())
 
@@ -113,26 +124,16 @@ class Server:
             else:
                 self.domain_log.log_to(str(address_from), "Query Miss")
                 self.all_log.log_to(str(address_from), "Query Miss")
-                #timeout
-                return  # MISS
+
+                # MISS e timeout
 
         else:  # It's a response to a query
             response = message
 
+            self.domain_log.log_rr(str(address_from), response.query_to_string())
             self.all_log.log_rr(str(address_from), response.query_to_string())
 
-            socket_udp.sendto(response.query_to_string().encode('utf-8'), self.get_address(message))
-
-    def receive_queries(self, port):
-        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
-        socket_udp.bind(("127.0.0.1", int(port)))  # Binding to server ip
-
-        while True:
-            message, address_from = socket_udp.recvfrom(1024)  # Receives a message
-
-            threading.Thread(target=self.interpret_message, args=(message, address_from, socket_udp)).start()
-
-        socket_udp.close()
+            # Segunda fase
 
 
 

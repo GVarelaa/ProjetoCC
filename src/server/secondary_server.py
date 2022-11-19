@@ -42,15 +42,6 @@ class SecondaryServer(server.Server):
         query = DNS(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
-        while True: 
-            ready = select.select([socket_tcp], [], [], 2) #socket_tcp.recv(1024).decode('utf-8') # Recebe versão da BD
-            if ready[0]:
-                #message = socket_tcp.recv(1024).decode('utf-8')
-                break
-            else: 
-                print("Vou dormir")
-                time.sleep(2) 
-
         while True:
             message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
 
