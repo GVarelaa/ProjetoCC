@@ -27,6 +27,5 @@ def main():
     threading.Thread(target=server.zone_transfer).start()    # New thread for the zone transfer
     threading.Thread(target=server.receive_queries, args=(port,)).start()  # New thread for receiving messages from UDP
 
-
 if __name__ == "__main__":
     main()

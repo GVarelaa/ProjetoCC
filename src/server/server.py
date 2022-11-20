@@ -7,7 +7,7 @@ import socket
 import threading
 import time
 
-from dns import *
+from dns_message import *
 from resource_record import ResourceRecord
 
 class Server:
@@ -105,19 +105,19 @@ class Server:
         socket_udp.close()
 
     def interpret_message(self, message, address_from, socket_udp):
-        message = string_to_dns(message.decode('utf-8'))  # Decodes and converts to PDU
+        message = DNSMessage.from_string(message.decode('utf-8'))  # Decodes and converts to PDU
 
         if "Q" in message.flags:  # It is a query
             query = message
 
-            self.log.log_qr(str(address_from), query.query_to_string())
+            self.log.log_qr(str(address_from), query.to_string())
 
             response = self.build_response(query)  # Create a response to that query
 
             if "A" in response.flags:  # Answer in cache
-                self.log.log_rp(str(address_from), response.query_to_string())
+                self.log.log_rp(str(address_from), response.to_string())
 
-                socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
+                socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Send it back
             else:
                 self.log.log_to(str(address_from), "Query Miss")
 
@@ -126,7 +126,7 @@ class Server:
         else:  # It's a response to a query
             response = message
 
-            self.log.log_rr(str(address_from), response.query_to_string())
+            self.log.log_rr(str(address_from), response.to_string())
 
             # Segunda fase
 

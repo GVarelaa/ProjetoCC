@@ -37,6 +37,9 @@ def parser_configuration(file_path, port, timeout, mode):
     all_log_path = None
     is_debug = False
 
+    if mode == "debug":
+        is_debug = True
+
     f = open(file_path, "r")
 
     for line in f:
@@ -57,21 +60,24 @@ def parser_configuration(file_path, port, timeout, mode):
 
                 elif value_type == "SP":
                     if not validate_ip(value):
-                        sys.stdout.write("Error running server configurations: Invalid IP address")
+                        if is_debug:
+                            sys.stdout.write("Error running server configurations: Invalid IP address")
                         return None
 
                     primary_server = value
 
                 elif value_type == "SS":
                     if not validate_ip(value):
-                        sys.stdout.write("Error running server configurations: Invalid IP address")
+                        if is_debug:
+                            sys.stdout.write("Error running server configurations: Invalid IP address")
                         return None
 
                     secondary_servers.append(value)
 
                 elif value_type == "DD":
                     if not validate_ip(value):
-                        sys.stdout.write("Error running server configurations: Invalid IP address")
+                        if is_debug:
+                            sys.stdout.write("Error running server configurations: Invalid IP address")
                         return None
 
                     default_domains.append(value)
@@ -89,11 +95,7 @@ def parser_configuration(file_path, port, timeout, mode):
 
 
     if mode != "shy" and mode != "debug":
-        sys.stdout.write("Error running server configurations: Invalid server mode\n")
         return None
-
-    if mode == "debug":
-        is_debug = True
 
     log = Log(domain_log_path, all_log_path, is_debug)
 

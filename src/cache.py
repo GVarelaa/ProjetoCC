@@ -10,7 +10,7 @@ import time
 
 class Cache:
     def __init__(self, list=[]):
-        record = create_free_record()
+        record = ResourceRecord.create_free_record()
         list.append(record)
         self.list = list
         self.size = 0
@@ -116,7 +116,7 @@ class Cache:
         self.capacity = self.size * 2
         for i in range(self.capacity):
           if i >= self.size:
-              self.list.append(create_free_record())
+              self.list.append(ResourceRecord.create_free_record())
 
     def is_empty(self):
         len = 0

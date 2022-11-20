@@ -7,7 +7,7 @@
 import socket
 import threading
 from server import server
-from dns import *
+from dns_message import *
 import time
 
 
@@ -25,10 +25,10 @@ class PrimaryServer(server.Server):
             if not message:
                 break
 
-            query = string_to_dns(message)
+            query = DNSMessage.from_string(message)
 
             if query.flags == "Q": # Pedir versão/transferência de zona e envia
-                self.log.log_qr(str(address_from), query.query_to_string())
+                self.log.log_qr(str(address_from), query.to_string())
 
                 if query.type == "AXFR":
                     self.log.log_zt(str(address_from), "SP : Zone transfer started", "0")
@@ -36,15 +36,15 @@ class PrimaryServer(server.Server):
                 response = self.build_response(query)
 
                 if "A" in response.flags:
-                    self.log.log_rp(str(address_from), response.query_to_string())
+                    self.log.log_rp(str(address_from), response.to_string())
 
-                    connection.sendall(response.query_to_string().encode('utf-8'))
+                    connection.sendall(response.to_string().encode('utf-8'))
 
                 else:
                     self.log.log_to(str(address_from), "Query Miss")
 
             elif query.flags == "A" and query.type == "AXFR": # Secundário aceitou linhas e respondeu com o nº de linhas
-                self.log.log_rr(str(address_from), query.query_to_string())
+                self.log.log_rr(str(address_from), query.to_string())
 
                 lines_number = int(query.response_values[0].value)
 
@@ -72,7 +72,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", int(self.port)))  #TIRAR ISTO
+        socket_tcp.bind(("", int(self.port)))  #TIRAR ISTO int(self.port)
         socket_tcp.listen()
 
         while True:

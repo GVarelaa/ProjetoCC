@@ -7,7 +7,7 @@
 import socket
 import sys
 import random
-from dns import *
+from dns_message import *
 
 
 def main():
@@ -32,9 +32,9 @@ def main():
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    # Creation of a socket UDP
 
-    query = DNS(message_id, flags, domain_name, type)   # Creation of the query message
+    query = DNSMessage(message_id, flags, domain_name, type)   # Creation of the query message
 
-    socket_udp.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
+    socket_udp.sendto(query.to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
 
     print(ip_address)
     print(port)

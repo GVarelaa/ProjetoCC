@@ -9,7 +9,7 @@ import socket
 import time
 import threading
 from server import server
-from dns import *
+from dns_message import *
 import select
 
 
@@ -45,10 +45,10 @@ class SecondaryServer(server.Server):
         expected_value = 1
         lines_number = 0
 
-        query = DNS(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
-        socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
+        query = DNSMessage.from_string(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
+        socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
-        self.log.log_qe(str(address), query.query_to_string())
+        self.log.log_qe(str(address), query.to_string())
 
         while True:
             message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
@@ -56,11 +56,11 @@ class SecondaryServer(server.Server):
             if not message:
                 break
 
-            if is_query(message):
-                response = string_to_dns(message)  # Cria query DNS
+            if DNSMessage.is_query(message):
+                response = DNSMessage.from_string(message)  # Cria query DNS
 
                 if response.flags == "A" and response.type == "SOASERIAL":
-                    self.log.log_rr(str(address), response.query_to_string())
+                    self.log.log_rr(str(address), response.to_string())
 
                     list = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")
 
@@ -74,11 +74,11 @@ class SecondaryServer(server.Server):
                     if float(sp_version) > float(ss_version):
                         self.cache.free_sp_entries()                                    # apagar as entradas "SP"
 
-                        query = DNS(random.randint(1, 65535), "Q", self.domain, "AXFR")  # Query AXFR
+                        query = DNSMessage.from_string(random.randint(1, 65535), "Q", self.domain, "AXFR")  # Query AXFR
 
-                        socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
+                        socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a transferência
 
-                        self.log.log_rp(str(address), response.query_to_string())
+                        self.log.log_rp(str(address), response.to_string())
 
                         self.log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
@@ -89,13 +89,13 @@ class SecondaryServer(server.Server):
                         break
 
                 elif response.flags == "A" and response.type == "AXFR":
-                    self.log.log_rr(str(address), response.query_to_string())
+                    self.log.log_rr(str(address), response.to_string())
 
                     lines_number = int(response.response_values[0].value)
                     #Confirma nº de linhas ?
-                    socket_tcp.sendall(response.query_to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
+                    socket_tcp.sendall(response.to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
 
-                    self.log.log_rp(str(address), response.query_to_string())
+                    self.log.log_rp(str(address), response.to_string())
 
             else:
                 lines = message.split("\n")
@@ -114,7 +114,7 @@ class SecondaryServer(server.Server):
                     fields.remove(fields[0])
 
                     record = " ".join(fields)
-                    record = string_to_record(record)
+                    record = ResourceRecord.to_record(record)
 
                     self.cache.add_entry(record)
 
