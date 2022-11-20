@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<scenario name="/media/sf_Shared_folder/NovaTopologiav4.xml">
+<scenario name="/home/core/ProjetoCC/core/NovaTopologiav5.xml">
   <networks>
     <network id="8" name="Switch2" type="HUB">
       <position x="157" y="70" lat="47.578530419961346" lon="-122.1302064675059" alt="2.0"/>
@@ -97,7 +97,7 @@
       </services>
     </device>
     <device id="14" name="Portatil1" type="PC" class="" image="">
-      <position x="46" y="435" lat="47.57521254876625" lon="-122.13170216245395" alt="2.0"/>
+      <position x="45" y="434" lat="47.57522163911154" lon="-122.13171563718322" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="StaticRoute"/>
@@ -129,7 +129,7 @@
       </services>
     </device>
     <device id="18" name="Orca" type="host" class="" image="">
-      <position x="917" y="32" lat="47.578875830084634" lon="-122.11996567326695" alt="2.0"/>
+      <position x="918" y="32" lat="47.578875830084634" lon="-122.11995219853767" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="SSH"/>
@@ -325,129 +325,74 @@
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>mkdir dns/files</startup>
-        <startup>mkdir dns/files/config_files</startup>
         <startup>mkdir dns/files/db_files</startup>
+        <startup>mkdir dns/files/config_files</startup>
+        <startup>mv ggm.txt dns/files/config_files/ggm.txt</startup>
+        <startup>mv rootservers.db dns/files/rootservers.db</startup>
         <startup>mkdir dns/files/log_files</startup>
+        <startup>touch dns/files/log_files/ggm.log</startup>
+        <startup>mv ggm.db dns/files/db_files/ggm.db</startup>
       </startups>
       <files>
-        <file name="dns/files/db_files/1_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 1.10.in-addr.reverse domain
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
 
-# 1.10.in-addr.reverse. DD ______
-1.10.in-addr.reverse. LG dns/files/log_files/1_10_in-addr_reverse.log
+10.2.2.1:1998
+10.3.3.1:1999]]></file>
+        <file name="runGGMPrimary.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/ggm.txt 2000 100]]></file>
+        <file name="ggm.txt"><![CDATA[# Configuration file for primary server for ggm domain
+
+ggm DB dns/files/db_files/ggm.db
+ggm SS 10.3.3.1:2001
+ggm SS 10.4.1.1:2002
+ggm LG dns/files/log_files/ggm.log
 all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db]]></file>
-        <file name="dns/files/db_files/1_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 1.10.in-addr.reverse
+root ST dns/files/rootservers.db
 
-@ DEFAULT 1.10.in-addr.reverse.
+]]></file>
+        <file name="ggm.db"><![CDATA[# DNS database file domain .ggm
+
+@ DEFAULT ggm.
 TTL DEFAULT 86400
 
-@ SOASP ns1.1.10.in-addr.reverse. TTL
-@ SOADMIN ___ TTL
+@ SOASP s1.ggm TTL
+@ SOAADMIN admin\.ggm. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
+@ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
 
-# Name servers
-@ NS ns1.1.10.in-addr.reverse. TTL
+@ NS sp.ggm. TTL
+@ NS ss1.ggm. TTL 1
+@ NS ss2.ggm. TTL 2
 
-1.@ NS ns1.1.1.10.in-addr.reverse.
+# Primary server of cc.ggm subdomain
+cc.@ NS sp.cc.@ TTL
 
-# Addresses
-ns1 A 10.2.2.1 TTL
-ns1.1 A 10.3.3.2 TTL
+@ MX ms1.@ TTL 
+@ MX ms2.@ TTL
 
+sp A 10.2.2.1:2000 TTL
+ss1 A 10.3.3.1:2001 TTL
+ss2 A 10.4.4.1:2002 TTL
+sp.cc A 10.1.1.2:2006 TTL
+mike A 10.1.1.3 TTL
+gui A 10.4.4.1 TTL
+gabs A 10.3.3.2 TTL
+ms1 A 10.3.3.1 TTL
+ms2 A 10.3.3.3 TTL
 
-
-
+miguel CNAME mike TTL
+guilherme CNAME gui TTL 
+gabriela CNAME gabs TTL 
 
 ]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf]]></file>
-        <file name="dns/files/config_files/ggm_primary.txt"><![CDATA[# Configuration file for primary server for ggm domain
-
-ggm DB dns/files/db_files/ggm.db
-ggm SS 10.3.3.1
-ggm SS 10.4.1.1
-# ggm DD ______
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-
-
-]]></file>
-        <file name="dns/files/db_files/root.db"><![CDATA[# DNS database file for root server 
-
-@ DEFAULT .
-TTL DEFAULT 86400
-
-# Config data
-
-@ SOASP . TTL
-@ SOADMIN ___ TTL
-@ SOASERIAL 1 TTL
-@ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
-@ SOAEXPIRE 604800 TTL
-
-# Name servers
-
-ggm. NS ns1.ggm.
-fcp. NS ns1.fcp.
-
-# Addresses
-
-ns1.ggm A 10.2.2.1 TTL
-ns1.fcp A 10.2.2.2 TTL
-
-
-]]></file>
-        <file name="dns/files/db_files/ggm.db"><![CDATA[# DNS database file for domain .fcp
-
-@ DEFAULT ggm.
-TTL DEFAULT 86400
-
-@ SOASP ns1.ggm. TTL
-@ SOADMIN ___ TTL
-@ SOASERIAL 1 TTL
-@ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
-@ SOAEXPIRE 604800 TTL
-
-# Name servers
-@ NS ns1.ggm. TTL
-@ NS ns2.ggm. TTL
-@ NS ns3.ggm. TTL
-
-cc.@ NS ns1.cc.ggm.
-
-# MAIL SERVERS
-@ MX ms1.fcp. TTL
-
-# Addresses
-ns1 A 10.2.2.1 TTL
-ns2 A 10.3.3.1 TTL
-ns3 A 10.4.4.1 TTL
-ns1.cc A 10.1.1.2 TTL
-ms1 A 10.3.3.2 TTL
-
-sp CNAME ns1 TTL
-ss1 CNAME ns2 TTL
-ss2 CNAME ns3 TTL
-mail1 CNAME ms1 TTL
-
-
-
-]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-]]></file>
+echo "" >> /etc/resolv.conf ]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="12">
@@ -591,12 +536,16 @@ ip route add default via 2001:2:2::254
         <startup>mkdir /run/resolvconf</startup>
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
+        <startup>mkdir dns</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
       </startups>
       <files>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
+        <file name="runClient.sh"><![CDATA[python3 dns/src/client.py 10.2.2.1:2000 mike.ggm. A ]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf]]></file>
+echo "" >> /etc/resolv.conf ]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="14">
@@ -926,94 +875,33 @@ ip route add default via 2001:4:4::254
         <startup>mkdir /run/resolvconf</startup>
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
-        <startup>mkdir /run/resolvconf</startup>
-        <startup>touch /run/resolvconf/resolv.conf</startup>
-        <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>mkdir dns/files</startup>
-        <startup>mkdir dns/files/config_files</startup>
         <startup>mkdir dns/files/db_files</startup>
+        <startup>mkdir dns/files/config_files</startup>
+        <startup>mv rootservers.db dns/files/rootservers.db</startup>
         <startup>mkdir dns/files/log_files</startup>
+        <startup>touch dns/files/log_files/ggm.log</startup>
+        <startup>mv ggm_secondary1.txt dns/files/config_files</startup>
       </startups>
       <files>
-        <file name="dns/files/db_files/4_10_in-addr_reverse.db"><![CDATA[# DNS database file for domain 4.10.in-addr.reverse
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
+        <file name="runGGMSecondary.sh"><![CDATA[cp /home/core/ProjetoCC/src dns/src]]></file>
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
 
-@ DEFAULT 4.10.in-addr.reverse.
-TTL DEFAULT 86400
+10.2.2.1:1998
+10.3.3.1:1999]]></file>
+        <file name="ggm_secondary1.txt"><![CDATA[# Configuration file for secondary server 1 for ggm domain
 
-@ SOASP ns1.4.10.in-addr.reverse. TTL
-@ SOADMIN ___ TTL
-@ SOASERIAL 1 TTL
-@ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
-@ SOAEXPIRE 604800 TTL
-
-# Name servers
-@ NS ns1.4.10.in-addr.reverse. TTL
-
-4.@ NS ns1.4.1.10.in-addr.reverse.
-
-# Addresses
-ns1 A 10.3.3.1 TTL
-ns1.4 A 10.4.4.3 TTL
-
-
-
-
-
-]]></file>
-        <file name="dns/files/db_files/4_10_in-addr_reverse_primary.txt"><![CDATA[# Configuration file for primary server for 4.10.in-addr.reverse domain
-
-# 4.10.in-addr.reverse. DD ______
-4.10.in-addr.reverse. LG dns/files/log_files/4_10_in-addr_reverse.log
+ggm SP 10.2.2.1:2000
+ggm LG dns/files/log_files/ggm.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 echo "" >> /etc/resolv.conf ]]></file>
-        <file name="dns/files/config_files/ggm_secondary1.txt"><![CDATA[# Configuration file for secondary server 1 for ggm domain
-
-ggm SP 10.2.2.1
-# ggm DD ______
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-
-
-]]></file>
-        <file name="dns/files/rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1
-10.3.3.1
-]]></file>
-        <file name="dns/files/db_files/root.db"><![CDATA[# DNS database file for root server 
-
-@ DEFAULT .
-TTL DEFAULT 86400
-
-# Config data
-
-@ SOASP . TTL
-@ SOADMIN ___ TTL
-@ SOASERIAL 1 TTL
-@ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
-@ SOAEXPIRE 604800 TTL
-
-# Name servers
-
-ggm. NS ns1.ggm.
-fcp. NS ns1.fcp.
-
-# Addresses
-
-ns1.ggm A 10.2.2.1 TTL
-ns1.fcp A 10.2.2.2 TTL
-
-
-]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="18">

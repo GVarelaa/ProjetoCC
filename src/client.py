@@ -18,7 +18,8 @@ def main():
 
     message_id = random.randint(1, 65535)
     ip_address = args_split[0]              # Address of the server
-    port = 6000                             # Default gate of the server
+    #port = 6000                             # Default gate of the server
+    port = args_split[1]
     domain_name = args[1]                   # Domain of the query (ex: mike.ggm.)
     type = args[2]                          # Type of entry (ex: A, NS)
     flags = "Q"
@@ -35,8 +36,13 @@ def main():
 
     socket_udp.sendto(query.query_to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
 
+    print(ip_address)
+    print(port)
+
     message, address = socket_udp.recvfrom(1024)     # Blocks until response received
     message = message.decode('utf-8')
+
+
 
     sys.stdout.write(message)
 

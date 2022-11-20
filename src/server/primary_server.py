@@ -16,6 +16,7 @@ class PrimaryServer(server.Server):
         super().__init__(domain, default_domains, root_servers, domain_log, all_log, port, mode)
         self.data_path = data_path
         self.secondary_servers = secondary_servers
+    
 
     def zone_transfer_process(self, connection, address_from):
         while True:
@@ -78,7 +79,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", 28012))  #TIRAR ISTO
+        socket_tcp.bind(("", int(self.port)))  #TIRAR ISTO
         socket_tcp.listen()
 
         while True:

@@ -278,15 +278,91 @@ node n12 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('preenche_resolvconf.sh', 'setup.sh', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', 'bash setup.sh', )
+	files=('preenche_resolvconf.sh', 'ggm.db', 'ggm.txt', 'runGGMPrimary.sh', 'rootservers.db', 'updateSrc.sh', )
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'cp -r /home/core/ProjetoCC/src dns/src', 'mkdir dns/files', 'mkdir dns/files/db_files', 'mkdir dns/files/config_files', 'mv ggm.txt dns/files/config_files/ggm.txt', 'mv rootservers.db dns/files/rootservers.db', 'mkdir dns/files/log_files', 'touch dns/files/log_files/ggm.log', 'mv ggm.db dns/files/db_files/ggm.db', )
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:setup.sh
-	custom-command setup.sh
+	custom-config-id service:UserDefined:updateSrc.sh
+	custom-command updateSrc.sh
 	config {
-	copy /home/core/ProjetoCC/ ~
+	cp -r /home/core/ProjetoCC/src/* dns/src
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:rootservers.db
+	custom-command rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1:1998
+	10.3.3.1:1999
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:runGGMPrimary.sh
+	custom-command runGGMPrimary.sh
+	config {
+	python3 dns/src/run_server.py dns/files/config_files/ggm.txt 2000 100
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:ggm.txt
+	custom-command ggm.txt
+	config {
+	# Configuration file for primary server for ggm domain
+	
+	ggm DB dns/files/db_files/ggm.db
+	ggm SS 10.3.3.1:2001
+	ggm SS 10.4.1.1:2002
+	ggm LG dns/files/log_files/ggm.log
+	all LG dns/files/log_files/all.log
+	root ST dns/files/rootservers.db
+	
+	
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:ggm.db
+	custom-command ggm.db
+	config {
+	# DNS database file domain .ggm
+	
+	@ DEFAULT ggm.
+	TTL DEFAULT 86400
+	
+	@ SOASP s1.ggm TTL
+	@ SOAADMIN admin\.ggm. TTL
+	@ SOASERIAL 1 TTL
+	@ SOAREFRESH 14400 TTL
+	@ SOARETRY 3600 TTL
+	@ SOAEXPIRE 604800 TTL
+	
+	@ NS sp.ggm. TTL
+	@ NS ss1.ggm. TTL 1
+	@ NS ss2.ggm. TTL 2
+	
+	# Primary server of cc.ggm subdomain
+	cc.@ NS sp.cc.@ TTL
+	
+	@ MX ms1.@ TTL 
+	@ MX ms2.@ TTL
+	
+	sp A 10.2.2.1:2000 TTL
+	ss1 A 10.3.3.1:2001 TTL
+	ss2 A 10.4.4.1:2002 TTL
+	sp.cc A 10.1.1.2:2006 TTL
+	mike A 10.1.1.3 TTL
+	gui A 10.4.4.1 TTL
+	gabs A 10.3.3.2 TTL
+	ms1 A 10.3.3.1 TTL
+	ms2 A 10.3.3.3 TTL
+	
+	miguel CNAME mike TTL
+	guilherme CNAME gui TTL 
+	gabriela CNAME gabs TTL 
+	
+	
 	}
     }
     custom-config {
@@ -296,7 +372,7 @@ node n12 {
 	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 	echo "domain cc.pt" >> /etc/resolv.conf
 	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf
+	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -522,10 +598,32 @@ node n14 {
 	!
     }
     canvas c1
-    iconcoords {46.0 435.0}
-    labelcoords {46.0 467.0}
+    iconcoords {45.0 434.0}
+    labelcoords {45.0 466.0}
     services {DefaultRoute StaticRoute UserDefined}
     interface-peer {eth0 n9}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	files=('preenche_resolvconf.sh', 'runClient.sh', 'updateSrc.sh', )
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'cp -r /home/core/ProjetoCC/src dns/src', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:updateSrc.sh
+	custom-command updateSrc.sh
+	config {
+	cp -r /home/core/ProjetoCC/src/* dns/src/
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:runClient.sh
+	custom-command runClient.sh
+	config {
+	python3 dns/src/client.py 10.2.2.1:2000 mike.ggm. A 
+	}
+    }
     custom-config {
 	custom-config-id service:UserDefined:preenche_resolvconf.sh
 	custom-command preenche_resolvconf.sh
@@ -533,21 +631,7 @@ node n14 {
 	echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 	echo "domain cc.pt" >> /etc/resolv.conf
 	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-	echo "" >> /etc/resolv.conf
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined
-	custom-command UserDefined
-	config {
-	dirs=()
-	files=('preenche_resolvconf.sh',)
-	startidx=0
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh')
-	cmddown=()
-	cmdval=()
-	meta=Customize this service to do anything upon startup.
-	starttime=0
+	echo "" >> /etc/resolv.conf 
 	}
     }
     custom-config {
@@ -1147,58 +1231,50 @@ node n18 {
 	!
     }
     canvas c1
-    iconcoords {917.0 32.0}
-    labelcoords {917.0 64.0}
+    iconcoords {918.0 32.0}
+    labelcoords {918.0 64.0}
     services {DefaultRoute SSH StaticRoute UserDefined}
     interface-peer {eth0 n11}
     custom-config {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('dns/files/db_files/root.db', 'dns/files/rootservers.db', 'dns/files/config_files/ggm_secondary1.txt', 'preenche_resolvconf.sh', 'dns/files/db_files/4_10_in-addr_reverse_primary.txt', 'dns/files/db_files/4_10_in-addr_reverse.db', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', )
+	files=('preenche_resolvconf.sh', 'ggm_secondary1.txt', 'rootservers.db', 'runGGMSecondary.sh', 'updateSrc.sh', )
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'cp -r /home/core/ProjetoCC/src dns/src', 'mkdir dns/files', 'mkdir dns/files/db_files', 'mkdir dns/files/config_files', 'mv rootservers.db dns/files/rootservers.db', 'mkdir dns/files/log_files', 'touch dns/files/log_files/ggm.log', 'mv ggm_secondary1.txt dns/files/config_files', )
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/4_10_in-addr_reverse.db
-	custom-command dns/files/db_files/4_10_in-addr_reverse.db
+	custom-config-id service:UserDefined:updateSrc.sh
+	custom-command updateSrc.sh
 	config {
-	# DNS database file for domain 4.10.in-addr.reverse
-	
-	@ DEFAULT 4.10.in-addr.reverse.
-	TTL DEFAULT 86400
-	
-	@ SOASP ns1.4.10.in-addr.reverse. TTL
-	@ SOADMIN ___ TTL
-	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
-	@ SOARETRY 3600
-	@ SOAEXPIRE 604800 TTL
-	
-	# Name servers
-	@ NS ns1.4.10.in-addr.reverse. TTL
-	
-	4.@ NS ns1.4.1.10.in-addr.reverse.
-	
-	# Addresses
-	ns1 A 10.3.3.1 TTL
-	ns1.4 A 10.4.4.3 TTL
-	
-	
-	
-	
-	
-	
+	cp -r /home/core/ProjetoCC/src/* dns/src/
 	}
     }
     custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/4_10_in-addr_reverse_primary.txt
-	custom-command dns/files/db_files/4_10_in-addr_reverse_primary.txt
+	custom-config-id service:UserDefined:runGGMSecondary.sh
+	custom-command runGGMSecondary.sh
 	config {
-	# Configuration file for primary server for 4.10.in-addr.reverse domain
+	cp /home/core/ProjetoCC/src dns/src
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:rootservers.db
+	custom-command rootservers.db
+	config {
+	# List of root files for topology
 	
-	# 4.10.in-addr.reverse. DD ______
-	4.10.in-addr.reverse. LG dns/files/log_files/4_10_in-addr_reverse.log
+	10.2.2.1:1998
+	10.3.3.1:1999
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:ggm_secondary1.txt
+	custom-command ggm_secondary1.txt
+	config {
+	# Configuration file for secondary server 1 for ggm domain
+	
+	ggm SP 10.2.2.1:2000
+	ggm LG dns/files/log_files/ggm.log
 	all LG dns/files/log_files/all.log
 	root ST dns/files/rootservers.db
 	}
@@ -1211,66 +1287,6 @@ node n18 {
 	echo "domain cc.pt" >> /etc/resolv.conf
 	echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 	echo "" >> /etc/resolv.conf 
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/config_files/ggm_secondary1.txt
-	custom-command dns/files/config_files/ggm_secondary1.txt
-	config {
-	# Configuration file for secondary server 1 for ggm domain
-	
-	ggm SP 10.2.2.1
-	# ggm DD ______
-	ggm LG dns/files/log_files/ggm.log
-	all LG dns/files/log_files/all.log
-	root ST dns/files/rootservers.db
-	
-	
-	
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/rootservers.db
-	custom-command dns/files/rootservers.db
-	config {
-	# List of root files for topology
-	
-	10.2.2.1
-	10.3.3.1
-	
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:dns/files/db_files/root.db
-	custom-command dns/files/db_files/root.db
-	config {
-	# DNS database file for root server 
-	
-	@ DEFAULT .
-	TTL DEFAULT 86400
-	
-	# Config data
-	
-	@ SOASP . TTL
-	@ SOADMIN ___ TTL
-	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
-	@ SOARETRY 3600
-	@ SOAEXPIRE 604800 TTL
-	
-	# Name servers
-	
-	ggm. NS ns1.ggm.
-	fcp. NS ns1.fcp.
-	
-	# Addresses
-	
-	ns1.ggm A 10.2.2.1 TTL
-	ns1.fcp A 10.2.2.2 TTL
-	
-	
-	
 	}
     }
     custom-config {

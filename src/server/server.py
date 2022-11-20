@@ -96,7 +96,7 @@ class Server:
 
     def receive_queries(self, port):
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
-        socket_udp.bind(("127.0.0.1", int(port)))  # Binding to server ip
+        socket_udp.bind(("", int(port)))  # Binding to server ip
 
         while True:
             message, address_from = socket_udp.recvfrom(1024)  # Receives a message

@@ -39,6 +39,7 @@ class SecondaryServer(server.Server):
         (address, port) = self.parse_address(self.primary_server)
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # print(port)
         socket_tcp.connect((address, port))
 
         expected_value = 1
