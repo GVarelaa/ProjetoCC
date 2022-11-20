@@ -14,8 +14,8 @@ import select
 
 
 class SecondaryServer(server.Server):
-    def __init__(self, domain, default_domains, root_servers, domain_log, all_log, port, mode, primary_server):
-        super().__init__(domain, default_domains, root_servers, domain_log, all_log, port, mode)
+    def __init__(self, domain, default_domains, root_servers, log, port, mode, primary_server):
+        super().__init__(domain, default_domains, root_servers, log, port, mode)
         self.primary_server = primary_server
         self.thread_expire = False
 
@@ -48,8 +48,7 @@ class SecondaryServer(server.Server):
         query = DNS(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
-        self.domain_log.log_qe(str(address), query.query_to_string())
-        self.all_log.log_qe(str(address), query.query_to_string())
+        self.log.log_qe(str(address), query.query_to_string())
 
         while True:
             message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
@@ -61,8 +60,7 @@ class SecondaryServer(server.Server):
                 response = string_to_dns(message)  # Cria query DNS
 
                 if response.flags == "A" and response.type == "SOASERIAL":
-                    self.domain_log.log_rr(str(address), response.query_to_string())
-                    self.all_log.log_rr(str(address), response.query_to_string())
+                    self.log.log_rr(str(address), response.query_to_string())
 
                     list = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")
 
@@ -80,29 +78,24 @@ class SecondaryServer(server.Server):
 
                         socket_tcp.sendall(query.query_to_string().encode('utf-8'))  # Envia query a pedir a transferência
 
-                        self.domain_log.log_rp(str(address), response.query_to_string())
-                        self.all_log.log_rp(str(address), response.query_to_string())
+                        self.log.log_rp(str(address), response.query_to_string())
 
-                        self.domain_log.log_zt(str(address), "SS : Zone Transfer started", "0")
-                        self.all_log.log_zt(str(address), "SS : Zone Transfer started", "0")
+                        self.log.log_zt(str(address), "SS : Zone Transfer started", "0")
 
                     else: # BD está atualizada
-                        self.domain_log.log_zt(str(address), "SS : Database is up-to-date", "0")
-                        self.all_log.log_zt(str(address), "SS : Database is up-to-date", "0")
+                        self.log.log_zt(str(address), "SS : Database is up-to-date", "0")
 
                         socket_tcp.close()
                         break
 
                 elif response.flags == "A" and response.type == "AXFR":
-                    self.domain_log.log_rr(str(address), response.query_to_string())
-                    self.all_log.log_rr(str(address), response.query_to_string())
+                    self.log.log_rr(str(address), response.query_to_string())
 
                     lines_number = int(response.response_values[0].value)
                     #Confirma nº de linhas ?
                     socket_tcp.sendall(response.query_to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
 
-                    self.domain_log.log_rp(str(address), response.query_to_string())
-                    self.all_log.log_rp(str(address), response.query_to_string())
+                    self.log.log_rp(str(address), response.query_to_string())
 
             else:
                 lines = message.split("\n")
@@ -113,8 +106,7 @@ class SecondaryServer(server.Server):
                     fields = line.split(" ")
 
                     if int(fields[0]) != expected_value: # timeout
-                        self.domain_log.log_ez(str(address), "SS : Expected value does not match")
-                        self.all_log.log_ez(str(address), "SS : Expected value does not match")
+                        self.log.log_ez(str(address), "SS : Expected value does not match")
 
                         socket_tcp.close()
                         return
@@ -129,8 +121,7 @@ class SecondaryServer(server.Server):
                     expected_value += 1
 
                 if lines_number == (expected_value-1):
-                    self.domain_log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
-                    self.all_log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
+                    self.log.log_zt(str(address), "SS : Zone Transfer concluded successfully", "0")
 
                     socket_tcp.close()
                     break

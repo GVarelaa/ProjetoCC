@@ -11,12 +11,11 @@ from dns import *
 from resource_record import ResourceRecord
 
 class Server:
-    def __init__(self, domain, default_domains, root_servers, domain_log, all_log, port, mode):
+    def __init__(self, domain, default_domains, root_servers, log, port, mode):
         self.mode = mode
         self.domain = domain
         self.default_domains = default_domains
-        self.domain_log = domain_log
-        self.all_log = all_log
+        self.log = log
         self.root_servers = root_servers
         self.port = port
 
@@ -25,12 +24,12 @@ class Server:
     def __str__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log Domínio: {self.domain_log}\nFicheiro de Log All{self.all_log}"
+               f"{self.root_servers}\nFicheiro de Log: {self.log}"
     
     def __repr__(self):
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log Domínio: {self.domain_log}\nFicheiro de Log All{self.all_log}"
+               f"{self.root_servers}\nFicheiro de Log: {self.log}"
 
     def parse_address(self, address):
         substrings = address.split(":")
@@ -111,27 +110,23 @@ class Server:
         if "Q" in message.flags:  # It is a query
             query = message
 
-            self.domain_log.log_qr(str(address_from), query.query_to_string())
-            self.all_log.log_qr(str(address_from), query.query_to_string())
+            self.log.log_qr(str(address_from), query.query_to_string())
 
             response = self.build_response(query)  # Create a response to that query
 
             if "A" in response.flags:  # Answer in cache
-                self.domain_log.log_rp(str(address_from), response.query_to_string())
-                self.all_log.log_rp(str(address_from), response.query_to_string())
+                self.log.log_rp(str(address_from), response.query_to_string())
 
                 socket_udp.sendto(response.query_to_string().encode('utf-8'), address_from)  # Send it back
             else:
-                self.domain_log.log_to(str(address_from), "Query Miss")
-                self.all_log.log_to(str(address_from), "Query Miss")
+                self.log.log_to(str(address_from), "Query Miss")
 
                 # MISS e timeout
 
         else:  # It's a response to a query
             response = message
 
-            self.domain_log.log_rr(str(address_from), response.query_to_string())
-            self.all_log.log_rr(str(address_from), response.query_to_string())
+            self.log.log_rr(str(address_from), response.query_to_string())
 
             # Segunda fase
 

@@ -12,8 +12,8 @@ import time
 
 
 class PrimaryServer(server.Server):
-    def __init__(self, domain, default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers):
-        super().__init__(domain, default_domains, root_servers, domain_log, all_log, port, mode)
+    def __init__(self, domain, default_domains, root_servers, log, port, mode, data_path, secondary_servers):
+        super().__init__(domain, default_domains, root_servers, log, port, mode)
         self.data_path = data_path
         self.secondary_servers = secondary_servers
     
@@ -28,28 +28,23 @@ class PrimaryServer(server.Server):
             query = string_to_dns(message)
 
             if query.flags == "Q": # Pedir versão/transferência de zona e envia
-                self.domain_log.log_qr(str(address_from), query.query_to_string())
-                self.all_log.log_qr(str(address_from), query.query_to_string())
+                self.log.log_qr(str(address_from), query.query_to_string())
 
                 if query.type == "AXFR":
-                    self.domain_log.log_zt(str(address_from), "SP : Zone transfer started", "0")
-                    self.all_log.log_zt(str(address_from), "SP : Zone transfer started", "0")
+                    self.log.log_zt(str(address_from), "SP : Zone transfer started", "0")
 
                 response = self.build_response(query)
 
                 if "A" in response.flags:
-                    self.domain_log.log_rp(str(address_from), response.query_to_string())
-                    self.all_log.log_rp(str(address_from), response.query_to_string())
+                    self.log.log_rp(str(address_from), response.query_to_string())
 
                     connection.sendall(response.query_to_string().encode('utf-8'))
 
                 else:
-                    self.domain_log.log_to(str(address_from), "Query Miss")
-                    self.all_log.log_to(str(address_from), "Query Miss")
+                    self.log.log_to(str(address_from), "Query Miss")
 
             elif query.flags == "A" and query.type == "AXFR": # Secundário aceitou linhas e respondeu com o nº de linhas
-                self.domain_log.log_rr(str(address_from), query.query_to_string())
-                self.all_log.log_rr(str(address_from), query.query_to_string())
+                self.log.log_rr(str(address_from), query.query_to_string())
 
                 lines_number = int(query.response_values[0].value)
 
@@ -64,12 +59,10 @@ class PrimaryServer(server.Server):
 
                             counter += 1
 
-                self.domain_log.log_zt(str(address_from), "SP : All entries sent", "0")
-                self.all_log.log_zt(str(address_from), "SP : All entries sent", "0")
+                self.log.log_zt(str(address_from), "SP : All entries sent", "0")
 
             else:
-                self.domain_log.log_ez(str(address_from), "SP : Unexpected message")
-                self.all_log.log_ez(str(address_from), "SP : Unexpected message")
+                self.log.log_ez(str(address_from), "SP : Unexpected message")
 
                 connection.close()
 

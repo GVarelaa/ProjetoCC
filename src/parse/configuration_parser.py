@@ -95,31 +95,22 @@ def parser_configuration(file_path, port, timeout, mode):
     if mode == "debug":
         is_debug = True
 
-    domain_log = Log(domain_log_path, False)
-    all_log = Log(all_log_path, is_debug)
+    log = Log(domain_log_path, all_log_path, is_debug)
 
     if not validate_port(port):
-        domain_log.log_sp("localhost", "invalid port")
-        all_log.log_sp("localhost", "invalid port")
+        log.log_sp("localhost", "invalid port")
         return None
 
-    domain_log.log_st("localhost", port, timeout, mode)
-    all_log.log_st("localhost", port, timeout, mode)
-
-    domain_log.log_ev("localhost", "conf-file-read", file_path)
-    all_log.log_ev("localhost", "conf-file-read", file_path)
-
-    domain_log.log_ev("localhost", "log-file-create", domain_log_path)
-    all_log.log_ev("localhost", "log-file-create", domain_log_path)
-
-    domain_log.log_ev("localhost", "log-file-create", all_log_path)
-    all_log.log_ev("localhost", "log-file-create", all_log_path)
+    log.log_st("localhost", port, timeout, mode)
+    log.log_ev("localhost", "conf-file-read", file_path)
+    log.log_ev("localhost", "log-file-create", domain_log_path)
+    log.log_ev("localhost", "log-file-create", all_log_path)
 
     if primary_server is None:
-        server = PrimaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, data_path, secondary_servers)
+        server = PrimaryServer(domain, default_domains, root_servers, log, port, mode, data_path, secondary_servers)
         parser_database(server, data_path)
     else:
-        server = SecondaryServer(domain, default_domains, root_servers, domain_log, all_log, port, mode, primary_server)
+        server = SecondaryServer(domain, default_domains, root_servers, log, port, mode, primary_server)
         server.cache = Cache(list())
 
     return server

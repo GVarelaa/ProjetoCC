@@ -10,13 +10,14 @@ import threading
 
 
 class Log:
-    def __init__(self, filepath, is_debug):
-        self.filepath = filepath              # Name of the log file
-        self.is_debug = is_debug                    # True means DEBUG mode -> also print to stdout
+    def __init__(self, domain_filepath, all_filepath, is_debug):
+        self.domain_filepath = domain_filepath  # Name of the domain log file
+        self.all_filepath = all_filepath  # Name of the all log file
+        self.is_debug = is_debug  # True means DEBUG mode -> also print to stdout
         self.lock = threading.Lock()
 
     def __str__(self):
-        data = self.fd.read()
+        data = self.filepath.read()
         return data
 
     def log_qe(self, ip_address, data):                                     # Query was sent to the given address
@@ -73,14 +74,18 @@ class Log:
     def add_log(self, message):
         self.lock.acquire()
 
-        fd = open(self.filepath, "a")
+        domain_fd = open(self.domain_filepath, "a")
+        all_fd = open(self.all_filepath, "a")
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
-        fd.write(dt + " " + message + "\n")
+        domain_fd.write(dt + " " + message + "\n")
+        all_fd.write(dt + " " + message + "\n")
+
         if self.is_debug == True:
             sys.stdout.write(dt + " " + message + "\n")
 
-        fd.close()
+        domain_fd.close()
+        all_fd.close()
 
         self.lock.release()
 

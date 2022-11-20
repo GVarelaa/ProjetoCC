@@ -65,8 +65,7 @@ def concatenate_suffix(type, suffix, parameter, value):
 
 
 def parser_database(server, file_path):
-    server.domain_log.log_ev("localhost", "db-file-read", file_path)
-    server.all_log.log_ev("localhost", "db-file-read", file_path)
+    server.log.log_ev("localhost", "db-file-read", file_path)
 
     data = Cache(list())
 
@@ -88,24 +87,20 @@ def parser_database(server, file_path):
 
             if len(words) > 0:  # ignorar linhas vazias
                 if len(words) < 3:
-                    server.domain_log.log_fl(entry.replace("\n", ""), "Arguments missing")
-                    server.all_log.log_fl(entry.replace("\n", ""), "Arguments missing")
+                    server.log.log_fl(entry.replace("\n", ""), "Arguments missing")
 
                 elif words[1] == "DEFAULT":
                     if len(words) == 3:
                         ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
 
                     else:
-                        server.domain_log.log_fl(entry.replace("\n", ""), "Too many arguments")
-                        server.all_log.log_fl(entry.replace("\n", ""), "Too many arguments")
+                        server.log.log_fl(entry.replace("\n", ""), "Too many arguments")
 
                 elif len(words) > 5:
-                    server.domain_log.log_fl(entry.replace("\n", ""), "Too many arguments")
-                    server.all_log.log_fl(entry.replace("\n", ""), "Too many arguments")
+                    server.log.log_fl(entry.replace("\n", ""), "Too many arguments")
 
                 elif len(words) < 4:
-                    server.domain_log.log_fl(entry.replace("\n", ""), "Arguments missing")
-                    server.all_log.log_fl(entry.replace("\n", ""), "Arguments missing")
+                    server.log.log_fl(entry.replace("\n", ""), "Arguments missing")
 
                 else:
                     type = words[1]
@@ -113,16 +108,14 @@ def parser_database(server, file_path):
                     expiration = set_ttl(ttl_default, words[3])
 
                     if expiration == -1:
-                        server.domain_log.log_fl(entry.replace("\n", ""), "Invalid value for TTL")
-                        server.all_log.log_fl(entry.replace("\n", ""), "Invalid value for TTL")
+                        server.log.log_fl(entry.replace("\n", ""), "Invalid value for TTL")
                         continue
 
                     if len(words) == 5:
                         if words[4].isnumeric() and 0 <= int(words[4]) < 256:
                             priority = int(words[4])
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid value for priority")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid value for priority")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid value for priority")
                             continue
 
                     if type == "SOASP":
@@ -138,32 +131,28 @@ def parser_database(server, file_path):
                             record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                             data.add_entry(record)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid value for SOASERIAL")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid value for SOASERIAL")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid value for SOASERIAL")
 
                     elif type == "SOAREFRESH":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                             data.add_entry(record)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid value for SOAREFRESH")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid value for SOAREFRESH")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid value for SOAREFRESH")
 
                     elif type == "SOARETRY":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                             data.add_entry(record)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid value for SOARETRY")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid value for SOARETRY")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid value for SOARETRY")
 
                     elif type == "SOAEXPIRE":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                             data.add_entry(record)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid value for SOAEXPIRE")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid value for SOAEXPIRE")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid value for SOAEXPIRE")
 
                     elif type == "NS":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
@@ -175,16 +164,14 @@ def parser_database(server, file_path):
                             data.add_entry(record)
                             names_list.append(parameter)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid IP address")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid IP address")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid IP address")
 
                     elif type == "CNAME":
                         if value in names_list:
                             record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                             data.add_entry(record)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Name not found")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Name not found")
+                            server.log.log_fl(entry.replace("\n", ""), "Name not found")
 
                     elif type == "MX":
                         record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
@@ -195,12 +182,10 @@ def parser_database(server, file_path):
                             record = ResourceRecord(parameter, type, value, expiration, priority, "FILE")
                             data.add_entry(record)
                         else:
-                            server.domain_log.log_fl(entry.replace("\n", ""), "Invalid IP address")
-                            server.all_log.log_fl(entry.replace("\n", ""), "Invalid IP address")
+                            server.log.log_fl(entry.replace("\n", ""), "Invalid IP address")
 
                     else:
-                        server.domain_log.log_fl(entry.replace("\n", ""), "Invalid type")
-                        server.all_log.log_fl(entry.replace("\n", ""), "Invalid type")
+                        server.log.log_fl(entry.replace("\n", ""), "Invalid type")
 
         f.close()
 
