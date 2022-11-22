@@ -20,7 +20,7 @@ def main():
         mode = "debug"
 
     server = parser_configuration(config_path, port, timeout, mode)   # Parsing the config and database file, creating a server
-
+    print(server.cache)
     if server is None:
         return
 

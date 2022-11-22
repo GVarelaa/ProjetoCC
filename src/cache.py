@@ -27,12 +27,12 @@ class Cache:
         found = False
 
         for record in self.list:
-            if i > index and record.status == "VALID" and record.name == name and record.type == type:
+            if i > index and record.status == Status.VALID and record.name == name and record.type == type:
                 found = True
                 break
 
-            if record.origin == "OTHERS" and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #enums
-                record.status = "FREE"
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #enums
+                record.status = Status.FREE
 
             i += 1
 
@@ -45,10 +45,10 @@ class Cache:
         if self.size == self.capacity:
             self.expand_cache()
 
-        if new_record.origin == "SP" or new_record.origin == "FILE":
+        if new_record.origin == Origin.SP or new_record.origin == Origin.FILE:
             for i in range(self.capacity):
-                if self.list[i].status == "FREE":
-                    new_record.status = "VALID"
+                if self.list[i].status == Status.FREE:
+                    new_record.status = Status.VALID
                     new_record.timestamp = datetime.timestamp(datetime.now())
                     self.list[i] = new_record
                     break
@@ -57,20 +57,20 @@ class Cache:
             last_free = 0
             found = False
             for i in range(self.capacity):
-                if self.list[i].status == "FREE":
+                if self.list[i].status == Status.FREE:
                     last_free = i
 
                 if self.list[i].name == new_record.name and self.list[i].type == new_record.type and \
                    self.list[i].value == new_record.value and self.list[i].priority == new_record.priority:
-                    if self.list[i].origin == "OTHERS":
+                    if self.list[i].origin == Origin.OTHERS:
                         self.list[i].timestamp = datetime.timestamp(datetime.now())
-                        self.list[i].status = "VALID"
+                        self.list[i].status = Status.VALID
                         found = True
                         break
 
             if not found:
-                new_record.origin = "OTHERS"
-                new_record.status = "VALID"
+                new_record.origin = Origin.OTHERS
+                new_record.status = Status.VALID
                 new_record.timestamp = datetime.timestamp(datetime.now())
                 self.list[last_free] = new_record
 
@@ -80,11 +80,11 @@ class Cache:
         entries = list()
 
         for record in self.list:
-            if record.status == "VALID":
+            if record.status == Status.VALID:
                 entries.append(record)
 
-            if record.origin == "OTHERS" and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
-                record.status = "FREE"
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
+                record.status = Status.FREE
 
         return entries
 
@@ -110,7 +110,7 @@ class Cache:
     def free_cache(self, domain): #SOAEXPIRE
         for record in self.list:
             if record.name == domain:
-                record.status = "FREE"
+                record.status = Status.FREE
 
     def expand_cache(self):
         self.capacity = self.size * 2
@@ -121,15 +121,15 @@ class Cache:
     def is_empty(self):
         len = 0
         for record in self.list:
-            if record.origin == "OTHERS" and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
-                record.status = "FREE"
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
+                record.status = Status.FREE
 
-            if record.status == "VALID":
+            if record.status == Status.VALID:
                 len += 1
 
         return len == 0
 
     def free_sp_entries(self):
         for record in self.list:
-            if record.origin == "SP":
-                record.status = "FREE"
+            if record.origin == Origin.SP:
+                record.status = Status.FREE

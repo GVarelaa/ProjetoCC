@@ -100,6 +100,7 @@ class DNSMessage:
 
     @staticmethod
     def is_query(message):  # Verificar função
+        print("aqui")
         fields = message.split(";")
 
         if len(fields) < 2:

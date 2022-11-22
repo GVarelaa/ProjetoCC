@@ -45,13 +45,15 @@ class SecondaryServer(server.Server):
         expected_value = 1
         lines_number = 0
 
-        query = DNSMessage.from_string(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
+        query = DNSMessage(random.randint(1, 65535), "Q", self.domain, "SOASERIAL")
         socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
 
         self.log.log_qe(str(address), query.to_string())
 
         while True:
-            message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
+            message = socket_tcp.makefile().readline()
+            print(message)
+            #message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
 
             if not message:
                 break
@@ -74,7 +76,7 @@ class SecondaryServer(server.Server):
                     if float(sp_version) > float(ss_version):
                         self.cache.free_sp_entries()                                    # apagar as entradas "SP"
 
-                        query = DNSMessage.from_string(random.randint(1, 65535), "Q", self.domain, "AXFR")  # Query AXFR
+                        query = DNSMessage(random.randint(1, 65535), "Q", self.domain, "AXFR")  # Query AXFR
 
                         socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a transferência
 
@@ -98,6 +100,7 @@ class SecondaryServer(server.Server):
                     self.log.log_rp(str(address), response.to_string())
 
             else:
+                print("aqui")
                 lines = message.split("\n")
                 if "" in lines:
                     lines.remove("")
@@ -115,6 +118,7 @@ class SecondaryServer(server.Server):
 
                     record = " ".join(fields)
                     record = ResourceRecord.to_record(record)
+                    print("aqui")
 
                     self.cache.add_entry(record)
 
@@ -126,3 +130,5 @@ class SecondaryServer(server.Server):
                     socket_tcp.close()
                     break
                 #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
+
+        print(self.cache)

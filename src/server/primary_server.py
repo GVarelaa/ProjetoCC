@@ -53,8 +53,9 @@ class PrimaryServer(server.Server):
 
                     counter = 1
                     for record in entries:
-                        if record.origin == "FILE":
+                        if record.origin == Origin.FILE:
                             record = str(counter) + " " + record.resource_record_to_string() + "\n"
+                            print(record)
                             connection.sendall(record.encode('utf-8'))
 
                             counter += 1
@@ -72,7 +73,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", int(self.port)))  #TIRAR ISTO int(self.port)
+        socket_tcp.bind(("127.0.0.1", 20001))  #TIRAR ISTO int(self.port)
         socket_tcp.listen()
 
         while True:

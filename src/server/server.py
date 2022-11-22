@@ -48,7 +48,7 @@ class Server:
         extra_values = list()
 
         if query.type == "AXFR" and self.domain == query.domain_name:  # Query AXFR
-            record = ResourceRecord(query.domain_name, query.type, str(self.cache.get_num_valid_entries()), -1, -1, "SP")
+            record = ResourceRecord(query.domain_name, query.type, str(self.cache.get_num_valid_entries()), -1, -1, Origin.SP)
 
             query.flags = "A"
             query.response_values.append(record)

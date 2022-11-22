@@ -57,7 +57,7 @@ class ResourceRecord:
     @staticmethod
     def create_free_record():
         record = ResourceRecord("vazio", "vazio", "vazio", "vazio", "vazio", "vazio")
-        record.status = "FREE"
+        record.status = Status.FREE
 
         return record
 
