@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<scenario name="/home/core/ProjetoCC/core/NovaTopologiav5.xml">
+<scenario name="/home/core/ProjetoCC/core/NovaTopologiav6.xml">
   <networks>
     <network id="8" name="Switch2" type="HUB">
       <position x="157" y="70" lat="47.578530419961346" lon="-122.1302064675059" alt="2.0"/>
