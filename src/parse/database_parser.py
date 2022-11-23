@@ -112,7 +112,7 @@ def parser_database(server, file_path):
 
         ttl_default = 0
         suffix = ""
-        priority = -1
+        priority_default = -1
         names_list = list()
 
         for line in f:
@@ -144,6 +144,7 @@ def parser_database(server, file_path):
                     type = words[1]
                     parameter, value = concatenate_suffix(type, suffix, words[0], words[2])
                     expiration = set_ttl(ttl_default, words[3])
+                    priority = priority_default
 
                     if expiration == -1:
                         server.log.log_fl(entry.replace("\n", ""), "Invalid value for TTL")
