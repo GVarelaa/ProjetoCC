@@ -102,7 +102,7 @@ class Server:
             query.number_of_values = 1
 
         else:
-            domain_name = query.domain_name # por causa do cname
+            domain_name = query.domain_name
 
             response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
 
@@ -130,8 +130,8 @@ class Server:
         """
         Recebe queries através de um socket udp e cria uma thread para cada query (thread-per-connection)
         """
-        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
-        socket_udp.bind(("", self.port))  # Binding to server ip
+        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
+        socket_udp.bind(("", self.port))
 
         while True:
             message, address_from = socket_udp.recvfrom(4096)  # Receives a message
@@ -147,28 +147,25 @@ class Server:
         :param address_from: Endereço de onde foi enviada a mensagem
         :param socket_udp: Socket UDP
         """
-        message = DNSMessage.from_string(message.decode('utf-8'))  # Decodes and converts to PDU
+        message = DNSMessage.from_string(message.decode('utf-8'))  # Cria uma DNSMessage
 
-        if "Q" in message.flags and "R" not in message.flags:  # It is a query
+        if "Q" in message.flags and "R" not in message.flags:  # Verifica que é uma query
             query = message
 
             self.log.log_qr(str(address_from), query.to_string())
 
-            response = self.build_response(query)  # Create a response to that query
+            response = self.build_response(query)  # Constrói a resposta a essa query
 
-            if "A" in response.flags:  # Answer in cache
+            if "A" in response.flags:  # Informação na cache
                 self.log.log_rp(str(address_from), response.to_string())
 
-                socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Send it back
+                socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
             else:
-                self.log.log_to(str(address_from), "Query Miss") # MISS e timeout
+                self.log.log_to(str(address_from), "Query Miss")  # MISS e timeout
 
-        else:  # It's a response to a query
+        else:  # É uma resposta a uma query
             response = message
 
             self.log.log_rr(str(address_from), response.to_string())
 
             # Segunda fase
-
-
-

@@ -65,8 +65,7 @@ class ResourceRecord:
         Transforma um objeto Resource Record numa string
         :return: String
         """
-        string = str(self.name) + " " + str(self.type) + " " + str(self.value) + " " + str(self.ttl) + " " + str(
-            self.priority)
+        string = str(self.name) + " " + str(self.type) + " " + str(self.value) + " " + str(self.ttl) + " " + str(self.priority)
         return string
 
     @staticmethod
@@ -93,7 +92,7 @@ class ResourceRecord:
         Cria um objeto com o status FREE
         :return: Record
         """
-        record = ResourceRecord("vazio", "vazio", "vazio", "vazio", "vazio", "vazio")
+        record = ResourceRecord("EMPTY", "EMPTY", "EMPTY", "EMPTY", "EMPTY", "EMPTY")
         record.status = Status.FREE
 
         return record

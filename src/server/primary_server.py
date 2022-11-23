@@ -41,7 +41,7 @@ class PrimaryServer(Server):
         Devolve a representação oficial em string do objeto PrimaryServer
         :return: String
         """
-        return super().__str__() + "Ficheiro de dados: " + self.data_path + "Servidores secundários: \ " \
+        return super().__str__() + "Ficheiro de dados: " + self.data_path + "Servidores secundários: " \
                 + str(self.secondary_servers) + "\n"
 
     def zone_transfer_process(self, connection, address_from):
@@ -104,7 +104,7 @@ class PrimaryServer(Server):
         Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
         """
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", self.port))  #TIRAR ISTO int(self.port)
+        socket_tcp.bind(("", self.port))
         socket_tcp.listen()
 
         while True:

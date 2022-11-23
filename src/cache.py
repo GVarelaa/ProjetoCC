@@ -49,13 +49,13 @@ class Cache:
                 found = True
                 break
 
-            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #enums
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
                 record.status = Status.FREE
 
             i += 1
 
         if not found:
-            return -1 # codigo de erro
+            return -1  # codigo de erro
 
         return i
 
@@ -109,7 +109,7 @@ class Cache:
             if record.status == Status.VALID:
                 entries.append(record)
 
-            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:  #atualiza a cache
                 record.status = Status.FREE
 
         return entries
@@ -120,7 +120,6 @@ class Cache:
         :return: Número de entradas válidas
         """
         return len(self.get_valid_entries())
-
 
     def get_records_by_name_and_type(self, name, type):
         """
@@ -143,10 +142,10 @@ class Cache:
 
         return records
 
-    def free_cache(self, domain): #SOAEXPIRE
+    def free_cache(self, domain):  #SOAEXPIRE
         """
         Liberta a cache, colocando as entradas a FREE
-        :param domain: Domain name
+        :param domain: Nome do domínio
         """
         for record in self.list:
             if record.name == domain:
@@ -158,8 +157,8 @@ class Cache:
         """
         self.capacity = self.size * 2
         for i in range(self.capacity):
-          if i >= self.size:
-              self.list.append(ResourceRecord.create_free_record())
+            if i >= self.size:
+                self.list.append(ResourceRecord.create_free_record())
 
     def is_empty(self):
         """
@@ -168,7 +167,7 @@ class Cache:
         """
         len = 0
         for record in self.list:
-            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:  #atualiza a cache
                 record.status = Status.FREE
 
             if record.status == Status.VALID:

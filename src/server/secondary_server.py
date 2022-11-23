@@ -92,7 +92,7 @@ class SecondaryServer(Server):
                     self.log.log_rr(str(address), response.to_string())
 
                     lines_number = int(response.response_values[0].value)
-                    #Confirma nº de linhas ?
+
                     socket_tcp.sendall(response.to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
 
                     self.log.log_rp(str(address), response.to_string())
@@ -119,8 +119,6 @@ class SecondaryServer(Server):
 
                     socket_tcp.close()
                     break
-                #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
-        print(self.cache)
 
     @staticmethod
     def remove_index(record):
