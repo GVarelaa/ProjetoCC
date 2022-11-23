@@ -27,8 +27,12 @@ def main():
     if len(args_split) > 1:
         port = int(args_split[1])           # If port specified, update port
 
-    if len(args) == 4 and args[3] == "R":   # If recursive mode enabled
-        flags = "Q+R"
+    if len(args) == 4:   # If recursive mode enabled
+        if args[3] == "R":
+            flags = "Q+R"
+        else:
+            sys.stdout.write("Wrong flag")
+            return
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    # Creation of a socket UDP
 
@@ -36,13 +40,8 @@ def main():
 
     socket_udp.sendto(query.to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
 
-    print(ip_address)
-    print(port)
-
     message, address = socket_udp.recvfrom(1024)     # Blocks until response received
     message = message.decode('utf-8')
-
-
 
     sys.stdout.write(message)
 

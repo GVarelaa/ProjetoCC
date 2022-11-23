@@ -50,7 +50,7 @@ class SecondaryServer(server.Server):
         self.log.log_qe(str(address), query.to_string())
 
         while True:
-            message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
+            message = socket_tcp.recv(4096).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
 
             if not message:
                 break
@@ -108,7 +108,7 @@ class SecondaryServer(server.Server):
                         self.log.log_ez(str(address), "SS : Expected value does not match")
 
                         socket_tcp.close()
-                        return
+                        break
 
                     fields.remove(fields[0])
 

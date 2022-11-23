@@ -107,7 +107,7 @@ class Server:
     def interpret_message(self, message, address_from, socket_udp):
         message = DNSMessage.from_string(message.decode('utf-8'))  # Decodes and converts to PDU
 
-        if "Q" in message.flags:  # It is a query
+        if "Q" in message.flags and "R" not in message.flags:  # It is a query
             query = message
 
             self.log.log_qr(str(address_from), query.to_string())
