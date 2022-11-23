@@ -42,10 +42,22 @@ class Server:
 
         return (ip_address, port)
 
-    def build_response(self, query):  # interpret_query
+    def fill_extra_values(self, response_values, authorities_values):
+        extra_values = list()
+
+        for record in response_values:
+            records = self.cache.get_records_by_name_and_type(record.value, "A")
+            extra_values += records
+
+        for record in authorities_values:
+            records = self.cache.get_records_by_name_and_type(record.value, "A")
+            extra_values += records
+
+        return extra_values
+
+    def build_response(self, query):
         response_values = list()
         authorities_values = list()
-        extra_values = list()
 
         if query.type == "AXFR" and self.domain == query.domain_name:  # Query AXFR
             record = ResourceRecord(query.domain_name, query.type, str(self.cache.get_num_valid_entries()), -1, -1, Origin.SP)
@@ -57,6 +69,7 @@ class Server:
             return query
         else:
             domain_name = query.domain_name # por causa do cname
+
             response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
 
             if len(response_values) == 0 and query.type == "A": # Vai ver o seu CNAME
@@ -65,33 +78,19 @@ class Server:
                     domain_name = cname[0].value
                     response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
 
+            authorities_values = self.cache.get_records_by_name_and_type(domain_name, "NS")
+            extra_values = self.fill_extra_values(response_values, authorities_values)
+
             if len(response_values) != 0:  # HIT
-                authorities_values = self.cache.get_records_by_name_and_type(domain_name, "NS")
-
-                for record in response_values:
-                    records = self.cache.get_records_by_name_and_type(record.value, "A")
-                    extra_values += records
-
-                for record in authorities_values:
-                    records = self.cache.get_records_by_name_and_type(record.value, "A")
-                    extra_values += records
-
                 query.number_of_values = len(response_values)
                 query.number_of_authorities = len(authorities_values)
                 query.number_of_extra_values = len(extra_values)
                 query.response_values = response_values
                 query.authorities_values = authorities_values
                 query.extra_values = extra_values
+                query.flags = "A"
 
-                if "R" in query.flags:
-                    query.flags = "R+A"
-                else:
-                    query.flags = "A"
-
-                return query
-
-            else:  # MISS
-                return query
+            return query
 
     def receive_queries(self, port):
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
