@@ -9,6 +9,9 @@ from parse.configuration_parser import *
 
 
 def main():
+    """
+    Programa que corre um servidor
+    """
     args = sys.argv
     config_path = args[1]       # Path of the config file of the server
     port = args[2]              # Port the server will be listening

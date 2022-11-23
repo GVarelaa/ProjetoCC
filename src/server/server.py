@@ -13,6 +13,15 @@ from resource_record import ResourceRecord
 
 class Server:
     def __init__(self, domain, default_domains, root_servers, log, port, mode):
+        """
+        Construtor de um objeto Server
+        :param domain: Domínio
+        :param default_domains: Lista de domínios por defeito
+        :param root_servers: Lista de Root Servers
+        :param log: Objeto Log
+        :param port: Porta de atendimento
+        :param mode: Modo de funcionamento (debug ou shy)
+        """
         self.mode = mode
         self.domain = domain
         self.default_domains = default_domains
@@ -23,17 +32,30 @@ class Server:
         self.cache = None
 
     def __str__(self):
+        """
+        Devolve a representação em string do objeto Server
+        :return: String
+        """
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log}"
     
     def __repr__(self):
+        """
+        Devolve a representação oficial em string do objeto Server
+        :return: String
+        """
         return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log}"
 
     @staticmethod
     def parse_address(address):
+        """
+        Separa um endereço em endereço e porta
+        :param address: Endereço IP
+        :return: Tuplo com o endereço e a porta
+        """
         substrings = address.split(":")
         ip_address = substrings[0]
 
@@ -45,6 +67,12 @@ class Server:
         return (ip_address, port)
 
     def fill_extra_values(self, response_values, authorities_values):
+        """
+        Preenche os extra values relativos a uma query
+        :param response_values: Lista com os response values
+        :param authorities_values: Lista com os authorities values
+        :return: Lista extra values preenchida
+        """
         extra_values = list()
 
         for record in response_values:
@@ -58,6 +86,11 @@ class Server:
         return extra_values
 
     def build_response(self, query):
+        """
+        Formula a resposta a uma query
+        :param query: Query a responder
+        :return: Query já respondida
+        """
         response_values = list()
         authorities_values = list()
 
@@ -94,6 +127,9 @@ class Server:
         return query
 
     def receive_queries(self):
+        """
+        Recebe queries através de um socket udp e cria uma thread para cada query (thread-per-connection)
+        """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
         socket_udp.bind(("", self.port))  # Binding to server ip
 
@@ -105,6 +141,12 @@ class Server:
         socket_udp.close()
 
     def interpret_message(self, message, address_from, socket_udp):
+        """
+        Determina o próximo passo de uma mensagem DNS
+        :param message: Mensagem DNS
+        :param address_from: Endereço de onde foi enviada a mensagem
+        :param socket_udp: Socket UDP
+        """
         message = DNSMessage.from_string(message.decode('utf-8'))  # Decodes and converts to PDU
 
         if "Q" in message.flags and "R" not in message.flags:  # It is a query

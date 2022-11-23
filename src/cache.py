@@ -10,6 +10,10 @@ import time
 
 class Cache:
     def __init__(self, list=[]):
+        """
+        Construtor de um objeto Cache
+        :param list: Lista vazia
+        """
         record = ResourceRecord.create_free_record()
         list.append(record)
         self.list = list
@@ -17,9 +21,16 @@ class Cache:
         self.capacity = 1
 
     def __str__(self):
+        """
+        Devolve a representação em string de um objeto Cache
+        """
         return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
 
     def __repr__(self):
+        """
+        Devolve a representação oficial em string de um objeto Cache
+        :return:
+        """
         return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
 
     def find_valid_entry(self, index, name, type):
