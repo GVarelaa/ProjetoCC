@@ -23,6 +23,13 @@ class Cache:
         return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
 
     def find_valid_entry(self, index, name, type):
+        """
+        Encontra a próxima entrada válida na cache(lista de records)
+        :param index: Índice a partir do qual vai procurar
+        :param name: Query domain name
+        :param type: Query type
+        :return: Índice da primeira entrada válida
+        """
         i = 0
         found = False
 
@@ -42,6 +49,10 @@ class Cache:
         return i
 
     def add_entry(self, new_record):
+        """
+        Adiciona uma nova entrada na cache
+        :param new_record: Nova entrada
+        """
         if self.size == self.capacity:
             self.expand_cache()
 
@@ -77,6 +88,10 @@ class Cache:
         self.size += 1
 
     def get_valid_entries(self):
+        """
+        Obtém as entradas válidas da cache
+        :return: Lista com as entradas válidas
+        """
         entries = list()
 
         for record in self.list:
@@ -89,10 +104,20 @@ class Cache:
         return entries
 
     def get_num_valid_entries(self):
+        """
+        Obtém o número de entradas válidas
+        :return: Número de entradas válidas
+        """
         return len(self.get_valid_entries())
 
-    # Gets all entries with the given name and type
+
     def get_records_by_name_and_type(self, name, type):
+        """
+        Obtém a lista das entradas correspondentes com o name e o type.
+        :param name: Domain name
+        :param type: Type
+        :return: Lista com as entradas que deram match
+        """
         records = []
         index = 0
 
@@ -108,17 +133,28 @@ class Cache:
         return records
 
     def free_cache(self, domain): #SOAEXPIRE
+        """
+        Liberta a cache, colocando as entradas a FREE
+        :param domain: Domain name
+        """
         for record in self.list:
             if record.name == domain:
                 record.status = Status.FREE
 
     def expand_cache(self):
+        """
+        Expande a cache para o dobro do tamanho
+        """
         self.capacity = self.size * 2
         for i in range(self.capacity):
           if i >= self.size:
               self.list.append(ResourceRecord.create_free_record())
 
     def is_empty(self):
+        """
+        Verifica se a cache está vazia
+        :return: Boolean
+        """
         len = 0
         for record in self.list:
             if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl: #atualiza a cache
@@ -130,6 +166,9 @@ class Cache:
         return len == 0
 
     def free_sp_entries(self):
+        """
+        Liberta as entradas do servidor primário
+        """
         for record in self.list:
             if record.origin == Origin.SP:
                 record.status = Status.FREE
