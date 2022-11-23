@@ -120,6 +120,7 @@ class SecondaryServer(Server):
                     socket_tcp.close()
                     break
                 #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
+        print(self.cache)
 
     @staticmethod
     def remove_index(record):
