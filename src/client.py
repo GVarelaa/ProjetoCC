@@ -11,36 +11,38 @@ from dns_message import *
 
 
 def main():
+    """
+    Programa responsável pelo envio de uma query para o servidor com os argumentos de input do cliente
+    """
     args = sys.argv
     args.pop(0)
 
     args_split = args[0].split(":")
 
     message_id = random.randint(1, 65535)
-    ip_address = args_split[0]              # Address of the server
-    #port = 6000                             # Default gate of the server
+    ip_address = args_split[0]
     port = args_split[1]
-    domain_name = args[1]                   # Domain of the query (ex: mike.ggm.)
-    type = args[2]                          # Type of entry (ex: A, NS)
+    domain_name = args[1]
+    type = args[2]
     flags = "Q"
 
-    if len(args_split) > 1:
-        port = int(args_split[1])           # If port specified, update port
+    if len(args_split) > 1:  # Se a porta for especificada, atualizar
+        port = int(args_split[1])
 
-    if len(args) == 4:   # If recursive mode enabled
+    if len(args) == 4:  # Modo recursivo
         if args[3] == "R":
             flags = "Q+R"
         else:
             sys.stdout.write("Wrong flag")
             return
 
-    socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    # Creation of a socket UDP
+    socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
 
-    query = DNSMessage(message_id, flags, domain_name, type)   # Creation of the query message
+    query = DNSMessage(message_id, flags, domain_name, type)  # Criar mensagem
 
-    socket_udp.sendto(query.to_string().encode('utf-8'), (ip_address, port))   # Sending of the query to the chosen server socket
+    socket_udp.sendto(query.to_string().encode('utf-8'), (ip_address, port))  # Enviar query para o socket do server
 
-    message, address = socket_udp.recvfrom(1024)     # Blocks until response received
+    message, address = socket_udp.recvfrom(1024)
     message = message.decode('utf-8')
 
     sys.stdout.write(message)
@@ -48,5 +50,5 @@ def main():
     socket_udp.close()
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     main()

@@ -2,15 +2,25 @@
 # Data de criação: 02/11/22
 # Data da última atualização: 11/11/22
 # Descrição: Validação de endereços IP e portas
-# Última atualização: Header
+# Última atualização: Documentação
 
 def validate_port(port):
+    """
+    Verifica se uma porta é válida - se está entre 1 e 65535
+    :param port: Porta
+    :return: Bool
+    """
     return 1 < int(port) < 65535
 
 
 def validate_ip(ip_address):
+    """
+    Verifica se um endereço IP é válido
+    :param ip_address: Endereço IP
+    :return: Bool
+    """
     ip_parts = ip_address.split('.')
-    ip_parts[-1] = (ip_parts[-1].split(':'))[0]
+    ip_parts[-1] = (ip_parts[-1].split(':'))[0]  # retirar porta
 
     length = len(ip_address.split(':'))
     port_bool = True

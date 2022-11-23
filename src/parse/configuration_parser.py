@@ -1,8 +1,8 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 29/10/22
-# Data da última atualização: 11/11/22
+# Data da última atualização: 19/11/22
 # Descrição: Parsing de ficheiros de configuração de servidores
-# Última atualização: Header
+# Última atualização: Documentação
 
 from parse.validation import *
 from server.primary_server import *
@@ -12,6 +12,11 @@ from log import *
 
 
 def parser_root_servers(file_path):
+    """
+    Parsing do ficheiro dos root servers
+    :param file_path: Ficheiro de root servers
+    :return: Lista dos root servers
+    """
     f = open(file_path, "r")
 
     servers = list()
@@ -27,6 +32,14 @@ def parser_root_servers(file_path):
 
 
 def parser_configuration(file_path, port, timeout, mode):
+    """
+    Função responsável pelo parse dos ficheiros de configuração
+    :param file_path: Ficheiro de configuração
+    :param port: Porta
+    :param timeout: Timeout
+    :param mode: Modo
+    :return: Servidor
+    """
     domain = None
     data_path = None
     primary_server = None
@@ -92,7 +105,6 @@ def parser_configuration(file_path, port, timeout, mode):
                     domain_log_path = value
 
     f.close()
-
 
     if mode != "shy" and mode != "debug":
         return None
