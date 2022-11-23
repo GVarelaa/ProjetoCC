@@ -21,7 +21,7 @@ def main():
 
     message_id = random.randint(1, 65535)
     ip_address = args_split[0]
-    port = args_split[1]
+    port = 5353  # porta default
     domain_name = args[1]
     type = args[2]
     flags = "Q"
