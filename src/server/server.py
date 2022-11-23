@@ -2,13 +2,14 @@
 # Data de criação: 30/10/22
 # Data da última atualização: 11/11/22
 # Descrição: Implementação de um servidor
-# Última atualização: Header
+# Última atualização: Documentação
 import socket
 import threading
 import time
 
 from dns_message import *
 from resource_record import ResourceRecord
+
 
 class Server:
     def __init__(self, domain, default_domains, root_servers, log, port, mode):
