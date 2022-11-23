@@ -50,7 +50,6 @@ class SecondaryServer(Server):
             self.zone_transfer_process()
 
             soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
-            print(soarefresh)
             time.sleep(soarefresh)
 
     def zone_transfer_process(self):
