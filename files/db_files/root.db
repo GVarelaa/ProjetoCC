@@ -17,7 +17,7 @@ reverse. NS ns1.reverse. TTL
 
 # Addresses
 
-sp.ggm. A 10.2.2.1:2000 TTL
+sp.ggm. A 10.2.2.1:2000 TTL  
 ss1.ggm. A 10.3.3.1:2001 TTL
 ss2.ggm. A 10.4.4.1:2002 TTL
 sp.fcp. A 10.2.2.2:2003 TTL

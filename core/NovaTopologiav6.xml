@@ -129,7 +129,7 @@
       </services>
     </device>
     <device id="18" name="Orca" type="host" class="" image="">
-      <position x="918" y="32" lat="47.578875830084634" lon="-122.11995219853767" alt="2.0"/>
+      <position x="905" y="35" lat="47.57884856094723" lon="-122.12012737001808" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="SSH"/>
@@ -360,7 +360,7 @@ TTL DEFAULT 86400
 @ SOASP s1.ggm TTL
 @ SOAADMIN admin\.ggm. TTL
 @ SOASERIAL 1 TTL
-@ SOAREFRESH 14400 TTL
+@ SOAREFRESH 30 TTL
 @ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
 
@@ -887,7 +887,7 @@ ip route add default via 2001:4:4::254
       </startups>
       <files>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
-        <file name="runGGMSecondary.sh"><![CDATA[cp /home/core/ProjetoCC/src dns/src]]></file>
+        <file name="runGGMSecondary.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/ggm_secondary1.txt 2001 100]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:1998

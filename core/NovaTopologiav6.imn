@@ -278,8 +278,14 @@ node n12 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
+	dirs=
 	files=('preenche_resolvconf.sh', 'ggm.db', 'ggm.txt', 'runGGMPrimary.sh', 'rootservers.db', 'updateSrc.sh', )
+	startidx=0
 	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'cp -r /home/core/ProjetoCC/src dns/src', 'mkdir dns/files', 'mkdir dns/files/db_files', 'mkdir dns/files/config_files', 'mv ggm.txt dns/files/config_files/ggm.txt', 'mv rootservers.db dns/files/rootservers.db', 'mkdir dns/files/log_files', 'touch dns/files/log_files/ggm.log', 'mv ggm.db dns/files/db_files/ggm.db', )
+	cmddown=
+	cmdval=
+	meta=Customize this service to do anything upon startup.
+	starttime=0
 	}
     }
     custom-config {
@@ -334,7 +340,7 @@ node n12 {
 	@ SOASP s1.ggm TTL
 	@ SOAADMIN admin\.ggm. TTL
 	@ SOASERIAL 1 TTL
-	@ SOAREFRESH 14400 TTL
+	@ SOAREFRESH 30 TTL
 	@ SOARETRY 3600 TTL
 	@ SOAEXPIRE 604800 TTL
 	
@@ -1231,8 +1237,8 @@ node n18 {
 	!
     }
     canvas c1
-    iconcoords {918.0 32.0}
-    labelcoords {918.0 64.0}
+    iconcoords {905.0 35.0}
+    labelcoords {905.0 67.0}
     services {DefaultRoute SSH StaticRoute UserDefined}
     interface-peer {eth0 n11}
     custom-config {
@@ -1254,7 +1260,7 @@ node n18 {
 	custom-config-id service:UserDefined:runGGMSecondary.sh
 	custom-command runGGMSecondary.sh
 	config {
-	cp /home/core/ProjetoCC/src dns/src
+	python3 dns/src/run_server.py dns/files/config_files/ggm_secondary1.txt 2001 100
 	}
     }
     custom-config {
