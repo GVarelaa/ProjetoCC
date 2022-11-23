@@ -6,12 +6,12 @@
 
 import socket
 import threading
-from server import server
+from server.server import Server
 from dns_message import *
 import time
 
 
-class PrimaryServer(server.Server):
+class PrimaryServer(Server):
     def __init__(self, domain, default_domains, root_servers, log, port, mode, data_path, secondary_servers):
         super().__init__(domain, default_domains, root_servers, log, port, mode)
         self.data_path = data_path
@@ -20,7 +20,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer_process(self, connection, address_from):
         while True:
-            message = connection.recv(1024).decode('utf-8') # Recebe queries (versão/pedido de transferência)
+            message = connection.recv(4096).decode('utf-8') # Recebe queries (versão/pedido de transferência)
 
             if not message:
                 break
@@ -73,7 +73,7 @@ class PrimaryServer(server.Server):
 
     def zone_transfer(self):
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("127.0.0.1", 20001))  #TIRAR ISTO int(self.port)
+        socket_tcp.bind(("", self.port))  #TIRAR ISTO int(self.port)
         socket_tcp.listen()
 
         while True:

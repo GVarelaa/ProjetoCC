@@ -17,7 +17,7 @@ class Server:
         self.default_domains = default_domains
         self.log = log
         self.root_servers = root_servers
-        self.port = port
+        self.port = int(port)
 
         self.cache = None
 
@@ -31,7 +31,8 @@ class Server:
                f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
                f"{self.root_servers}\nFicheiro de Log: {self.log}"
 
-    def parse_address(self, address):
+    @staticmethod
+    def parse_address(address):
         substrings = address.split(":")
         ip_address = substrings[0]
 
@@ -66,7 +67,6 @@ class Server:
             query.response_values.append(record)
             query.number_of_values = 1
 
-            return query
         else:
             domain_name = query.domain_name # por causa do cname
 
@@ -90,14 +90,14 @@ class Server:
                 query.extra_values = extra_values
                 query.flags = "A"
 
-            return query
+        return query
 
-    def receive_queries(self, port):
+    def receive_queries(self):
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Creation of the udp socket
-        socket_udp.bind(("", int(port)))  # Binding to server ip
+        socket_udp.bind(("", self.port))  # Binding to server ip
 
         while True:
-            message, address_from = socket_udp.recvfrom(1024)  # Receives a message
+            message, address_from = socket_udp.recvfrom(4096)  # Receives a message
 
             threading.Thread(target=self.interpret_message, args=(message, address_from, socket_udp)).start()  # Thread per connection
 
@@ -118,9 +118,7 @@ class Server:
 
                 socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Send it back
             else:
-                self.log.log_to(str(address_from), "Query Miss")
-
-                # MISS e timeout
+                self.log.log_to(str(address_from), "Query Miss") # MISS e timeout
 
         else:  # It's a response to a query
             response = message
