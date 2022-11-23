@@ -1,14 +1,22 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 29/10/22
-# Data da última atualização: 11/11/22
+# Data da última atualização: 19/11/22
 # Descrição: Parsing de ficheiros de dados de servidores primários
-# Última atualização: Header
+# Última atualização: Documentação
 
 from parse.validation import *
 from cache import *
 
 
 def set_default_values(server, ttl_default, suffix, line):
+    """
+    Interpreta e atualiza o valor default do TTL e o sufixo
+    :param server: Server
+    :param ttl_default: Valor default do TTL
+    :param suffix: Sufixo
+    :param line: Linha a ser analisada
+    :return: Default TTL, Sufixo
+    """
     if line[0] == "TTL":
         if line[2].isnumeric():
             ttl_default = line[2]
@@ -22,6 +30,12 @@ def set_default_values(server, ttl_default, suffix, line):
 
 
 def set_ttl(ttl_default, word):
+    """
+    Interpreta e atualiza o TTL
+    :param ttl_default: Valor default do TTL
+    :param word: Input da linha no campo TTL
+    :return: Valor do TTL
+    """
     if word == "TTL":
         ttl = ttl_default
     elif word.isnumeric():
@@ -33,6 +47,11 @@ def set_ttl(ttl_default, word):
 
 
 def replace_email(email):
+    """
+    Faz a substituição do email de input pelo formato correto
+    :param email: Email
+    :return: Email no formato correto
+    """
     parts = email.split("\\.")
     parts[-1] = parts[-1].replace(".", "@", 1)
     email = '.'.join(parts)
@@ -41,6 +60,12 @@ def replace_email(email):
 
 
 def concatenate_suffix_aux(suffix, name):
+    """
+    Função auxiliar para concatenar o sufixo
+    :param suffix: Sufixo
+    :param name: Nome
+    :return: Nome com o sufixo concatenado
+    """
     if name[-1] != ".":
         name += "." + suffix
 
@@ -48,6 +73,14 @@ def concatenate_suffix_aux(suffix, name):
 
 
 def concatenate_suffix(type, suffix, parameter, value):
+    """
+    Concatena o sufixo nos nomes que não terminam com um ponto
+    :param type: Tipo de valor
+    :param suffix: Sufixo
+    :param parameter: Parâmetro
+    :param value: Valor
+    :return: Nome com o sufixo concatenado
+    """
     if type == "SOASERIAL" or type == "SOAREFRESH" or type == "SOARETRY" or type == "SOAEXPIRE" or type == "A":
         parameter = concatenate_suffix_aux(suffix, parameter)
 
@@ -65,6 +98,11 @@ def concatenate_suffix(type, suffix, parameter, value):
 
 
 def parser_database(server, file_path):
+    """
+    Função responsável pelo parse dos ficheiros de dados
+    :param server: Servidor
+    :param file_path: Ficheiro de dados
+    """
     server.log.log_ev("localhost", "db-file-read", file_path)
 
     data = Cache(list())

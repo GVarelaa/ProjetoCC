@@ -2,13 +2,21 @@
 # Data de criação: 08/11/22
 # Data da última atualização: 11/11/22
 # Descrição: Representação de queries
-# Última atualização: Header
+# Última atualização: Documentação
 
 from resource_record import *
 import re
 
+
 class DNSMessage:
     def __init__(self, message_id, flags, domain_name, type):
+        """
+        Construtor de um objeto DNSMessage
+        :param message_id: ID da mensagem
+        :param flags: Flags
+        :param domain_name: Nome do domínio
+        :param type: Tipo
+        """
         self.message_id = message_id
         self.flags = flags
         self.response_code = 0
@@ -22,18 +30,30 @@ class DNSMessage:
         self.extra_values = list()
 
     def __str__(self):
+        """
+        Devolve a representação em string do objeto DNSMessage
+        :return: String
+        """
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
                + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " \
                + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
     def __repr__(self):
+        """
+        Devolve a representação oficial em string do objeto DNSMessage
+        :return: String
+        """
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
                + str(self.number_of_values) + " " + str(self.number_of_authorities) + " "  \
                + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
     def to_string(self):
+        """
+        Transforma um objeto DNSMessage numa string
+        :return: String
+        """
         string = str(self.message_id) + "," + str(self.flags) + "," + str(self.response_code) + "," \
                  + str(self.number_of_values) + "," + str(self.number_of_authorities) + "," \
                  + str(self.number_of_extra_values) + ";" + str(self.domain_name) + "," + str(self.type) + ";\n"
@@ -57,6 +77,11 @@ class DNSMessage:
 
     @staticmethod
     def from_string(query):
+        """
+        Transforma uma string num objeto DNSMessage
+        :param query: Mensagem (string)
+        :return: Objeto DNSMessage
+        """
         (message_id, flags, response_code, num_response_values, num_authorities_values,
          num_extra_values, name, type, response_values, authorities_values, extra_values) = parse_message(query)
 
@@ -65,7 +90,7 @@ class DNSMessage:
         query.number_of_values = int(num_response_values)
         query.number_of_authorities = int(num_authorities_values)
         query.number_of_extra_values = int(num_extra_values)
-        # print(response_values)
+
         for value in response_values:
             fields = value.split(" ")
             priority = -1
@@ -100,6 +125,11 @@ class DNSMessage:
 
     @staticmethod
     def is_query(message):  # Verificar função
+        """
+        Verifica se uma mensagem é uma query
+        :param message: Mensagem
+        :return: Bool
+        """
         fields = message.split(";")
 
         if len(fields) < 2:
@@ -117,6 +147,12 @@ class DNSMessage:
 
 
 def parse_message(message):
+    """
+    Parse de uma mensagem
+    :param message: Mensagem
+    :return: Strings com os valores para as variáveis do objeto
+             Response values, authorities values e extra values são listas de strings
+    """
     message = message.replace("\n", "")
     fields = re.split(";|,", message)
     fields.remove("")
@@ -142,7 +178,6 @@ def parse_message(message):
 
     for i in range(1, int(num_extra_values)):
         extra_values.append(fields[7+int(num_response_values)+int(num_authorities_values)+i])
-    
 
     return (message_id, flags, response_code, num_response_values, num_authorities_values,
             num_extra_values, name, type, response_values, authorities_values, extra_values)

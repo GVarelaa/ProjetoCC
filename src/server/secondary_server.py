@@ -2,7 +2,7 @@
 # Data de criação: 08/11/22
 # Data da última atualização: 11/11/22
 # Descrição: Representação de um servidor secundário
-# Última atualização: Header
+# Última atualização: Documentação
 
 import random
 import socket
@@ -13,28 +13,50 @@ from dns_message import *
 import select
 
 
-
 class SecondaryServer(Server):
     def __init__(self, domain, default_domains, root_servers, log, port, mode, primary_server):
+        """
+        Construtor de um objeto SecondaryServer
+        :param domain: Nome do domínio
+        :param default_domains: Lista de domínios por defeito
+        :param root_servers: Lista de root servers
+        :param log: Objeto Log
+        :param port: Porta
+        :param mode: Modo
+        :param primary_server: Endereço IP do servidor primário
+        """
         super().__init__(domain, default_domains, root_servers, log, port, mode)
         self.primary_server = primary_server
-        self.thread_expire = False
 
     def __str__(self):
-        return super().__str__() + f"Server primário: {self.primary_server}\n"
+        """
+        Devolve a representação em string do objeto SecondaryServer
+        :return: String
+        """
+        return super().__str__() + f"Servidor primário: {self.primary_server}\n"
 
     def __repr__(self):
-        return super().__str__() + f"Server primário: {self.primary_server}\n"
+        """
+        Devolve a representação oficial em string do objeto SecondaryServer
+        :return: String
+        """
+        return super().__str__() + f"Servidor primário: {self.primary_server}\n"
 
     def zone_transfer(self):
+        """
+        Executa a transferència de zona
+        """
         while True:
-            self.zone_transfer_process()   #Criar thread ?
+            self.zone_transfer_process()
 
             soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
 
             time.sleep(soarefresh)
 
     def zone_transfer_process(self):
+        """
+        Processo de transferência de zona
+        """
         (address, port) = Server.parse_address(self.primary_server)
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -101,6 +123,11 @@ class SecondaryServer(Server):
 
     @staticmethod
     def remove_index(record):
+        """
+        Remove o índice de cada linha
+        :param record: Linha
+        :return: Índice, Linha sem o índice
+        """
         fields = record.split(" ")
         index = int(fields[0])
         fields.remove(fields[0])
@@ -108,7 +135,12 @@ class SecondaryServer(Server):
         record = " ".join(fields)
 
         return (index, record)
+
     def get_version(self):
+        """
+        Obtém a versão da base de dados do servidor secundário
+        :return: Versão
+        """
         list = self.cache.get_records_by_name_and_type(self.domain, "SOASERIAL")
 
         if len(list) == 0:
@@ -117,7 +149,17 @@ class SecondaryServer(Server):
             ss_version = list[0].value
 
         return ss_version
+
     def interpret_version(self, sp_version, ss_version, socket_tcp, address, response):
+        """
+        Interpreta as versões do SP e do SS e envia a query a pedir transferência se a BD do SS estiver desatualizada
+        :param sp_version: Versão do servidor primário
+        :param ss_version: Versáo do servidor secundário
+        :param socket_tcp: Socket TCP
+        :param address: Endereço IP do servidor primário
+        :param response: Resposta do servidor primário a interpretar
+        :return: Bool
+        """
         bool = False
 
         if float(sp_version) > float(ss_version):
