@@ -39,7 +39,6 @@ class SecondaryServer(server.Server):
         (address, port) = self.parse_address(self.primary_server)
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # print(port)
         socket_tcp.connect((address, port))
 
         expected_value = 1
@@ -51,9 +50,7 @@ class SecondaryServer(server.Server):
         self.log.log_qe(str(address), query.to_string())
 
         while True:
-            message = socket_tcp.makefile().readline()
-            print(message)
-            #message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
+            message = socket_tcp.recv(1024).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
 
             if not message:
                 break
@@ -100,7 +97,6 @@ class SecondaryServer(server.Server):
                     self.log.log_rp(str(address), response.to_string())
 
             else:
-                print("aqui")
                 lines = message.split("\n")
                 if "" in lines:
                     lines.remove("")
@@ -117,8 +113,7 @@ class SecondaryServer(server.Server):
                     fields.remove(fields[0])
 
                     record = " ".join(fields)
-                    record = ResourceRecord.to_record(record)
-                    print("aqui")
+                    record = ResourceRecord.to_record(record, Origin.SP)
 
                     self.cache.add_entry(record)
 
@@ -130,5 +125,3 @@ class SecondaryServer(server.Server):
                     socket_tcp.close()
                     break
                 #else: quando o tempo predefinido se esgotar, o SS termina a conexão. Deve tentar após SOARETRY segundos
-
-        print(self.cache)

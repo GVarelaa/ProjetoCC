@@ -43,14 +43,14 @@ class ResourceRecord:
         return string
 
     @staticmethod
-    def to_record(string):
+    def to_record(string, origin):
         fields = string.split(" ")
         priority = -1
 
         if len(fields) > 4:
             priority = fields[4]
 
-        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, origin)
 
         return record
 

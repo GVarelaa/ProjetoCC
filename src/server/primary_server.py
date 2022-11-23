@@ -55,7 +55,7 @@ class PrimaryServer(server.Server):
                     for record in entries:
                         if record.origin == Origin.FILE:
                             record = str(counter) + " " + record.resource_record_to_string() + "\n"
-                            print(record)
+
                             connection.sendall(record.encode('utf-8'))
 
                             counter += 1
