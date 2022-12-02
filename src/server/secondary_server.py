@@ -48,7 +48,7 @@ class SecondaryServer(Server):
         """
         while True:
             self.zone_transfer_process()
-
+            #meter soarefresh default
             soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
             time.sleep(soarefresh)
 
