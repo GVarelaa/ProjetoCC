@@ -10,15 +10,13 @@ import threading
 
 
 class Log:
-    def __init__(self, domain_filepath, all_filepath, is_debug):
+    def __init__(self, domain_filepath, is_debug):
         """
         Construtor de um objeto Log
         :param domain_filepath: Diretoria do ficheiro de domínio
-        :param all_filepath: Diretoria do ficheiro "All"
         :param is_debug: Modo de funcionamento (debug ou shy)
         """
         self.domain_filepath = domain_filepath  # Ficheiro de domínio
-        self.all_filepath = all_filepath  # Ficheiro All
         self.is_debug = is_debug  # True -> print para stdout
         self.lock = threading.Lock()
 
@@ -26,7 +24,7 @@ class Log:
         """
         Devolve a representação em string do objeto Log
         """
-        data = self.filepath.read()
+        data = self.domain_filepath.read()
         return data
 
     def log_qe(self, ip_address, data):
@@ -152,17 +150,14 @@ class Log:
         self.lock.acquire()
 
         domain_fd = open(self.domain_filepath, "a")
-        all_fd = open(self.all_filepath, "a")
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
         domain_fd.write(dt + " " + message + "\n")
-        all_fd.write(dt + " " + message + "\n")
 
         if self.is_debug:
             sys.stdout.write(dt + " " + message + "\n")
 
         domain_fd.close()
-        all_fd.close()
 
         self.lock.release()
 

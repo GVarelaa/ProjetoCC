@@ -12,21 +12,15 @@ from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, domain, default_domains, root_servers, log, port, mode):
+    def __init__(self, config, logs, port):
         """
         Construtor de um objeto Server
-        :param domain: Domínio
-        :param default_domains: Lista de domínios por defeito
-        :param root_servers: Lista de Root Servers
-        :param log: Objeto Log
+        :param config: Estrutura com os dados de configuração
+        :param log: Objetos Log
         :param port: Porta de atendimento
-        :param mode: Modo de funcionamento (debug ou shy)
         """
-        self.mode = mode
-        self.domain = domain
-        self.default_domains = default_domains
-        self.log = log
-        self.root_servers = root_servers
+        self.config = config
+        self.logs = logs
         self.port = int(port)
 
         self.cache = None
@@ -36,18 +30,14 @@ class Server:
         Devolve a representação em string do objeto Server
         :return: String
         """
-        return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
-               f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log: {self.log}"
+        return "fazer"
     
     def __repr__(self):
         """
         Devolve a representação oficial em string do objeto Server
         :return: String
         """
-        return f"Domínio: {self.domain}\nCache: {self.cache}\n" \
-               f"Domínios por defeito: {self.default_domains}\nRoot Servers:" \
-               f"{self.root_servers}\nFicheiro de Log: {self.log}"
+        return "fazer"
 
     @staticmethod
     def parse_address(address):
@@ -106,7 +96,7 @@ class Server:
 
             response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
 
-            if len(response_values) == 0 and query.type == "A": # Vai ver o seu CNAME
+            if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
                 cname = self.cache.get_records_by_name_and_type(domain_name, "CNAME")
                 if len(cname) > 0:
                     domain_name = cname[0].value
