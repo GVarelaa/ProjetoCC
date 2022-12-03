@@ -12,7 +12,7 @@ from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, config, logs, port):
+    def __init__(self, config, log, port):
         """
         Construtor de um objeto Server
         :param config: Estrutura com os dados de configuração
@@ -20,7 +20,7 @@ class Server:
         :param port: Porta de atendimento
         """
         self.config = config
-        self.logs = logs
+        self.log = log
         self.port = int(port)
 
         self.cache = None
@@ -121,7 +121,7 @@ class Server:
         Recebe queries através de um socket udp e cria uma thread para cada query (thread-per-connection)
         """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
-        socket_udp.bind(("", self.port))
+        socket_udp.bind(("127.0.0.1", self.port))
 
         while True:
             message, address_from = socket_udp.recvfrom(4096)  # Receives a message
@@ -138,24 +138,26 @@ class Server:
         :param socket_udp: Socket UDP
         """
         message = DNSMessage.from_string(message.decode('utf-8'))  # Cria uma DNSMessage
+        domain = message.domain_name
 
         if "Q" in message.flags and "R" not in message.flags:  # Verifica que é uma query
             query = message
 
-            self.log.log_qr(str(address_from), query.to_string())
+            self.log.log_qr(domain, str(address_from), query.to_string())
 
             response = self.build_response(query)  # Constrói a resposta a essa query
 
             if "A" in response.flags:  # Informação na cache
-                self.log.log_rp(str(address_from), response.to_string())
+                self.log.log_rp(domain, str(address_from), response.to_string())
 
                 socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
             else:
-                self.log.log_to(str(address_from), "Query Miss")  # MISS e timeout
+                self.log.log_to(domain, str(address_from), "Query Miss")  # MISS e timeout
 
         else:  # É uma resposta a uma query
             response = message
 
-            self.log.log_rr(str(address_from), response.to_string())
+            self.log.log_rr(domain, str(address_from), response.to_string())
 
             # Segunda fase
+

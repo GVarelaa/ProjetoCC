@@ -41,6 +41,12 @@ def parser_configuration(file_path, port, timeout, mode):
     :return: Servidor
     """
     config = dict()
+    config["DB"] = dict()
+    config["SP"] = dict()
+    config["SS"] = dict()
+    config["DD"] = dict()
+    config["LG"] = dict()
+
     logs = dict()
 
     is_debug = False
@@ -63,9 +69,6 @@ def parser_configuration(file_path, port, timeout, mode):
                 value = words[2]
 
                 if value_type == "DB":
-                    if value_type not in config.keys():
-                        config[value_type] = dict()
-
                     config[value_type][parameter] = value
 
                 elif value_type == "SP":
@@ -74,10 +77,9 @@ def parser_configuration(file_path, port, timeout, mode):
                             sys.stdout.write("Error running server configurations: Invalid IP address")
                         return None
 
-                    if value_type not in config.keys():
-                        config[value_type] = dict()
-
-                    config[value_type][parameter] = value
+                    if parameter not in config[value_type].keys():
+                        config[value_type][parameter] = list()
+                        config[value_type][parameter].append(value)
 
                 elif value_type == "SS":
                     if not validate_ip(value):
@@ -85,12 +87,9 @@ def parser_configuration(file_path, port, timeout, mode):
                             sys.stdout.write("Error running server configurations: Invalid IP address")
                         return None
 
-                    if value_type not in config.keys():
-                        config[value_type] = dict()
-
-                        if parameter not in config[value_type].keys():
-                            config[value_type][parameter] = list()
-                            config[value_type][parameter].append(value)
+                    if parameter not in config[value_type].keys():
+                        config[value_type][parameter] = list()
+                        config[value_type][parameter].append(value)
 
                 elif value_type == "DD":
                     if not validate_ip(value):
@@ -98,43 +97,33 @@ def parser_configuration(file_path, port, timeout, mode):
                             sys.stdout.write("Error running server configurations: Invalid IP address")
                         return None
 
-                    if value_type not in config.keys():
-                        config[value_type] = dict()
-
-                        if parameter not in config[value_type].keys():
-                            config[value_type][parameter] = list()
-                            config[value_type][parameter].append(value)
+                    if parameter not in config[value_type].keys():
+                        config[value_type][parameter] = list()
+                        config[value_type][parameter].append(value)
 
                 elif value_type == "ST" and parameter == "root":
-                    if value_type not in config.keys():
-                        config[value_type] = dict()
-
-                    config[value_type][parameter] = parser_root_servers(value)
+                    config[value_type] = parser_root_servers(value)
 
                 elif value_type == "LG":
-                    if value_type not in config.keys():
-                        config[value_type] = dict()
-
                     config[value_type][parameter] = value
-                    logs[parameter] = Log(parameter, is_debug)
-
-                    # resolver quando o log do dominio é enviado antes do all
-                    if "all" in config[value_type].keys():
-                        logs["all"].log_ev("localhost", "log-file-create", value)
+                    logs[parameter] = value
 
     f.close()
 
     if mode != "shy" and mode != "debug":
         return None
 
+    log = Log(logs, is_debug)
+
     if not validate_port(port):
-        logs["all"].log_sp("localhost", "invalid port")
+        log.log_sp("all", "localhost", "invalid port")
         return None
 
-    logs["all"].log_st("localhost", port, timeout, mode)
-    logs["all"].log_ev("localhost", "conf-file-read", file_path)
+    log.log_st("all", "localhost", port, timeout, mode)
+    log.log_ev("all", "localhost", "conf-file-read", file_path)
+    log.log_ev("all", "localhost", "log-file-create", config["LG"]["all"])
 
-    server = Server(config, logs, port)
+    server = Server(config, log, port)
     parser_database_caller(server)
 
     return server
