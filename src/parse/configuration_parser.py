@@ -5,10 +5,10 @@
 # Última atualização: Documentação
 
 from parse.validation import *
-from server.secondary_server import *
 from parse.database_parser import *
 from log import *
 from exceptions import *
+from server import *
 
 def parser_root_servers(file_path):
     """
