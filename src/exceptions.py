@@ -57,10 +57,12 @@ class InvalidValueSoarefresh(Exception):
         self.message = message
         super().__init__("Invalid value for SOAREFRESH")
 
+
 class InvalidValueSoaretry(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__("Invalid value for SOARETRY")
+
 
 class InvalidValueSoaexpire(Exception):
     def __init__(self, message):

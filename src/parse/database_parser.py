@@ -203,7 +203,6 @@ def parser_database(server, file_path, domain, data):
                                 raise InvalidValueSoarefresh(entry.replace("\n", ""))
                             except InvalidValueSoarefresh as e:
                                 server.log.log_fl(domain, e.message, "Invalid value for SOAREFRESH")
-                                continue
 
                     elif type == "SOARETRY":
                         if value.isnumeric():
@@ -214,7 +213,6 @@ def parser_database(server, file_path, domain, data):
                                 raise InvalidValueSoaretry(entry.replace("\n", ""))
                             except InvalidValueSoaretry as e:
                                 server.log.log_fl(domain, e.message, "Invalid value for SOARETRY")
-                                continue
 
                     elif type == "SOAEXPIRE":
                         if value.isnumeric():
@@ -225,7 +223,6 @@ def parser_database(server, file_path, domain, data):
                                 raise InvalidValueSoaexpire(entry.replace("\n", ""))
                             except InvalidValueSoaexpire as e:
                                 server.log.log_fl(domain, e.message, "Invalid value for SOAEXPIRE")
-                                continue
 
                     elif type == "NS":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
