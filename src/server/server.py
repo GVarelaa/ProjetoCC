@@ -161,3 +161,24 @@ class Server:
 
             # Segunda fase
 
+        def receive_zone_transfer(self):
+            """
+                Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
+            """
+            socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_tcp.bind(("", self.port))
+            socket_tcp.listen()
+
+            while True:
+                connection, address_from = socket_tcp.accept()
+
+                threading.Thread(target=self.zone_transfer_process, args=(connection, address_from)).start()
+
+            socket_tcp.close()
+
+        def ask_for_zone_transfer(self): # Ir aos seus SPs
+            while True:
+                self.zone_transfer_process()
+                # meter soarefresh default
+                soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
+                time.sleep(soarefresh)

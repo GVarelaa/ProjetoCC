@@ -27,11 +27,15 @@ def main():
     except InvalidIPError:
         sys.stdout.write("Error running server configurations: Invalid IP address")
         return
+    except InvalidPortError:
+        sys.stdout.write("Error running server configurations: Invalid Port")
+        return
 
     if server is None:
         return
 
-    #threading.Thread(target=server.zone_transfer).start()    # New thread for the zone transfer
+    #threading.Thread(target=server.receive_zone_transfer).start()
+    #threading.Thread(target=server.ask_for_zone_trasnfer).start()
     threading.Thread(target=server.receive_queries).start()  # New thread for receiving messages from UDP
 
 

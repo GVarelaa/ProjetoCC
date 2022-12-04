@@ -3,6 +3,10 @@ class InvalidIPError(Exception):
         self.message = message
         super().__init__("Error running server configurations: Invalid IP address")
 
+class InvalidPortError(Exception):
+    def __init__(self, message=""):
+        self.message = message
+        super().__init__("Error running server configurations: Invalid Port")
 
 class ArgumentsMissingError(Exception):
     def __init__(self, message):

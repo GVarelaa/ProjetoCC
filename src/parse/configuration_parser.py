@@ -110,8 +110,7 @@ def parser_configuration(file_path, port, timeout, mode):
     log = Log(logs, is_debug)
 
     if not validate_port(port):
-        log.log_sp("all", "localhost", "invalid port")
-        return None
+        raise InvalidPortError
 
     log.log_st("all", "localhost", port, timeout, mode)
     log.log_ev("all", "localhost", "conf-file-read", file_path)
