@@ -3,10 +3,12 @@ class InvalidIPError(Exception):
         self.message = message
         super().__init__("Error running server configurations: Invalid IP address")
 
+
 class InvalidPortError(Exception):
     def __init__(self, message=""):
         self.message = message
         super().__init__("Error running server configurations: Invalid Port")
+
 
 class ArgumentsMissingError(Exception):
     def __init__(self, message):
@@ -31,12 +33,38 @@ class InvalidValuePriority(Exception):
         self.message = message
         super().__init__("Invalid value for priority")
 
+
 class InvalidType(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__("Invalid entry type")
 
+
 class NameNotFoundError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__("Name not found")
+
+
+class InvalidValueSoaserial(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__("Invalid value for SOASERIAL")
+
+
+class InvalidValueSoarefresh(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__("Invalid value for SOAREFRESH")
+
+
+class InvalidValueSoaretry(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__("Invalid value for SOARETRY")
+
+
+class InvalidValueSoaexpire(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__("Invalid value for SOAEXPIRE")

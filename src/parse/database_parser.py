@@ -189,28 +189,40 @@ def parser_database(server, file_path, domain, data):
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
                             data.add_entry(record)
                         else:
-                            server.log.log_fl(domain, entry.replace("\n", ""), "Invalid value for SOASERIAL")
+                            try:
+                                raise InvalidValueSoaserial(entry.replace("\n", ""))
+                            except InvalidValueSoaserial as e:
+                                server.log.log_fl(domain, e.message, "Invalid value for SOASERIAL")
 
                     elif type == "SOAREFRESH":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
                             data.add_entry(record)
                         else:
-                            server.log.log_fl(domain, entry.replace("\n", ""), "Invalid value for SOAREFRESH")
+                            try:
+                                raise InvalidValueSoarefresh(entry.replace("\n", ""))
+                            except InvalidValueSoarefresh as e:
+                                server.log.log_fl(domain, e.message, "Invalid value for SOAREFRESH")
 
                     elif type == "SOARETRY":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
                             data.add_entry(record)
                         else:
-                            server.log.log_fl(domain, entry.replace("\n", ""), "Invalid value for SOARETRY")
+                            try:
+                                raise InvalidValueSoaretry(entry.replace("\n", ""))
+                            except InvalidValueSoaretry as e:
+                                server.log.log_fl(domain, e.message, "Invalid value for SOARETRY")
 
                     elif type == "SOAEXPIRE":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
                             data.add_entry(record)
                         else:
-                            server.log.log_fl(domain, entry.replace("\n", ""), "Invalid value for SOAEXPIRE")
+                            try:
+                                raise InvalidValueSoaexpire(entry.replace("\n", ""))
+                            except InvalidValueSoaexpire as e:
+                                server.log.log_fl(domain, e.message, "Invalid value for SOAEXPIRE")
 
                     elif type == "NS":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
