@@ -9,7 +9,7 @@ from server.primary_server import *
 from server.secondary_server import *
 from parse.database_parser import *
 from log import *
-
+from exceptions import *
 
 def parser_root_servers(file_path):
     """
@@ -73,9 +73,7 @@ def parser_configuration(file_path, port, timeout, mode):
 
                 elif value_type == "SP":
                     if not validate_ip(value):
-                        if is_debug:
-                            sys.stdout.write("Error running server configurations: Invalid IP address")
-                        return None
+                        raise InvalidIPError
 
                     if parameter not in config[value_type].keys():
                         config[value_type][parameter] = list()
@@ -83,9 +81,7 @@ def parser_configuration(file_path, port, timeout, mode):
 
                 elif value_type == "SS":
                     if not validate_ip(value):
-                        if is_debug:
-                            sys.stdout.write("Error running server configurations: Invalid IP address")
-                        return None
+                        raise InvalidIPError
 
                     if parameter not in config[value_type].keys():
                         config[value_type][parameter] = list()
@@ -93,9 +89,7 @@ def parser_configuration(file_path, port, timeout, mode):
 
                 elif value_type == "DD":
                     if not validate_ip(value):
-                        if is_debug:
-                            sys.stdout.write("Error running server configurations: Invalid IP address")
-                        return None
+                        raise InvalidIPError
 
                     if parameter not in config[value_type].keys():
                         config[value_type][parameter] = list()
@@ -124,6 +118,7 @@ def parser_configuration(file_path, port, timeout, mode):
     log.log_ev("all", "localhost", "log-file-create", config["LG"]["all"])
 
     server = Server(config, log, port)
+
     parser_database_caller(server)
 
     return server

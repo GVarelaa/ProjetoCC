@@ -22,7 +22,11 @@ def main():
     else:
         mode = "debug"
 
-    server = parser_configuration(config_path, port, timeout, mode)  # Parser dos dados
+    try:
+        server = parser_configuration(config_path, port, timeout, mode)  # Parser dos dados
+    except InvalidIPError:
+        sys.stdout.write("Error running server configurations: Invalid IP address")
+        return
 
     if server is None:
         return
