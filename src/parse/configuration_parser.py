@@ -5,7 +5,6 @@
 # Última atualização: Documentação
 
 from parse.validation import *
-from server.primary_server import *
 from server.secondary_server import *
 from parse.database_parser import *
 from log import *
@@ -75,9 +74,7 @@ def parser_configuration(file_path, port, timeout, mode):
                     if not validate_ip(value):
                         raise InvalidIPError
 
-                    if parameter not in config[value_type].keys():
-                        config[value_type][parameter] = list()
-                        config[value_type][parameter].append(value)
+                    config[value_type][parameter] = value
 
                 elif value_type == "SS":
                     if not validate_ip(value):

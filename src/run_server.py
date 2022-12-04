@@ -31,11 +31,13 @@ def main():
         sys.stdout.write("Error running server configurations: Invalid Port")
         return
 
-    if server.config["SS"].values() != 0: # Só recebe pedidos de transferência se for primário para algum domínio
+    print(server.cache)
+
+    if len(server.config["SS"].values()) != 0: # Só recebe pedidos de transferência se for primário para algum domínio
         threading.Thread(target=server.receive_zone_transfer).start()
 
-    if server.config["SP"].values() != 0: # Só pede transferências de zona se for secundário para algum domínio
-        threading.Thread(target=server.ask_for_zone_trasnfer).start()
+    for domain in server.config["SP"].keys(): # Vai pedir trransferência de zona para todos os seus servidor primários CUIDADO COM A CACHE (METER LOCKS)
+        threading.Thread(target=server.ask_for_zone_transfer, args=(domain,)).start()
 
     threading.Thread(target=server.receive_queries).start()  # New thread for receiving messages from UDP
 

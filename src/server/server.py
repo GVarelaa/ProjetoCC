@@ -3,6 +3,7 @@
 # Data da última atualização: 11/11/22
 # Descrição: Implementação de um servidor
 # Última atualização: Documentação
+import random
 import socket
 import threading
 import time
@@ -83,26 +84,26 @@ class Server:
         """
         response_values = list()
         authorities_values = list()
+        domain = query.domain_name
 
-        if query.type == "AXFR" and self.domain == query.domain_name:  # Query AXFR
-            record = ResourceRecord(query.domain_name, query.type, str(self.cache.get_num_valid_entries()), -1, -1, Origin.SP)
+        if query.type == "AXFR" and domain in self.config["SS"].keys():  # Query AXFR
+            record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), -1, -1, Origin.SP)
 
             query.flags = "A"
             query.response_values.append(record)
             query.number_of_values = 1
 
         else:
-            domain_name = query.domain_name
-
-            response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
+            response_values = self.cache.get_records_by_name_and_type(domain, query.type)
+            print(response_values)
 
             if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
-                cname = self.cache.get_records_by_name_and_type(domain_name, "CNAME")
+                cname = self.cache.get_records_by_name_and_type(domain, "CNAME")
                 if len(cname) > 0:
-                    domain_name = cname[0].value
-                    response_values = self.cache.get_records_by_name_and_type(domain_name, query.type)
+                    domain = cname[0].value
+                    response_values = self.cache.get_records_by_name_and_type(domain, query.type)
 
-            authorities_values = self.cache.get_records_by_name_and_type(domain_name, "NS")
+            authorities_values = self.cache.get_records_by_name_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
 
             if len(response_values) != 0:  # HIT
@@ -166,19 +167,208 @@ class Server:
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
         """
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("", self.port))
+        socket_tcp.bind(("127.0.0.1", self.port))
         socket_tcp.listen()
 
         while True:
             connection, address_from = socket_tcp.accept()
 
-            threading.Thread(target=self.zone_transfer_process, args=(connection, address_from)).start()
+            threading.Thread(target=self.receive_zone_transfer_process, args=(connection, address_from)).start()
 
         socket_tcp.close()
 
-    def ask_for_zone_transfer(self): # Ir aos seus SPs
+    def receive_zone_transfer_process(self, connection, address_from):
+        """
+        Processo de transferência de zona
+        :param connection: Conexão estabelecida
+        :param address_from: Endereço do servidor secundário
+        """
         while True:
-            self.zone_transfer_process()
-            # meter soarefresh default
-            soarefresh = int(self.cache.get_records_by_name_and_type(self.domain, "SOAREFRESH")[0].value)
+            message = connection.recv(4096).decode('utf-8')  # Recebe queries (versão/pedido de transferência)
+
+            if not message:
+                break
+
+            query = DNSMessage.from_string(message)
+            domain = query.domain_name
+
+            if query.flags == "Q":  # Pedir versão/transferência de zona e envia
+                self.log.log_qr(domain, str(address_from), query.to_string())
+
+                if query.type == "AXFR":
+                    self.log.log_zt(domain, str(address_from), "SP : Zone transfer started", "0")
+
+                response = self.build_response(query)
+
+                if "A" in response.flags:
+                    self.log.log_rp(domain, str(address_from), response.to_string())
+
+                    connection.sendall(response.to_string().encode('utf-8'))
+
+                else:
+                    self.log.log_to(domain, str(address_from), "Query Miss")
+
+            elif query.flags == "A" and query.type == "AXFR":  # Secundário aceitou linhas e respondeu com o nº de linhas
+                self.log.log_rr(domain, str(address_from), query.to_string())
+
+                (num_entries, entries) = self.cache.get_file_entries_by_domain(query.domain_name)
+                lines_number = int(query.response_values[0].value)
+                print(num_entries)
+                print(lines_number)
+
+                if lines_number == num_entries:
+                    counter = 1
+                    for record in entries:
+                        if record.origin == Origin.FILE:
+                            record = str(counter) + " " + record.resource_record_to_string() + "\n"
+
+                            connection.sendall(record.encode('utf-8'))
+
+                            counter += 1
+
+                self.log.log_zt(domain, str(address_from), "SP : All entries sent", "0")
+
+            else:
+                self.log.log_ez(domain, str(address_from), "SP : Unexpected message")
+                break
+
+        connection.close()
+
+
+    def ask_for_zone_transfer(self, domain): # Ir aos seus SPs
+        soarefresh = 10     # soarefresh default
+        while True:
+            self.ask_for_zone_transfer_process(domain)
+
+            soarefresh = int(self.cache.get_records_by_name_and_type(domain, "SOAREFRESH")[0].value)
             time.sleep(soarefresh)
+
+    def ask_for_zone_transfer_process(self, domain):
+        """
+        Processo de transferência de zona
+        """
+        (address, port) = Server.parse_address(self.config["SP"][domain])
+
+        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        socket_tcp.connect((address, port))
+
+        expected_value = 1
+        lines_number = 0
+
+        query = DNSMessage(random.randint(1, 65535), "Q", domain, "SOASERIAL")
+        socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
+
+        self.log.log_qe(domain, str(address), query.to_string())
+
+        while True:
+            message = socket_tcp.recv(4096).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
+
+            if not message:
+                break
+
+            if DNSMessage.is_query(message):
+                response = DNSMessage.from_string(message)  # Cria query DNS
+
+                if response.flags == "A" and response.type == "SOASERIAL":
+                    self.log.log_rr(domain, str(address), response.to_string())
+
+                    ss_version = self.get_version(domain)
+                    sp_version = response.response_values[0].value
+
+                    if not self.interpret_version(sp_version, ss_version, socket_tcp, address, response, domain):
+                        break
+
+                elif response.flags == "A" and response.type == "AXFR":
+                    self.log.log_rr(domain, str(address), response.to_string())
+
+                    lines_number = int(response.response_values[0].value)
+
+                    socket_tcp.sendall(response.to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
+
+                    self.log.log_rp(domain, str(address), response.to_string())
+
+            else:
+                message = message[:-1]
+                lines = message.split("\n")
+
+                for line in lines:
+                    (index, record) = Server.remove_index(line)
+
+                    if index != expected_value:  # timeout
+                        self.log.log_ez(domain, str(address), "SS : Expected value does not match")
+
+                        socket_tcp.close()
+                        break
+
+                    self.cache.lock.acquire()
+                    self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP))
+                    self.cache.lock.release()
+
+                    expected_value += 1
+
+                if lines_number == (expected_value - 1):
+                    self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", "0")
+                    print(self.cache)
+                    socket_tcp.close()
+                    break
+
+
+    @staticmethod
+    def remove_index(record):
+        """
+        Remove o índice de cada linha
+        :param record: Linha
+        :return: Índice, Linha sem o índice
+        """
+        fields = record.split(" ")
+        index = int(fields[0])
+        fields.remove(fields[0])
+
+        record = " ".join(fields)
+
+        return index, record
+
+    def get_version(self, domain):
+        """
+        Obtém a versão da base de dados do servidor secundário
+        :return: Versão
+        """
+        list = self.cache.get_records_by_name_and_type(domain, "SOASERIAL")
+
+        if len(list) == 0:
+            ss_version = -1
+        else:
+            ss_version = list[0].value
+
+        return ss_version
+
+    def interpret_version(self, sp_version, ss_version, socket_tcp, address, response, domain):
+        """
+        Interpreta as versões do SP e do SS e envia a query a pedir transferência se a BD do SS estiver desatualizada
+        :param sp_version: Versão do servidor primário
+        :param ss_version: Versáo do servidor secundário
+        :param socket_tcp: Socket TCP
+        :param address: Endereço IP do servidor primário
+        :param response: Resposta do servidor primário a interpretar
+        :return: Bool
+        """
+        bool = False
+
+        if float(sp_version) > float(ss_version):
+            self.cache.free_sp_entries()  # apagar as entradas "SP"
+
+            query = DNSMessage(random.randint(1, 65535), "Q", domain, "AXFR")  # Query AXFR
+
+            socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a transferência
+
+            self.log.log_rp(domain, str(address), response.to_string())
+            self.log.log_zt(domain, str(address), "SS : Zone Transfer started", "0")
+
+            bool = True
+
+        else:  # BD está atualizada
+            self.log.log_zt(domain, str(address), "SS : Database is up-to-date", "0")
+
+            socket_tcp.close()
+
+        return bool

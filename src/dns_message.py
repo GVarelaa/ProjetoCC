@@ -147,6 +147,7 @@ class DNSMessage:
 
 
 def parse_message(message):
+    print(message)
     """
     Parse de uma mensagem
     :param message: Mensagem

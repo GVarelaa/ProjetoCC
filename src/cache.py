@@ -3,6 +3,7 @@
 # Data da última atualização: 15/11/22
 # Descrição: Implementação de sistema de cache de um servidor
 # Última atualização: Implementação da funcionalidade SOAEXPIRE (hardcoded)
+import threading
 
 from resource_record import *
 from datetime import datetime
@@ -19,6 +20,7 @@ class Cache:
         self.list = list
         self.size = 0
         self.capacity = 1
+        self.lock = threading.Lock()
 
     def __str__(self):
         """
@@ -98,28 +100,23 @@ class Cache:
 
         self.size += 1
 
-    def get_valid_entries(self):
+    def get_file_entries_by_domain(self, domain):
         """
-        Obtém as entradas válidas da cache
-        :return: Lista com as entradas válidas
+        Obtém as entradas com origem ficheiro de um domínio da cache
+        :return: Lista com as entradas de um domínio
         """
         entries = list()
+        counter = 0
 
         for record in self.list:
-            if record.status == Status.VALID:
+            if record.origin == Origin.FILE and domain in record.name:
                 entries.append(record)
+                counter+=1
 
             if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:  #atualiza a cache
                 record.status = Status.FREE
 
-        return entries
-
-    def get_num_valid_entries(self):
-        """
-        Obtém o número de entradas válidas
-        :return: Número de entradas válidas
-        """
-        return len(self.get_valid_entries())
+        return counter, entries
 
     def get_records_by_name_and_type(self, name, type):
         """
