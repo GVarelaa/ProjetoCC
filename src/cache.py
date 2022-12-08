@@ -121,7 +121,6 @@ class Cache:
                 entries = self.domains[name]
                 break
 
-
         for i in range(len(entries)):
             record = entries[i]
 
