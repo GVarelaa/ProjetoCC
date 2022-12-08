@@ -249,7 +249,6 @@ def parser_database(server, file_path, domain, data):
                             except NameNotFoundError as e:
                                 server.log.log_fl(domain, e.message, "Name not found")
 
-
                     elif type == "MX":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
                         data.add_entry(record)
@@ -274,7 +273,7 @@ def parser_database(server, file_path, domain, data):
 
 
 def parser_database_caller(server):
-    data = Cache(list())
+    data = Cache()
     db_keys = server.config["DB"].keys()
 
     for domain in db_keys:

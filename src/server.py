@@ -95,7 +95,6 @@ class Server:
 
         else:
             response_values = self.cache.get_records_by_name_and_type(domain, query.type)
-            print(response_values)
 
             if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
                 cname = self.cache.get_records_by_name_and_type(domain, "CNAME")
@@ -305,14 +304,14 @@ class Server:
                         break
 
                     self.cache.lock.acquire()
-                    self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP))
+                    self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP), domain)
                     self.cache.lock.release()
 
                     expected_value += 1
 
                 if lines_number == (expected_value - 1):
                     self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", "0")
-                    print(self.cache)
+
                     socket_tcp.close()
                     break
 
@@ -359,7 +358,7 @@ class Server:
         bool = False
 
         if float(sp_version) > float(ss_version):
-            self.cache.free_sp_entries()  # apagar as entradas "SP"
+            self.cache.free_sp_entries(domain)  # apagar as entradas "SP"
 
             query = DNSMessage(random.randint(1, 65535), "Q", domain, "AXFR")  # Query AXFR
 
