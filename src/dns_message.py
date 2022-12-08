@@ -183,3 +183,4 @@ def parse_message(message):
     return (message_id, flags, response_code, num_response_values, num_authorities_values,
             num_extra_values, name, type, response_values, authorities_values, extra_values)
 
+

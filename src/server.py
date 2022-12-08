@@ -146,6 +146,10 @@ class Server:
 
             self.log.log_qr(domain, str(address_from), query.to_string())
 
+            # verificar se a query é do domínio
+            # se for do dominio constroi a resposta
+            # se não for do dominio vais aos DD's e dps ao root server se preciso
+
             response = self.build_response(query)  # Constrói a resposta a essa query
 
             if "A" in response.flags:  # Informação na cache

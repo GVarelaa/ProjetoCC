@@ -9,96 +9,94 @@ from resource_record import *
 from datetime import datetime
 import time
 
+
 class Cache:
     def __init__(self, list=[]):
         """
         Construtor de um objeto Cache
         :param list: Lista vazia
         """
-        record = ResourceRecord.create_free_record()
-        list.append(record)
-        self.list = list
-        self.size = 0
-        self.capacity = 1
+        self.domains = dict()
         self.lock = threading.Lock()
+
+        # record = ResourceRecord.create_free_record()
+        # list.append(record)
+        # self.list = list
 
     def __str__(self):
         """
         Devolve a representação em string de um objeto Cache
         """
-        return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
+        return str(self.domains)
 
     def __repr__(self):
         """
         Devolve a representação oficial em string de um objeto Cache
         :return:
         """
-        return str(self.list) + " " + str(self.size) + " " + str(self.capacity)
+        return str(self.domains)
 
-    def find_valid_entry(self, index, name, type):
-        """
-        Encontra a próxima entrada válida na cache(lista de records)
-        :param index: Índice a partir do qual vai procurar
-        :param name: Query domain name
-        :param type: Query type
-        :return: Índice da primeira entrada válida
-        """
-        i = 0
-        found = False
-
-        for record in self.list:
-            if i > index and record.status == Status.VALID and record.name == name and record.type == type:
-                found = True
-                break
-
-            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
-                record.status = Status.FREE
-
-            i += 1
-
-        if not found:
-            return -1  # codigo de erro
-
-        return i
-
-    def add_entry(self, new_record):
+    def add_entry(self, new_record, domain):
         """
         Adiciona uma nova entrada na cache
         :param new_record: Nova entrada
         """
-        if self.size == self.capacity:
-            self.expand_cache()
+
+        if domain not in self.domains.keys():
+            list = list()
+            record = ResourceRecord.create_free_record()
+            list.append(record)
+
+            self.domains[domain] = list
+
+        list = self.domains[domain]
+        found = False
 
         if new_record.origin == Origin.SP or new_record.origin == Origin.FILE:
-            for i in range(self.capacity):
-                if self.list[i].status == Status.FREE:
+            for i in range(len(list)):
+                record = list[i]
+
+                if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
+
+
+                if record.status == Status.FREE:
                     new_record.status = Status.VALID
                     new_record.timestamp = datetime.timestamp(datetime.now())
-                    self.list[i] = new_record
+                    list[i] = new_record
+                    found = True
                     break
+
+            if not found:
+                new_record.status = Status.VALID
+                new_record.timestamp = datetime.timestamp(datetime.now())
+                self.domains[domain].append(new_record)
+
 
         else:
             last_free = 0
-            found = False
-            for i in range(self.capacity):
-                if self.list[i].status == Status.FREE:
+            for i in range(len(list)):
+                record = list[i]
+
+                if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
+                    record.status = Status.FREE
+
+                if record.status == Status.FREE:
                     last_free = i
 
-                if self.list[i].name == new_record.name and self.list[i].type == new_record.type and \
-                   self.list[i].value == new_record.value and self.list[i].priority == new_record.priority:
-                    if self.list[i].origin == Origin.OTHERS:
-                        self.list[i].timestamp = datetime.timestamp(datetime.now())
-                        self.list[i].status = Status.VALID
-                        found = True
-                        break
+                if record.name == new_record.name and record.type == new_record.type and record.value == new_record.value \
+                    and record.priority == new_record.priority and record.ttl == new_record.ttl:
 
-            if not found:
-                new_record.origin = Origin.OTHERS
-                new_record.status = Status.VALID
-                new_record.timestamp = datetime.timestamp(datetime.now())
-                self.list[last_free] = new_record
+                    if record.origin == Origin.OTHERS:
+                        record.timestamp = datetime.timestamp(datetime.now())
+                        record.status = Status.VALID
 
-        self.size += 1
+                    found = True
+                    break
+
+                if not found:
+                    new_record.status = Status.VALID
+                    new_record.timestamp = datetime.timestamp(datetime.now())
+                    self.domains[domain][last_free] = new_record
 
     def get_file_entries_by_domain(self, domain):
         """
@@ -111,35 +109,37 @@ class Cache:
         for record in self.list:
             if record.origin == Origin.FILE and domain in record.name:
                 entries.append(record)
-                counter+=1
+                counter += 1
 
-            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:  #atualiza a cache
+            if record.origin == Origin.OTHERS and datetime.timestamp(
+                    datetime.now()) - record.timestamp > record.ttl:  # atualiza a cache
                 record.status = Status.FREE
 
         return counter, entries
 
-    def get_records_by_name_and_type(self, name, type):
+    def get_records_by_name_and_type(self, name, type, domain):
         """
         Obtém a lista das entradas correspondentes com o name e o type.
         :param name: Domain name
         :param type: Type
         :return: Lista com as entradas que deram match
         """
+        list = self.domains[domain]
         records = []
         index = 0
 
-        while index < self.size:
-            index = self.find_valid_entry(index, name, type)
+        for i in range(len(list)):
+            record = list[i]
 
-            if index == -1:
-                break
+            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
+                self.domains[domain][i]
 
-            record = self.list[index]
-            records.append(record)
+            if record.name == name and record.type == type:
+                records.append(record)
 
         return records
 
-    def free_cache(self, domain):  #SOAEXPIRE
+    def free_cache(self, domain):  # SOAEXPIRE
         """
         Liberta a cache, colocando as entradas a FREE
         :param domain: Nome do domínio
@@ -164,7 +164,8 @@ class Cache:
         """
         len = 0
         for record in self.list:
-            if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:  #atualiza a cache
+            if record.origin == Origin.OTHERS and datetime.timestamp(
+                    datetime.now()) - record.timestamp > record.ttl:  # atualiza a cache
                 record.status = Status.FREE
 
             if record.status == Status.VALID:
