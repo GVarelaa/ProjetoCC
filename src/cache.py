@@ -11,17 +11,13 @@ import time
 
 
 class Cache:
-    def __init__(self, list=[]):
+    def __init__(self):
         """
         Construtor de um objeto Cache
         :param list: Lista vazia
         """
         self.domains = dict()
         self.lock = threading.Lock()
-
-        # record = ResourceRecord.create_free_record()
-        # list.append(record)
-        # self.list = list
 
     def __str__(self):
         """
@@ -41,41 +37,30 @@ class Cache:
         Adiciona uma nova entrada na cache
         :param new_record: Nova entrada
         """
-
         if domain not in self.domains.keys():
-            list = list()
-            record = ResourceRecord.create_free_record()
-            list.append(record)
+            self.domains[domain] = [ResourceRecord.create_free_record()]
 
-            self.domains[domain] = list
-
-        list = self.domains[domain]
+        entries = self.domains[domain]
         found = False
 
         if new_record.origin == Origin.SP or new_record.origin == Origin.FILE:
-            for i in range(len(list)):
-                record = list[i]
+            for i in range(len(entries)):
+                record = entries[i]
 
                 if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
-
+                    record.status = Status.FREE
 
                 if record.status == Status.FREE:
                     new_record.status = Status.VALID
                     new_record.timestamp = datetime.timestamp(datetime.now())
-                    list[i] = new_record
+                    entries[i] = new_record
+
                     found = True
                     break
-
-            if not found:
-                new_record.status = Status.VALID
-                new_record.timestamp = datetime.timestamp(datetime.now())
-                self.domains[domain].append(new_record)
-
-
         else:
-            last_free = 0
-            for i in range(len(list)):
-                record = list[i]
+            last_free = -1
+            for i in range(len(entries)):
+                record = entries[i]
 
                 if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
                     record.status = Status.FREE
@@ -87,16 +72,24 @@ class Cache:
                     and record.priority == new_record.priority and record.ttl == new_record.ttl:
 
                     if record.origin == Origin.OTHERS:
-                        record.timestamp = datetime.timestamp(datetime.now())
                         record.status = Status.VALID
+                        record.timestamp = datetime.timestamp(datetime.now())
 
                     found = True
                     break
 
-                if not found:
+                elif last_free != -1:
                     new_record.status = Status.VALID
                     new_record.timestamp = datetime.timestamp(datetime.now())
-                    self.domains[domain][last_free] = new_record
+                    entries[last_free] = new_record
+
+                    found = True
+                    break
+
+        if not found:
+            new_record.status = Status.VALID
+            new_record.timestamp = datetime.timestamp(datetime.now())
+            entries.append(new_record)
 
     def get_file_entries_by_domain(self, domain):
         """
@@ -106,33 +99,34 @@ class Cache:
         entries = list()
         counter = 0
 
-        for record in self.list:
-            if record.origin == Origin.FILE and domain in record.name:
+        for record in self.domains[domain]:
+            if record.origin == Origin.FILE:
                 entries.append(record)
                 counter += 1
 
-            if record.origin == Origin.OTHERS and datetime.timestamp(
-                    datetime.now()) - record.timestamp > record.ttl:  # atualiza a cache
-                record.status = Status.FREE
-
         return counter, entries
 
-    def get_records_by_name_and_type(self, name, type, domain):
+    def get_records_by_name_and_type(self, name, type):
         """
         Obtém a lista das entradas correspondentes com o name e o type.
         :param name: Domain name
         :param type: Type
         :return: Lista com as entradas que deram match
         """
-        list = self.domains[domain]
+        entries = list()
         records = []
-        index = 0
 
-        for i in range(len(list)):
-            record = list[i]
+        for domain in self.domains.keys():
+            if name in domain:
+                entries = self.domains[name]
+                break
+
+
+        for i in range(len(entries)):
+            record = entries[i]
 
             if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
-                self.domains[domain][i]
+                record.status = Status.FREE
 
             if record.name == name and record.type == type:
                 records.append(record)
@@ -144,39 +138,17 @@ class Cache:
         Liberta a cache, colocando as entradas a FREE
         :param domain: Nome do domínio
         """
-        for record in self.list:
-            if record.name == domain:
-                record.status = Status.FREE
+        entries = self.domains[domain]
 
-    def expand_cache(self):
-        """
-        Expande a cache para o dobro do tamanho
-        """
-        self.capacity = self.size * 2
-        for i in range(self.capacity):
-            if i >= self.size:
-                self.list.append(ResourceRecord.create_free_record())
+        for record in entries:
+            record.status = Status.FREE
 
-    def is_empty(self):
-        """
-        Verifica se a cache está vazia
-        :return: Boolean
-        """
-        len = 0
-        for record in self.list:
-            if record.origin == Origin.OTHERS and datetime.timestamp(
-                    datetime.now()) - record.timestamp > record.ttl:  # atualiza a cache
-                record.status = Status.FREE
-
-            if record.status == Status.VALID:
-                len += 1
-
-        return len == 0
-
-    def free_sp_entries(self):
+    def free_sp_entries(self, domain):
         """
         Liberta as entradas do servidor primário
         """
-        for record in self.list:
+        entries = self.domains[domain]
+
+        for record in entries:
             if record.origin == Origin.SP:
                 record.status = Status.FREE

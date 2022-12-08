@@ -178,16 +178,16 @@ def parser_database(server, file_path, domain, data):
 
                     if type == "SOASP":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                        data.add_entry(record)
+                        data.add_entry(record, domain)
 
                     elif type == "SOAADMIN":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                        data.add_entry(record)
+                        data.add_entry(record, domain)
 
                     elif type == "SOASERIAL":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                         else:
                             try:
                                 raise InvalidValueSoaserial(entry.replace("\n", ""))
@@ -197,7 +197,7 @@ def parser_database(server, file_path, domain, data):
                     elif type == "SOAREFRESH":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                         else:
                             try:
                                 raise InvalidValueSoarefresh(entry.replace("\n", ""))
@@ -207,7 +207,7 @@ def parser_database(server, file_path, domain, data):
                     elif type == "SOARETRY":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                         else:
                             try:
                                 raise InvalidValueSoaretry(entry.replace("\n", ""))
@@ -217,7 +217,7 @@ def parser_database(server, file_path, domain, data):
                     elif type == "SOAEXPIRE":
                         if value.isnumeric():
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                         else:
                             try:
                                 raise InvalidValueSoaexpire(entry.replace("\n", ""))
@@ -226,12 +226,12 @@ def parser_database(server, file_path, domain, data):
 
                     elif type == "NS":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                        data.add_entry(record)
+                        data.add_entry(record, domain)
 
                     elif type == "A":
                         if validate_ip(value):
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                             names_list.append(parameter)
                         else:
                             try:
@@ -242,7 +242,7 @@ def parser_database(server, file_path, domain, data):
                     elif type == "CNAME":
                         if value in names_list: # VERIFICAR COM O LOST
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                         else:
                             try:
                                 raise NameNotFoundError(entry.replace("\n", ""))
@@ -251,12 +251,12 @@ def parser_database(server, file_path, domain, data):
 
                     elif type == "MX":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                        data.add_entry(record)
+                        data.add_entry(record, domain)
 
                     elif type == "PTR":
                         if validate_ip(parameter):
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record)
+                            data.add_entry(record, domain)
                         else:
                             try:
                                 raise InvalidIPError(entry.replace("\n", ""))
