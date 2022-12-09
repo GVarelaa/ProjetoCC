@@ -117,8 +117,8 @@ class Cache:
         records = []
 
         for domain in self.domains.keys():
-            if name in domain:
-                entries = self.domains[name]
+            if domain in name:
+                entries = self.domains[domain]
                 break
 
         for i in range(len(entries)):
