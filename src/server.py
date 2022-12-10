@@ -145,18 +145,36 @@ class Server:
 
             self.log.log_qr(domain, str(address_from), query.to_string())
 
-            # verificar se a query é do domínio
-            # se for do dominio constroi a resposta
-            # se não for do dominio vais aos DD's e dps ao root server se preciso
+            if self.config["SP"].keys is not None or self.config["SS"].keys is not None: # Se o servidor for SP ou SS
+                if domain in self.config["DD"].keys: # dominio estiver nos DDs
+                    response = self.build_response(query)  # Constrói a resposta a essa query
 
-            response = self.build_response(query)  # Constrói a resposta a essa query
+                    if "A" in response.flags:  # Informação na cache
+                        self.log.log_rp(domain, str(address_from), response.to_string())
 
-            if "A" in response.flags:  # Informação na cache
-                self.log.log_rp(domain, str(address_from), response.to_string())
+                        socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
+                    else:
+                        self.log.log_to(domain, str(address_from), "Query Miss")  # MISS e timeout
 
-                socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
-            else:
-                self.log.log_to(domain, str(address_from), "Query Miss")  # MISS e timeout
+                else: #timeout
+                    self.log.log_to(domain, str(address_from), "Server has no permission to attend the query domain!")
+
+            else: # Servidor resolução
+                response = self.build_response(query)
+
+                if "A" in response.flags:  # Informação na cache
+                    self.log.log_rp(domain, str(address_from), response.to_string())
+
+                    socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
+                else: # Não tinha a resposta na cache e por isso vai aos DDs
+                    if domain in self.config["DD"].keys: # Caso o dominio esteja nos DDs
+                        dds = self.config["DD"][domain]
+
+                        socket_udp.sendto(query.to_string().encode('utf-8'), dds[0])
+                    else: # Dominio não está nos DDs e vai a um root server
+                        root_servers = self.config["ST"]
+
+                        socket_udp.sendto(query.to_string().encode('utf-8'), root_servers[0]) # Ver query a mandar
 
         else:  # É uma resposta a uma query
             response = message
