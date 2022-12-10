@@ -178,6 +178,7 @@ class Server:
 
         else:  # É uma resposta a uma query
             response = message
+            response.flags = "" # Tirar o A de autoritativo
 
             self.log.log_rr(domain, str(address_from), response.to_string())
 
