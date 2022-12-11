@@ -146,11 +146,11 @@ class DNSMessage:
         return True
 
     def serialize(self):
-        bytes = b''
+        arr_bytes = b''
 
         # MessageID - 2 bytes
-        m_id = self.message_id.to_bytes(2, "big", signed=False)
-        bytes += m_id
+        msg_id = self.message_id.to_bytes(2, "big", signed=False)
+        arr_bytes += msg_id
 
         # Flags - 6 bits
         # Q - 0, R - 1, A - 2 e Q+R - 3
@@ -169,41 +169,41 @@ class DNSMessage:
         r_code = bin(self.response_code)
         snd_byte = r_code + flags[2:]
 
-        bytes += r_code + snd_byte
+        arr_bytes += r_code + snd_byte
 
         n_values = self.number_of_values.to_bytes(1, "big", signed=False)
         n_authorities = self.number_of_authorities.to_bytes(1, "big", signed=False)
         n_extra = self.number_of_extra_values.to_bytes(1, "big", signed=False)
 
-        bytes += n_values + n_authorities + n_extra
+        arr_bytes += n_values + n_authorities + n_extra
 
         # Query Name
         len_domain = len(self.domain_name).to_bytes(1, "big", signed=False)
         domain = self.domain_name.encode('utf-8')
 
-        bytes += len_domain + domain
+        arr_bytes += len_domain + domain
 
         # Query Type
         # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
         # CNAME - 8, MX - 9, PTR - 10
         type = ResourceRecord.encode_type(self.type)
 
-        bytes += type
+        arr_bytes += type
 
         for record in self.response_values:
-            bytes += record.serialize()
+            arr_bytes += record.serialize()
 
         for record in self.authorities_values:
-            bytes += record.serialize()
+            arr_bytes += record.serialize()
 
         for record in self.extra_values:
-            bytes += record.serialize()
+            arr_bytes += record.serialize()
 
-        return bytes
+        return arr_bytes
 
     @staticmethod
-    def deserialize(byte_array):
-        m_id = ""
+    def deserialize(arr_bytes):
+        msg_id = ""
         flags = ""
         response_code = ""
         domain = ""
@@ -212,7 +212,7 @@ class DNSMessage:
         authorities = list()
         extra = list()
 
-        return DNSMessage(m_id, flags, response_code, domain, type, response, authorities, extra)
+        return DNSMessage(msg_id, flags, response_code, domain, type, response, authorities, extra)
 
 
 def parse_message(message):

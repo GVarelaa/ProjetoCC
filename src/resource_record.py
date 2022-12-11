@@ -129,15 +129,72 @@ class ResourceRecord:
 
         return type
 
+    """
+    @staticmethod
+    def decode_type(bits):
+        # Query Type
+        # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
+        # CNAME - 8, MX - 9, PTR - 10
+
+        match bits:
+            case bin(0):
+                type = "SOASP"
+            case bin(1):
+                type = "SOAADMIN"
+            case bin(2):
+                type = "SOASERIAL"
+            case bin(3):
+                type = "SOAREFRESH"
+            case bin(4):
+                type = "SOARETRY"
+            case bin(5):
+                type = "SOAEXPIRE"
+            case bin(6):
+                type = "NS"
+            case bin(7):
+                type = "A"
+            case bin(8):
+                type = "CNAME"
+            case bin(9):
+                type = "MX"
+            case bin(10):
+                type = "PTR"
+
+        return type
+    """
+
     def serialize(self):
         bytes = b''
         bytes += len(self.name).to_bytes(1, "big", signed=False)
         bytes += self.name.encode('utf-8')
         bytes += ResourceRecord.encode_type(self.type)
         bytes += len(self.value).to_bytes(1, "big", signed=False)
-        bytes += self.name.encode('utf-8')
+        bytes += self.value.encode('utf-8')
         bytes += self.ttl.to_bytes(4, "big", signed=False)
         bytes += self.priority.to_bytes(1, "big", signed=False)
 
         return bytes
+
+    """"
+    @staticmethod
+    def deserialize(bytes):
+        name = bytes[:1]
+        decd_name = name.decode('utf-8')
+        bytes = bytes[1:]
+        # type ? nao chega a 1 byte
+        # bytes = bytes[1:]
+        # decd_type = ResourceRecord.decode_type(type)
+        value = bytes[:1]
+        decd_value = value.decode('utf-8')
+        bytes = bytes[1:]
+        ttl = bytes[:4]
+        decd_ttl = ttl.decode('utf-8')
+        bytes = bytes[4:]
+        priority = bytes[:1]
+        decd_priority = priority.decode('utf-8')
+        bytes = bytes[1:]
+        
+        return ResourceRecord(decd_name, decd_type, decd_value, decd_ttl, decd_priority, origin?)
+    """
+
 
