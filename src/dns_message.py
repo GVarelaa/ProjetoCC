@@ -145,6 +145,32 @@ class DNSMessage:
 
         return True
 
+    def serialize(self):
+        # MessageID - 2 bytes
+        m_id = self.message_id.to_bytes(2, "big", signed=False)
+
+        # Flags - 6 bits
+        # Q - 0, R - 1, A - 2 e Q+R - 3
+        match self.flags:
+            case "Q":
+                flags = bin(0)
+            case "R":
+                flags = bin(1)
+            case "A":
+                flags = bin(2)
+            case "Q+R":
+                flags = bin(3)
+
+        # Response Code - 2 bits
+        # 0 - 0, 1 - 1, 2 - 2 e 3 - 3
+        r_code = bin(self.response_code)
+        snd_byte = r_code + flags[2:]
+
+        n_values = self.number_of_values.to_bytes(1, "big", signed=False)
+        n_authorities = self.number_of_authorities.to_bytes(1, "big", signed=False)
+        n_extra = self.number_of_extra_values.to_bytes(1, "big", signed=False)
+
+
 
 def parse_message(message):
     print(message)

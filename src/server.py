@@ -177,6 +177,7 @@ class Server:
                         socket_udp.sendto(query.to_string().encode('utf-8'), root_servers[0]) # Ver query a mandar
 
         else:  # É uma resposta a uma query
+            # Verificar se response code é zero e guarda em cache
             response = message
             response.flags = "" # Tirar o A de autoritativo
 
