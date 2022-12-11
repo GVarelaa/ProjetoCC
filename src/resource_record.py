@@ -97,3 +97,47 @@ class ResourceRecord:
 
         return record
 
+    @staticmethod
+    def encode_type(type):
+        # Query Type
+        # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
+        # CNAME - 8, MX - 9, PTR - 10
+
+        match type:
+            case "SOASP":
+                type = bin(0)
+            case "SOAADMIN":
+                type = bin(1)
+            case "SOASERIAL":
+                type = bin(2)
+            case "SOAREFRESH":
+                type = bin(3)
+            case "SOARETRY":
+                type = bin(4)
+            case "SOAEXPIRE":
+                type = bin(5)
+            case "NS":
+                type = bin(6)
+            case "A":
+                type = bin(7)
+            case "CNAME":
+                type = bin(8)
+            case "MX":
+                type = bin(9)
+            case "PTR":
+                type = bin(10)
+
+        return type
+
+    def serialize(self):
+        bytes = b''
+        bytes += len(self.name).to_bytes(1, "big", signed=False)
+        bytes += self.name.encode('utf-8')
+        bytes += ResourceRecord.encode_type(self.type)
+        bytes += len(self.value).to_bytes(1, "big", signed=False)
+        bytes += self.name.encode('utf-8')
+        bytes += self.ttl.to_bytes(4, "big", signed=False)
+        bytes += self.priority.to_bytes(1, "big", signed=False)
+
+        return bytes
+
