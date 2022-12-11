@@ -9,7 +9,7 @@ import re
 
 
 class DNSMessage:
-    def __init__(self, message_id, flags, domain_name, type):
+    def __init__(self, message_id, flags, response_code, domain_name, type, response=list(), authorities=list(), extra=list()):
         """
         Construtor de um objeto DNSMessage
         :param message_id: ID da mensagem
@@ -19,15 +19,15 @@ class DNSMessage:
         """
         self.message_id = message_id
         self.flags = flags
-        self.response_code = 0
-        self.number_of_values = 0
-        self.number_of_authorities = 0
-        self.number_of_extra_values = 0
+        self.response_code = response_code
+        self.number_of_values = len(response)
+        self.number_of_authorities = len(authorities)
+        self.number_of_extra_values = len(extra)
         self.domain_name = domain_name
         self.type = type
-        self.response_values = list()
-        self.authorities_values = list()
-        self.extra_values = list()
+        self.response_values = response
+        self.authorities_values = authorities
+        self.extra_values = extra
 
     def __str__(self):
         """
@@ -146,8 +146,11 @@ class DNSMessage:
         return True
 
     def serialize(self):
+        bytes = b''
+
         # MessageID - 2 bytes
         m_id = self.message_id.to_bytes(2, "big", signed=False)
+        bytes += m_id
 
         # Flags - 6 bits
         # Q - 0, R - 1, A - 2 e Q+R - 3
@@ -166,10 +169,50 @@ class DNSMessage:
         r_code = bin(self.response_code)
         snd_byte = r_code + flags[2:]
 
+        bytes += r_code + snd_byte
+
         n_values = self.number_of_values.to_bytes(1, "big", signed=False)
         n_authorities = self.number_of_authorities.to_bytes(1, "big", signed=False)
         n_extra = self.number_of_extra_values.to_bytes(1, "big", signed=False)
 
+        bytes += n_values + n_authorities + n_extra
+
+        # Query Name
+        len_domain = len(self.domain_name).to_bytes(1, "big", signed=False)
+        domain = self.domain_name.encode('utf-8')
+
+        bytes += len_domain + domain
+
+        # Query Type
+        # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
+        # CNAME - 8, MX - 9, PTR - 10
+        type = ResourceRecord.encode_type(self.type)
+
+        bytes += type
+
+        for record in self.response_values:
+            bytes += record.serialize()
+
+        for record in self.authorities_values:
+            bytes += record.serialize()
+
+        for record in self.extra_values:
+            bytes += record.serialize()
+
+        return bytes
+
+    @staticmethod
+    def deserialize(byte_array):
+        m_id = ""
+        flags = ""
+        response_code = ""
+        domain = ""
+        type = ""
+        response = list()
+        authorities = list()
+        extra = list()
+
+        return DNSMessage(m_id, flags, response_code, domain, type, response, authorities, extra)
 
 
 def parse_message(message):
