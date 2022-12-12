@@ -38,12 +38,12 @@ def main():
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
 
-    query = DNSMessage(message_id, flags, domain_name, type)  # Criar mensagem
+    query = DNSMessage(message_id, flags, 0, domain_name, type)  # Criar mensagem
 
-    socket_udp.sendto(query.to_string().encode('utf-8'), (ip_address, port))  # Enviar query para o socket do server
+    socket_udp.sendto(query.serialize(), (ip_address, port))  # Enviar query para o socket do server
 
-    message, address = socket_udp.recvfrom(1024)
-    message = message.decode('utf-8')
+    message = socket_udp.recvfrom(1024)
+    message = DNSMessage.deserialize(message)
 
     sys.stdout.write(message)
 

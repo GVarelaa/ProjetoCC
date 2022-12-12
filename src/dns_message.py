@@ -3,7 +3,7 @@
 # Data da última atualização: 11/11/22
 # Descrição: Representação de queries
 # Última atualização: Documentação
-
+from bitstring import BitStream, BitArray
 from resource_record import *
 import re
 
@@ -76,54 +76,6 @@ class DNSMessage:
         return string
 
     @staticmethod
-    def from_string(query):
-        """
-        Transforma uma string num objeto DNSMessage
-        :param query: Mensagem (string)
-        :return: Objeto DNSMessage
-        """
-        (message_id, flags, response_code, num_response_values, num_authorities_values,
-         num_extra_values, name, type, response_values, authorities_values, extra_values) = parse_message(query)
-
-        query = DNSMessage(message_id, flags, name, type)
-        query.response_code = int(response_code)
-        query.number_of_values = int(num_response_values)
-        query.number_of_authorities = int(num_authorities_values)
-        query.number_of_extra_values = int(num_extra_values)
-
-        for value in response_values:
-            fields = value.split(" ")
-            priority = -1
-
-            if len(fields) > 4:
-                priority = fields[4]
-
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
-            query.response_values.append(record)
-
-        for value in authorities_values:
-            fields = value.split(" ")
-            priority = -1
-
-            if len(fields) > 4:
-                priority = fields[4]
-
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
-            query.authorities_values.append(record)
-
-        for value in extra_values:
-            fields = value.split(" ")
-            priority = -1
-
-            if len(fields) > 4:
-                priority = fields[4]
-
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
-            query.extra_values.append(record)
-
-        return query
-
-    @staticmethod
     def is_query(message):  # Verificar função
         """
         Verifica se uma mensagem é uma query
@@ -145,9 +97,7 @@ class DNSMessage:
 
         return True
 
-    def encode_flags_and_response_code(self):
-        array = [0, 0, 0, 0, 0, 0, 0, 0]
-
+    def encode_flags(self):
         match self.flags:
             case "Q":
                 flags = 0
@@ -158,65 +108,48 @@ class DNSMessage:
             case "Q+R":
                 flags = 3
 
-        flags = bin(flags)
-        flags = flags[2:]
-
-        i = 0
-        while i < 6-len(flags):
-            flags = "0" + flags
-
-        response_code = bin(self.response_code)
-        response_code = response_code[2:]
-
-        i = 0
-        while i < 2-len(response_code):
-            response_code = "0" + response_code
-
-        byte = flags + response_code
-        byte = int(byte, 2)
-        byte = byte.to_bytes(1, "big", signed=False)
-
-        return byte
+        return BitArray(uint=flags, length=3) # MUDAMOS
 
     def serialize(self):
-        bytes = b''
+        bit_array = BitArray()
 
         # MessageID - 2 bytes
-        msg_id = self.message_id.to_bytes(2, "big", signed=False)
-        bytes += msg_id
+        msg_id = BitArray(uint=self.message_id, length=16)
+        bit_array.append(msg_id)
 
-        flags_and_response_code = self.encode_flags_and_response_code()
-        bytes += flags_and_response_code
+        bit_array.append(self.encode_flags())
 
-        n_response = self.number_of_values.to_bytes(1, "big", signed=False)
-        n_authorities = self.number_of_authorities.to_bytes(1, "big", signed=False)
-        n_extra = self.number_of_extra_values.to_bytes(1, "big", signed=False)
+        response_code = BitArray(uint=self.response_code, length=2)
+        bit_array.append(response_code)
 
-        bytes += n_response + n_authorities + n_extra
+        n_response = BitArray(uint=self.number_of_values, length=8)
+        n_authorities = BitArray(uint=self.number_of_authorities, length=8)
+        n_extra = BitArray(uint=self.number_of_extra_values, length=8)
+
+        bit_array.append(n_response)
+        bit_array.append(n_authorities)
+        bit_array.append(n_extra)
 
         # Query Name
-        len_domain = len(self.domain_name).to_bytes(1, "big", signed=False)
-        domain = self.domain_name.encode('utf-8')
+        len_domain = BitArray(uint=len(self.domain_name), length=8)
+        domain = ResourceRecord.string_to_bit_array(self.domain_name)
 
-        bytes += len_domain + domain
-
-        # Query Type
-        # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
-        # CNAME - 8, MX - 9, PTR - 10
-        type = ResourceRecord.encode_type(self.type)
-
-        bytes += type
+        bit_array.append(len_domain)
+        bit_array.append(domain)
+        bit_array.append(ResourceRecord.encode_type(self.type))
 
         for record in self.response_values:
-            bytes += record.serialize()
+            bit_array.append(record.serialize())
 
         for record in self.authorities_values:
-            bytes += record.serialize()
+            bit_array.append(record.serialize())
 
         for record in self.extra_values:
-            bytes += record.serialize()
+            bit_array.append(record.serialize())
 
-        return bytes
+        bit_array.append(BitArray(uint=0, length=8 - len(bit_array) % 8)) # Completar multiplo de 8
+
+        return bit_array.bytes
 
     @staticmethod
     def decode_flags_and_response_code(byte):
@@ -294,43 +227,4 @@ class DNSMessage:
             i += 1
 
         return DNSMessage(msg_id, flags, r_code, domain, type, response, authorities, extra)
-
-
-def parse_message(message):
-    print(message)
-    """
-    Parse de uma mensagem
-    :param message: Mensagem
-    :return: Strings com os valores para as variáveis do objeto
-             Response values, authorities values e extra values são listas de strings
-    """
-    message = message.replace("\n", "")
-    fields = re.split(";|,", message)
-    fields.remove("")
-
-    message_id = fields[0]
-    flags = fields[1]
-    response_code = fields[2]
-    num_response_values = fields[3]
-    num_authorities_values = fields[4]
-    num_extra_values = fields[5]
-    name = fields[6]
-    type = fields[7]
-
-    response_values = list()
-    authorities_values = list()
-    extra_values = list()
-
-    for i in range(1, int(num_response_values)+1):
-        response_values.append(fields[7+i])
-
-    for i in range(1, int(num_authorities_values)):
-        authorities_values.append(fields[7+int(num_response_values)+i])
-
-    for i in range(1, int(num_extra_values)):
-        extra_values.append(fields[7+int(num_response_values)+int(num_authorities_values)+i])
-
-    return (message_id, flags, response_code, num_response_values, num_authorities_values,
-            num_extra_values, name, type, response_values, authorities_values, extra_values)
-
 

@@ -20,7 +20,7 @@ def set_default_values(server, ttl_default, suffix, line):
     """
     if line[0] == "TTL":
         if line[2].isnumeric():
-            ttl_default = line[2]
+            ttl_default = int(line[2])
         else:
             server.domain_log.log_fl("Invalid value for TTL")
 

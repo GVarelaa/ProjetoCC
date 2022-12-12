@@ -137,7 +137,7 @@ class Server:
         :param address_from: Endereço de onde foi enviada a mensagem
         :param socket_udp: Socket UDP
         """
-        message = DNSMessage.from_string(message.decode('utf-8'))  # Cria uma DNSMessage
+        message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
         domain = message.domain_name
 
         if "Q" in message.flags and "R" not in message.flags:  # Verifica que é uma query
@@ -146,13 +146,13 @@ class Server:
             self.log.log_qr(domain, str(address_from), query.to_string())
 
             if self.config["SP"].keys is not None or self.config["SS"].keys is not None: # Se o servidor for SP ou SS
-                if domain in self.config["DD"].keys: # dominio estiver nos DDs
+                if domain in self.config["DD"].keys(): # dominio estiver nos DDs
                     response = self.build_response(query)  # Constrói a resposta a essa query
 
                     if "A" in response.flags:  # Informação na cache
                         self.log.log_rp(domain, str(address_from), response.to_string())
 
-                        socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
+                        socket_udp.sendto(response.serialize(), address_from)  # Envia a resposta
                     else:
                         self.log.log_to(domain, str(address_from), "Query Miss")  # MISS e timeout
 
@@ -165,16 +165,16 @@ class Server:
                 if "A" in response.flags:  # Informação na cache
                     self.log.log_rp(domain, str(address_from), response.to_string())
 
-                    socket_udp.sendto(response.to_string().encode('utf-8'), address_from)  # Envia a resposta
+                    socket_udp.sendto(response.serialize(), address_from)  # Envia a resposta
                 else: # Não tinha a resposta na cache e por isso vai aos DDs
                     if domain in self.config["DD"].keys: # Caso o dominio esteja nos DDs
                         dds = self.config["DD"][domain]
 
-                        socket_udp.sendto(query.to_string().encode('utf-8'), dds[0])
+                        socket_udp.sendto(query.serialize(), dds[0])
                     else: # Dominio não está nos DDs e vai a um root server
                         root_servers = self.config["ST"]
 
-                        socket_udp.sendto(query.to_string().encode('utf-8'), root_servers[0]) # Ver query a mandar
+                        socket_udp.sendto(query.serialize(), root_servers[0]) # Ver query a mandar
 
         else:  # É uma resposta a uma query
             # Verificar se response code é zero e guarda em cache
@@ -207,15 +207,17 @@ class Server:
         :param address_from: Endereço do servidor secundário
         """
         while True:
-            message = connection.recv(4096).decode('utf-8')  # Recebe queries (versão/pedido de transferência)
+            message = connection.recv(4096)  # Recebe queries (versão/pedido de transferência)
 
             if not message:
                 break
 
-            query = DNSMessage.from_string(message)
+            message = DNSMessage.deserialize(message)
             domain = query.domain_name
 
             if query.flags == "Q":  # Pedir versão/transferência de zona e envia
+                query = message
+
                 self.log.log_qr(domain, str(address_from), query.to_string())
 
                 if query.type == "AXFR":
@@ -226,7 +228,7 @@ class Server:
                 if "A" in response.flags:
                     self.log.log_rp(domain, str(address_from), response.to_string())
 
-                    connection.sendall(response.to_string().encode('utf-8'))
+                    connection.sendall(response.serialize())
 
                 else:
                     self.log.log_to(domain, str(address_from), "Query Miss")
@@ -234,16 +236,14 @@ class Server:
             elif query.flags == "A" and query.type == "AXFR":  # Secundário aceitou linhas e respondeu com o nº de linhas
                 self.log.log_rr(domain, str(address_from), query.to_string())
 
-                (num_entries, entries) = self.cache.get_file_entries_by_domain(query.domain_name)
+                num_entries, entries = self.cache.get_file_entries_by_domain(query.domain_name)
                 lines_number = int(query.response_values[0].value)
-                print(num_entries)
-                print(lines_number)
 
                 if lines_number == num_entries:
                     counter = 1
                     for record in entries:
                         if record.origin == Origin.FILE:
-                            record = str(counter) + " " + record.resource_record_to_string() + "\n"
+                            record = str(counter) + " " + record.resource_record_to_string() + "\n" # VER COM O LOST - INDICE
 
                             connection.sendall(record.encode('utf-8'))
 
@@ -268,9 +268,9 @@ class Server:
 
     def ask_for_zone_transfer_process(self, domain):
         """
-        Processo de transferência de zona
+        Processo de transferência de zona do servidor secundário
         """
-        (address, port) = Server.parse_address(self.config["SP"][domain])
+        address, port = Server.parse_address(self.config["SP"][domain])
 
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_tcp.connect((address, port))
@@ -279,18 +279,18 @@ class Server:
         lines_number = 0
 
         query = DNSMessage(random.randint(1, 65535), "Q", domain, "SOASERIAL")
-        socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a versão da BD
+        socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
 
         self.log.log_qe(domain, str(address), query.to_string())
 
         while True:
-            message = socket_tcp.recv(4096).decode('utf-8')  # Recebe mensagens (queries/linhas da base de dados)
+            message = socket_tcp.recv(4096)  # Recebe mensagens (queries/linhas da base de dados)
 
             if not message:
                 break
 
             if DNSMessage.is_query(message):
-                response = DNSMessage.from_string(message)  # Cria query DNS
+                response = DNSMessage.deserialize(message)  # Cria query DNS
 
                 if response.flags == "A" and response.type == "SOASERIAL":
                     self.log.log_rr(domain, str(address), response.to_string())
@@ -306,7 +306,7 @@ class Server:
 
                     lines_number = int(response.response_values[0].value)
 
-                    socket_tcp.sendall(response.to_string().encode('utf-8'))  # Confirma o nº de linhas e reenvia
+                    socket_tcp.sendall(response.serialize())  # Confirma o nº de linhas e reenvia
 
                     self.log.log_rp(domain, str(address), response.to_string())
 
@@ -382,7 +382,7 @@ class Server:
 
             query = DNSMessage(random.randint(1, 65535), "Q", domain, "AXFR")  # Query AXFR
 
-            socket_tcp.sendall(query.to_string().encode('utf-8'))  # Envia query a pedir a transferência
+            socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
 
             self.log.log_rp(domain, str(address), response.to_string())
             self.log.log_zt(domain, str(address), "SS : Zone Transfer started", "0")
