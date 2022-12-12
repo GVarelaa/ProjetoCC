@@ -25,7 +25,7 @@ class Status(Enum):
 
 
 class ResourceRecord:
-    def __init__(self, name, type, value, ttl, priority, origin):
+    def __init__(self, name, type, value, ttl, priority, origin=Origin.OTHERS):
         """
         Construtor de um objeto Resource Record
         :param name: Nome
@@ -102,66 +102,65 @@ class ResourceRecord:
         # Query Type
         # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
         # CNAME - 8, MX - 9, PTR - 10
-
         match type:
             case "SOASP":
-                type = bin(0)
+                type = 0
             case "SOAADMIN":
-                type = bin(1)
+                type = 1
             case "SOASERIAL":
-                type = bin(2)
+                type = 2
             case "SOAREFRESH":
-                type = bin(3)
+                type = 3
             case "SOARETRY":
-                type = bin(4)
+                type = 4
             case "SOAEXPIRE":
-                type = bin(5)
+                type = 5
             case "NS":
-                type = bin(6)
+                type = 6
             case "A":
-                type = bin(7)
+                type = 7
             case "CNAME":
-                type = bin(8)
+                type = 8
             case "MX":
-                type = bin(9)
+                type = 9
             case "PTR":
-                type = bin(10)
+                type = 10
 
-        return type
+        return type.to_bytes(1, "big", signed=False)
 
-    """
     @staticmethod
-    def decode_type(bits):
+    def decode_type(byte):
         # Query Type
         # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
         # CNAME - 8, MX - 9, PTR - 10
+        byte = int.from_bytes(byte, "big", signed=False)
 
-        match bits:
-            case bin(0):
+        match byte:
+            case 0:
                 type = "SOASP"
-            case bin(1):
+            case 1:
                 type = "SOAADMIN"
-            case bin(2):
+            case 2:
                 type = "SOASERIAL"
-            case bin(3):
+            case 3:
                 type = "SOAREFRESH"
-            case bin(4):
+            case 4:
                 type = "SOARETRY"
-            case bin(5):
+            case 5:
                 type = "SOAEXPIRE"
-            case bin(6):
+            case 6:
                 type = "NS"
-            case bin(7):
+            case 7:
                 type = "A"
-            case bin(8):
+            case 8:
                 type = "CNAME"
-            case bin(9):
+            case 9:
                 type = "MX"
-            case bin(10):
+            case 10:
                 type = "PTR"
 
         return type
-    """
+
 
     def serialize(self):
         bytes = b''
@@ -175,26 +174,37 @@ class ResourceRecord:
 
         return bytes
 
-    """"
+    @staticmethod
+    def take_bytes(bytes, number):
+        ret = bytes[:number]
+        bytes = bytes[number:]
+
+        return ret, bytes
+
     @staticmethod
     def deserialize(bytes):
-        name = bytes[:1]
-        decd_name = name.decode('utf-8')
-        bytes = bytes[1:]
-        # type ? nao chega a 1 byte
-        # bytes = bytes[1:]
-        # decd_type = ResourceRecord.decode_type(type)
-        value = bytes[:1]
-        decd_value = value.decode('utf-8')
-        bytes = bytes[1:]
-        ttl = bytes[:4]
-        decd_ttl = ttl.decode('utf-8')
-        bytes = bytes[4:]
-        priority = bytes[:1]
-        decd_priority = priority.decode('utf-8')
-        bytes = bytes[1:]
+        len_name, bytes = ResourceRecord.take_bytes(bytes, 1)
+        len_name = int.from_bytes(len_name, "big", signed=False)
+
+        name, bytes = ResourceRecord.take_bytes(bytes, len_name)
+        name = name.decode('utf-8')
+
+        type, bytes = ResourceRecord.take_bytes(bytes, 1)
+        type = ResourceRecord.decode_type(type)
+
+        len_value, bytes = ResourceRecord.take_bytes(bytes, 1)
+        len_value = int.from_bytes(len_value, "big", signed=False)
+
+        value, bytes = ResourceRecord.take_bytes(bytes, len_value)
+        value = value.decode('utf-8')
+
+        ttl, bytes = ResourceRecord.take_bytes(bytes, 4)
+        ttl = int.from_bytes(ttl, "big", signed=False)
+
+        priority, bytes = ResourceRecord.take_bytes(bytes, 1)
+        priority = int.from_bytes(priority, "big", signed=False)
         
-        return ResourceRecord(decd_name, decd_type, decd_value, decd_ttl, decd_priority, origin?)
-    """
+        return ResourceRecord(name, type, value, ttl, priority)
+
 
 

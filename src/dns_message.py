@@ -145,61 +145,78 @@ class DNSMessage:
 
         return True
 
+    def encode_flags_and_response_code(self):
+        array = [0, 0, 0, 0, 0, 0, 0, 0]
+
+        match self.flags:
+            case "Q":
+                flags = 0
+            case "R":
+                flags = 1
+            case "A":
+                flags = 2
+            case "Q+R":
+                flags = 3
+
+        flags = bin(flags)
+        flags = flags[2:]
+
+        i=0
+        while(i<6-len(flags)):
+            flags = "0" + flags
+
+        response_code = bin(self.response_code)
+        response_code = response_code[2:]
+
+        i=0
+        while(i<2-len(response_code)):
+            response_code = "0" + response_code
+
+        byte = flags + response_code
+        byte = int(byte, 2)
+        byte = byte.to_bytes(1, "big", signed=False)
+
+        return byte
+
     def serialize(self):
-        arr_bytes = b''
+        bytes = b''
 
         # MessageID - 2 bytes
         msg_id = self.message_id.to_bytes(2, "big", signed=False)
-        arr_bytes += msg_id
+        bytes += msg_id
 
-        # Flags - 6 bits
-        # Q - 0, R - 1, A - 2 e Q+R - 3
-        match self.flags:
-            case "Q":
-                flags = bin(0)
-            case "R":
-                flags = bin(1)
-            case "A":
-                flags = bin(2)
-            case "Q+R":
-                flags = bin(3)
-
-        # Response Code - 2 bits
-        # 0 - 0, 1 - 1, 2 - 2 e 3 - 3
-        r_code = bin(self.response_code)
-        snd_byte = r_code + flags[2:]
-
-        arr_bytes += r_code + snd_byte
+        flags_and_response_code = self.encode_flags_and_response_code()
+        bytes += flags_and_response_code
 
         n_values = self.number_of_values.to_bytes(1, "big", signed=False)
         n_authorities = self.number_of_authorities.to_bytes(1, "big", signed=False)
         n_extra = self.number_of_extra_values.to_bytes(1, "big", signed=False)
 
-        arr_bytes += n_values + n_authorities + n_extra
+        bytes += n_values + n_authorities + n_extra
 
         # Query Name
         len_domain = len(self.domain_name).to_bytes(1, "big", signed=False)
         domain = self.domain_name.encode('utf-8')
 
-        arr_bytes += len_domain + domain
+        bytes += len_domain + domain
 
         # Query Type
         # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
         # CNAME - 8, MX - 9, PTR - 10
         type = ResourceRecord.encode_type(self.type)
 
-        arr_bytes += type
+        bytes += type
 
         for record in self.response_values:
-            arr_bytes += record.serialize()
+            bytes += record.serialize()
 
         for record in self.authorities_values:
-            arr_bytes += record.serialize()
+            bytes += record.serialize()
 
         for record in self.extra_values:
-            arr_bytes += record.serialize()
+            bytes += record.serialize()
 
-        return arr_bytes
+        return bytes
 
     @staticmethod
     def deserialize(arr_bytes):
