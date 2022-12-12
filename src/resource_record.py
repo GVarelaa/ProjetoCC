@@ -130,13 +130,8 @@ class ResourceRecord:
         return BitArray(uint=type, length=4)
 
     @staticmethod
-    def decode_type(byte):
-        # Query Type
-        # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
-        # CNAME - 8, MX - 9, PTR - 10
-        byte = int.from_bytes(byte, "big", signed=False)
-
-        match byte:
+    def decode_type(type):
+        match type:
             case 0:
                 type = "SOASP"
             case 1:
@@ -172,6 +167,19 @@ class ResourceRecord:
 
         return bit_array
 
+    @staticmethod
+    def bit_array_to_string(bit_stream, length):
+        string = ""
+
+        i = 0
+        while i < length:
+            int = bit_stream.read('uint:8')
+            string += chr(int)
+
+            i += 1
+
+        return string
+
     def serialize(self):
         bit_array = BitArray()
 
@@ -201,29 +209,24 @@ class ResourceRecord:
         return ret, bytes
 
     @staticmethod
-    def deserialize(bytes):
-        len_name, bytes = ResourceRecord.take_bytes(bytes, 1)
-        len_name = int.from_bytes(len_name, "big", signed=False)
+    def deserialize(stream):
+        len_name = stream.read('uint:8')
+        name = ResourceRecord.bit_array_to_string(stream, len_name)
 
-        name, bytes = ResourceRecord.take_bytes(bytes, len_name)
-        name = name.decode('utf-8')
+        type = ResourceRecord.decode_type(stream.read('uint:4'))
 
-        type, bytes = ResourceRecord.take_bytes(bytes, 1)
-        type = ResourceRecord.decode_type(type)
+        len_value = stream.read('uint:8')
+        value = ResourceRecord.bit_array_to_string(stream, len_value)
 
-        len_value, bytes = ResourceRecord.take_bytes(bytes, 1)
-        len_value = int.from_bytes(len_value, "big", signed=False)
+        ttl = stream.read('uint:32')
 
-        value, bytes = ResourceRecord.take_bytes(bytes, len_value)
-        value = value.decode('utf-8')
+        has_priority = stream.read('uint:1')
+        priority = -1
 
-        ttl, bytes = ResourceRecord.take_bytes(bytes, 4)
-        ttl = int.from_bytes(ttl, "big", signed=False)
-
-        priority, bytes = ResourceRecord.take_bytes(bytes, 1)
-        priority = int.from_bytes(priority, "big", signed=False)
+        if has_priority:
+            priority = stream.read('uint:8')
         
-        return ResourceRecord(name, type, value, ttl, priority), bytes
+        return ResourceRecord(name, type, value, ttl, priority)
 
 
 
