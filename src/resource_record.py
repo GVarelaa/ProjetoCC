@@ -4,6 +4,7 @@
 # Descrição: Representação de uma entrada no sistema de cache do servidor
 # Última atualização: Documentação
 
+from bitstring import BitStream, BitArray
 from enum import Enum
 
 
@@ -126,7 +127,7 @@ class ResourceRecord:
             case "PTR":
                 type = 10
 
-        return type.to_bytes(1, "big", signed=False)
+        return BitArray(uint=type, length=4)
 
     @staticmethod
     def decode_type(byte):
@@ -161,18 +162,36 @@ class ResourceRecord:
 
         return type
 
+    @staticmethod
+    def string_to_bit_array(string):
+        bit_array = BitArray()
+
+        for char in string:
+            ascii = ord(char)
+            bit_array.append(BitArray(uint=ascii, length=8))
+
+        return bit_array
 
     def serialize(self):
-        bytes = b''
-        bytes += len(self.name).to_bytes(1, "big", signed=False)
-        bytes += self.name.encode('utf-8')
-        bytes += ResourceRecord.encode_type(self.type)
-        bytes += len(self.value).to_bytes(1, "big", signed=False)
-        bytes += self.value.encode('utf-8')
-        bytes += self.ttl.to_bytes(4, "big", signed=False)
-        bytes += self.priority.to_bytes(1, "big", signed=False)
+        bit_array = BitArray()
 
-        return bytes
+        bit_array.append(BitArray(uint=len(self.name), length=8))
+        bit_array.append(ResourceRecord.string_to_bit_array(self.name))
+
+        bit_array.append(ResourceRecord.encode_type(self.type))
+
+        bit_array.append(BitArray(uint=len(self.value), length=8))
+        bit_array.append(ResourceRecord.string_to_bit_array(self.value))
+
+        bit_array.append(BitArray(uint=self.ttl, length=32))
+
+        if self.priority == -1:
+            bit_array.append(BitArray(uint=0, length=1))
+        else:
+            bit_array.append(BitArray(uint=1, length=1))
+            bit_array.append(BitArray(uint=self.priority, length=8))
+
+        return bit_array
 
     @staticmethod
     def take_bytes(bytes, number):
