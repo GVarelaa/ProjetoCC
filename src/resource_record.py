@@ -204,7 +204,7 @@ class ResourceRecord:
         priority, bytes = ResourceRecord.take_bytes(bytes, 1)
         priority = int.from_bytes(priority, "big", signed=False)
         
-        return ResourceRecord(name, type, value, ttl, priority)
+        return ResourceRecord(name, type, value, ttl, priority), bytes
 
 
 
