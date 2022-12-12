@@ -42,10 +42,10 @@ def main():
 
     socket_udp.sendto(query.serialize(), (ip_address, port))  # Enviar query para o socket do server
 
-    message = socket_udp.recvfrom(1024)
+    message, address = socket_udp.recvfrom(4096)
     message = DNSMessage.deserialize(message)
 
-    sys.stdout.write(message)
+    sys.stdout.write(message.to_string())
 
     socket_udp.close()
 

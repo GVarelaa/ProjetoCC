@@ -70,24 +70,6 @@ class ResourceRecord:
         return string
 
     @staticmethod
-    def to_record(string, origin):
-        """
-        Transforma uma string num objeto Resource Record
-        :param string: String
-        :param origin: Origem
-        :return: Record
-        """
-        fields = string.split(" ")
-        priority = -1
-
-        if len(fields) > 4:
-            priority = fields[4]
-
-        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, origin)
-
-        return record
-
-    @staticmethod
     def create_free_record():
         """
         Cria um objeto com o status FREE
@@ -100,9 +82,6 @@ class ResourceRecord:
 
     @staticmethod
     def encode_type(type):
-        # Query Type
-        # SOASP - 0, SOAADMIN - 1, SOASERIAL - 2, SOAREFRESH - 3, SOARETRY -4, SOAEXPIRE - 5, NS - 6, A - 7,
-        # CNAME - 8, MX - 9, PTR - 10
         match type:
             case "SOASP":
                 type = 0
@@ -200,13 +179,6 @@ class ResourceRecord:
             bit_array.append(BitArray(uint=self.priority, length=8))
 
         return bit_array
-
-    @staticmethod
-    def take_bytes(bytes, number):
-        ret = bytes[:number]
-        bytes = bytes[number:]
-
-        return ret, bytes
 
     @staticmethod
     def deserialize(stream):
