@@ -221,10 +221,10 @@ class DNSMessage:
     @staticmethod
     def decode_flags_and_response_code(byte):
         byte = int.from_bytes(byte, "big", signed=False)
-        bits = bin(byte)
+        bits = bin(byte)[2:]
 
         i = 0
-        while i < 6 - len(bits):
+        while i < 8 - len(bits):
             bits = "0" + bits
 
         flag = bits[:6]
@@ -279,18 +279,21 @@ class DNSMessage:
         while i < num_response:
             record, bytes = ResourceRecord.deserialize(bytes)
             response.append(record)
+            i += 1
 
         i = 0
         while i < num_authorities:
             record, bytes = ResourceRecord.deserialize(bytes)
             authorities.append(record)
+            i += 1
 
         i = 0
         while i < num_extra:
             record, bytes = ResourceRecord.deserialize(bytes)
             extra.append(record)
+            i += 1
 
-        return DNSMessage(msg_id, flags, r_code, num_response, num_authorities, num_extra, domain, type, response, authorities, extra)
+        return DNSMessage(msg_id, flags, r_code, domain, type, response, authorities, extra)
 
 
 def parse_message(message):
