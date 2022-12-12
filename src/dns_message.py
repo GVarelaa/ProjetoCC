@@ -3,7 +3,8 @@
 # Data da última atualização: 11/11/22
 # Descrição: Representação de queries
 # Última atualização: Documentação
-from bitstring import BitStream, BitArray
+
+from bitstring import BitArray, ConstBitStream
 from resource_record import *
 import re
 
@@ -152,22 +153,8 @@ class DNSMessage:
         return bit_array.bytes
 
     @staticmethod
-    def decode_flags_and_response_code(byte):
-        byte = int.from_bytes(byte, "big", signed=False)
-        bits = bin(byte)[2:]
-
-        i = 0
-        while i < 8 - len(bits):
-            bits = "0" + bits
-
-        flag = bits[:6]
-        bits = bits[6:]
-        r_code = bits
-
-        flag = int(flag, 2)
-        r_code = int(r_code, 2)
-
-        match flag:
+    def decode_flags(flags):
+        match flags:
             case 0:
                 flags = "Q"
             case 1:
@@ -177,32 +164,24 @@ class DNSMessage:
             case 3:
                 flags = "Q+R"
 
-        return flags, r_code
+        return flags
 
     @staticmethod
     def deserialize(bytes):
-        msg_id, bytes = ResourceRecord.take_bytes(bytes, 2)
-        msg_id = int.from_bytes(msg_id, "big", signed=False)
+        stream = ConstBitStream(bytes)
 
-        byte, bytes = ResourceRecord.take_bytes(bytes, 1)
-        flags, r_code = DNSMessage.decode_flags_and_response_code(byte)
+        msg_id = stream.read('uint:16')
+        flags = DNSMessage.decode_flags(stream.read('uint:3'))
+        response_code = stream.read('uint:2')
 
-        num_response, bytes = ResourceRecord.take_bytes(bytes, 1)
-        num_response = int.from_bytes(num_response, "big", signed=False)
+        num_response = stream.read('uint:8')
+        num_authorities = stream.read('uint:8')
+        num_extra = stream.read('uint:8')
 
-        num_authorities, bytes = ResourceRecord.take_bytes(bytes, 1)
-        num_authorities = int.from_bytes(num_authorities, "big", signed=False)
+        len_domain = stream.read('uint:8')
+        domain = ResourceRecord.bit_array_to_string(stream, len_domain)
 
-        num_extra, bytes = ResourceRecord.take_bytes(bytes, 1)
-        num_extra = int.from_bytes(num_extra, "big", signed=False)
-
-        len_domain_name, bytes = ResourceRecord.take_bytes(bytes, 1)
-        len_domain_name = int.from_bytes(len_domain_name, "big", signed=False)
-        domain, bytes = ResourceRecord.take_bytes(bytes, len_domain_name)
-        domain = domain.decode('utf-8')
-
-        type, bytes = ResourceRecord.take_bytes(bytes, 1)
-        type = ResourceRecord.decode_type(type)
+        type = ResourceRecord.decode_type(stream.read('uint:4'))
 
         response = list()
         authorities = list()
@@ -210,21 +189,20 @@ class DNSMessage:
 
         i = 0
         while i < num_response:
-            record, bytes = ResourceRecord.deserialize(bytes)
+            record = ResourceRecord.deserialize(stream)
             response.append(record)
             i += 1
 
         i = 0
         while i < num_authorities:
-            record, bytes = ResourceRecord.deserialize(bytes)
+            record = ResourceRecord.deserialize(stream)
             authorities.append(record)
             i += 1
 
         i = 0
         while i < num_extra:
-            record, bytes = ResourceRecord.deserialize(bytes)
+            record = ResourceRecord.deserialize(stream)
             extra.append(record)
             i += 1
 
-        return DNSMessage(msg_id, flags, r_code, domain, type, response, authorities, extra)
-
+        return DNSMessage(msg_id, flags, response_code, domain, type, response, authorities, extra)
