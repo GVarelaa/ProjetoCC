@@ -115,8 +115,6 @@ class Server:
                     (len(authorities_values) != 0 or len(extra_values) != 0) and \
                     domain not in self.config["SP"].keys() or domain not in self.config["SS"].keys(): # DB?
                 query.response_code = 2
-            #else:
-            #    query.response_code = 3 PERGUNTAR AO LOST (NAO FOI DESCODIFICADA CORRETAMENTE COMO ASSIM?)
 
             query.number_of_values = len(response_values)
             query.number_of_authorities = len(authorities_values)
@@ -124,7 +122,7 @@ class Server:
             query.response_values = response_values
             query.authorities_values = authorities_values
             query.extra_values = extra_values
-            query.flags = "A"
+            query.flags = "A" # MUDAR
 
         return query
 
@@ -158,18 +156,26 @@ class Server:
             self.log.log_qr(domain, str(address_from), query.to_string())
 
             if self.config["SP"].keys is not None or self.config["SS"].keys is not None: # Se o servidor for SP ou SS
-                if domain in self.config["DD"].keys(): # dominio estiver nos DDs
-                    response = self.build_response(query)  # Constrói a resposta a essa query
+                if len(self.config["DD"].keys()) == 0: # Não tem DDs e por isso pode responder a todos os domínios
+                    response = self.build_response(query)
 
-                    if "A" in response.flags:  # Informação na cache
-                        self.log.log_rp(domain, str(address_from), response.to_string())
+                    if response.response_code == 0:
+                        socket_udp.sendto(response.serialize(), address_from)
+                    #elif response.response_code == 1:
 
-                        socket_udp.sendto(response.serialize(), address_from)  # Envia a resposta
-                    else:
-                        self.log.log_to(domain, str(address_from), "Query Miss")  # MISS e timeout
+                else: # Vai ter de verificar os DDs
+                    if domain in self.config["DD"].keys(): # dominio estiver nos DDs
+                        response = self.build_response(query)  # Constrói a resposta a essa query
 
-                else: #timeout
-                    self.log.log_to(domain, str(address_from), "Server has no permission to attend the query domain!")
+                        if "A" in response.flags:  # Informação na cache
+                            self.log.log_rp(domain, str(address_from), response.to_string())
+
+                            socket_udp.sendto(response.serialize(), address_from)  # Envia a resposta
+                        else:
+                            self.log.log_to(domain, str(address_from), "Query Miss")  # MISS e timeout
+
+                    else: #timeout
+                        self.log.log_to(domain, str(address_from), "Server has no permission to attend the query domain!")
 
             else: # Servidor resolução
                 response = self.build_response(query)
@@ -192,6 +198,12 @@ class Server:
             # Verificar se response code é zero e guarda em cache
             response = message
             response.flags = "" # Tirar o A de autoritativo
+
+            if response.response_code == 0:
+                # Mandar para o cliente
+            elif response.response_code == 1:
+
+            elif response.response_code == 2:
 
             self.log.log_rr(domain, str(address_from), response.to_string())
 
