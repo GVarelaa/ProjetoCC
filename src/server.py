@@ -105,14 +105,26 @@ class Server:
             authorities_values = self.cache.get_records_by_name_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
 
-            if len(response_values) != 0:  # HIT
-                query.number_of_values = len(response_values)
-                query.number_of_authorities = len(authorities_values)
-                query.number_of_extra_values = len(extra_values)
-                query.response_values = response_values
-                query.authorities_values = authorities_values
-                query.extra_values = extra_values
-                query.flags = "A"
+            if len(response_values) != 0:
+                query.response_code = 0
+            elif len(response_values) == 0 and \
+                    (len(authorities_values) != 0 or len(extra_values) != 0) and \
+                    domain in self.config["SP"].keys() or domain in self.config["SS"].keys(): # DB?
+                query.response_code = 1
+            elif len(response_values) == 0 and \
+                    (len(authorities_values) != 0 or len(extra_values) != 0) and \
+                    domain not in self.config["SP"].keys() or domain not in self.config["SS"].keys(): # DB?
+                query.response_code = 2
+            #else:
+            #    query.response_code = 3 PERGUNTAR AO LOST (NAO FOI DESCODIFICADA CORRETAMENTE COMO ASSIM?)
+
+            query.number_of_values = len(response_values)
+            query.number_of_authorities = len(authorities_values)
+            query.number_of_extra_values = len(extra_values)
+            query.response_values = response_values
+            query.authorities_values = authorities_values
+            query.extra_values = extra_values
+            query.flags = "A"
 
         return query
 
