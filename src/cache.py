@@ -68,7 +68,7 @@ class Cache:
                 if record.status == Status.FREE:
                     last_free = i
 
-                if record.name == new_record.name and record.type == new_record.type and record.value == new_record.value \
+                if record.domain == new_record.domain and record.type == new_record.type and record.value == new_record.value \
                     and record.priority == new_record.priority and record.ttl == new_record.ttl:
 
                     if record.origin == Origin.OTHERS:
@@ -106,19 +106,19 @@ class Cache:
 
         return counter, entries
 
-    def get_records_by_name_and_type(self, name, type):
+    def get_records_by_domain_and_type(self, domain, type):
         """
-        Obtém a lista das entradas correspondentes com o name e o type.
-        :param name: Domain name
+        Obtém a lista das entradas correspondentes com o domain e o type.
+        :param domain: Domain
         :param type: Type
         :return: Lista com as entradas que deram match
         """
         entries = list()
         records = []
 
-        for domain in self.domains.keys():
-            if domain in name:
-                entries = self.domains[domain]
+        for cache_domain in self.domains.keys():
+            if cache_domain in domain:
+                entries = self.domains[cache_domain]
                 break
 
         for i in range(len(entries)):
@@ -127,7 +127,7 @@ class Cache:
             if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
                 record.status = Status.FREE
 
-            if record.name == name and record.type == type:
+            if record.domain == domain and record.type == type:
                 records.append(record)
 
         return records

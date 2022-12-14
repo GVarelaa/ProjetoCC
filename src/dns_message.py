@@ -10,21 +10,21 @@ import re
 
 
 class DNSMessage:
-    def __init__(self, message_id, flags, response_code, domain_name, type, response=list(), authorities=list(), extra=list()):
+    def __init__(self, message_id, flags, response_code, domain, type, response=list(), authorities=list(), extra=list()):
         """
         Construtor de um objeto DNSMessage
         :param message_id: ID da mensagem
         :param flags: Flags
-        :param domain_name: Nome do domínio
+        :param domain: Nome do domínio
         :param type: Tipo
         """
         self.message_id = message_id
         self.flags = flags
         self.response_code = response_code
-        self.number_of_values = len(response)
-        self.number_of_authorities = len(authorities)
-        self.number_of_extra_values = len(extra)
-        self.domain_name = domain_name
+        self.num_response = len(response)
+        self.num_authorities = len(authorities)
+        self.num_extra = len(extra)
+        self.domain = domain
         self.type = type
         self.response_values = response
         self.authorities_values = authorities
@@ -36,8 +36,8 @@ class DNSMessage:
         :return: String
         """
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
-               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " " \
-               + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
+               + str(self.num_response) + " " + str(self.num_authorities) + " " \
+               + str(self.num_extra) + " " + str(self.domain) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
     def __repr__(self):
@@ -46,8 +46,8 @@ class DNSMessage:
         :return: String
         """
         return str(self.message_id) + " " + str(self.flags) + " " + str(self.response_code) + " " \
-               + str(self.number_of_values) + " " + str(self.number_of_authorities) + " "  \
-               + str(self.number_of_extra_values) + " " + str(self.domain_name) + " " + str(self.type) + "\n" \
+               + str(self.num_response) + " " + str(self.num_authorities) + " "  \
+               + str(self.num_extra) + " " + str(self.domain) + " " + str(self.type) + "\n" \
                + str(self.response_values) + "\n" + str(self.authorities_values) + "\n" + str(self.extra_values)
 
     def to_string(self):
@@ -56,8 +56,8 @@ class DNSMessage:
         :return: String
         """
         string = str(self.message_id) + "," + str(self.flags) + "," + str(self.response_code) + "," \
-                 + str(self.number_of_values) + "," + str(self.number_of_authorities) + "," \
-                 + str(self.number_of_extra_values) + ";" + str(self.domain_name) + "," + str(self.type) + ";\n"
+                 + str(self.num_response) + "," + str(self.num_authorities) + "," \
+                 + str(self.num_extra) + ";" + str(self.domain) + "," + str(self.type) + ";\n"
 
         for record in self.response_values:
             string += record.resource_record_to_string() + ",\n"
@@ -123,17 +123,17 @@ class DNSMessage:
         response_code = BitArray(uint=self.response_code, length=2)
         bit_array.append(response_code)
 
-        n_response = BitArray(uint=self.number_of_values, length=8)
-        n_authorities = BitArray(uint=self.number_of_authorities, length=8)
-        n_extra = BitArray(uint=self.number_of_extra_values, length=8)
+        n_response = BitArray(uint=self.num_response, length=8)
+        n_authorities = BitArray(uint=self.num_authorities, length=8)
+        n_extra = BitArray(uint=self.num_extra, length=8)
 
         bit_array.append(n_response)
         bit_array.append(n_authorities)
         bit_array.append(n_extra)
 
         # Query Name
-        len_domain = BitArray(uint=len(self.domain_name), length=8)
-        domain = ResourceRecord.string_to_bit_array(self.domain_name)
+        len_domain = BitArray(uint=len(self.domain), length=8)
+        domain = ResourceRecord.string_to_bit_array(self.domain)
 
         bit_array.append(len_domain)
         bit_array.append(domain)

@@ -67,14 +67,20 @@ class Server:
         extra_values = list()
 
         for record in response_values:
-            records = self.cache.get_records_by_name_and_type(record.value, "A")
+            records = self.cache.get_records_by_domain_and_type(record.value, "A")
             extra_values += records
 
         for record in authorities_values:
-            records = self.cache.get_records_by_name_and_type(record.value, "A")
+            records = self.cache.get_records_by_domain_and_type(record.value, "A")
             extra_values += records
 
         return extra_values
+
+    def change_authority_flag(self, query):
+        for domain in self.config["DB"].keys():
+            if domain == query.domain:
+                query.flags = "A"
+                break
 
     def build_response(self, query):
         """
@@ -84,45 +90,48 @@ class Server:
         """
         response_values = list()
         authorities_values = list()
-        domain = query.domain_name
+        domain = query.domain
 
         if query.type == "AXFR" and domain in self.config["SS"].keys():  # Query AXFR
             record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), -1, -1, Origin.SP)
 
             query.flags = "A"
             query.response_values.append(record)
-            query.number_of_values = 1
+            query.num_response = 1
 
         else:
-            response_values = self.cache.get_records_by_name_and_type(domain, query.type)
+            response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
 
             if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
-                cname = self.cache.get_records_by_name_and_type(domain, "CNAME")
+                cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
                 if len(cname) > 0:
                     domain = cname[0].value
-                    response_values = self.cache.get_records_by_name_and_type(domain, query.type)
+                    response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
 
-            authorities_values = self.cache.get_records_by_name_and_type(domain, "NS")
+            authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
 
-            if len(response_values) != 0:
+            if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
+            elif len(response_values) != 0:
+                self.change_authority_flag(query)
                 query.response_code = 0
             elif len(response_values) == 0 and \
                     (len(authorities_values) != 0 or len(extra_values) != 0) and \
                     domain in self.config["SP"].keys() or domain in self.config["SS"].keys(): # DB?
+                self.change_authority_flag(query)
                 query.response_code = 1
             elif len(response_values) == 0 and \
                     (len(authorities_values) != 0 or len(extra_values) != 0) and \
                     domain not in self.config["SP"].keys() or domain not in self.config["SS"].keys(): # DB?
+                #self.change_authority_flag(query)
                 query.response_code = 2
 
-            query.number_of_values = len(response_values)
-            query.number_of_authorities = len(authorities_values)
-            query.number_of_extra_values = len(extra_values)
+            query.num_response = len(response_values)
+            query.num_authorities = len(authorities_values)
+            query.num_extra = len(extra_values)
             query.response_values = response_values
             query.authorities_values = authorities_values
             query.extra_values = extra_values
-            query.flags = "A" # MUDAR
 
         return query
 
@@ -136,11 +145,11 @@ class Server:
         while True:
             message, address_from = socket_udp.recvfrom(4096)  # Receives a message
 
-            threading.Thread(target=self.interpret_message, args=(message, address_from, socket_udp)).start()  # Thread per connection
+            threading.Thread(target=self.interpret_message, args=(message, address_from)).start()  # Thread per connection
 
         socket_udp.close()
 
-    def interpret_message(self, message, address_from, socket_udp):
+    def interpret_message(self, message, address_from):
         """
         Determina o próximo passo de uma mensagem DNS
         :param message: Mensagem DNS
@@ -148,7 +157,7 @@ class Server:
         :param socket_udp: Socket UDP
         """
         message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
-        domain = message.domain_name
+        domain = message.domain
 
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
         #socket_udp.bind(("127.0.0.1", self.port))
@@ -162,9 +171,16 @@ class Server:
                 if len(self.config["DD"].keys()) == 0: # Não tem DDs e por isso pode responder a todos os domínios
                     response = self.build_response(query)
 
-                    if response.response_code == 0:
+                    if "Q" in response.flags:
                         socket_udp.sendto(response.serialize(), address_from)
-                    #elif response.response_code == 1:
+
+                        while True:
+                            message = socket_udp.recvfrom(4096)
+                            message = DNSMessage.deserialize(message)
+
+                    elif response.response_code == 0:
+                        socket_udp.sendto(response.serialize(), address_from)
+                    elif response.response_code == 1:
 
                 else: # Vai ter de verificar os DDs
                     if domain in self.config["DD"].keys(): # dominio estiver nos DDs
@@ -208,28 +224,29 @@ class Server:
                 # Locks ?
 
                 for record in response.response_values:
-                    self.cache.add_entry(record, response.domain_name)
+                    self.cache.add_entry(record, response.domain)
 
                 for record in response.authorities_values:
-                    self.cache.add_entry(record, response.domain_name)
+                    self.cache.add_entry(record, response.domain)
 
                 for record in response.extra_values:
-                    self.cache.add_entry(record. response.domain_name)
+                    self.cache.add_entry(record. response.domain)
 
-                socket_udp.sendto(response.serialize(), )
+                socket_udp.sendto(response.serialize(), address_from)
 
             elif response.response_code == 1:
-                response = self.build_response(response)
 
                 extra_values = response.extra_values
-                ip_address = Server.find_ip_address(extra_values, response.domain_name)
+                ip_address = Server.find_ip_address(extra_values, response.domain)
 
                 socket_udp.sendto(response.serialize(), ip_address)
             elif response.response_code == 2:
+                # Envia para o cliente o que tem
+                socket_udp.sendto(response.serialize(), address_from)
 
             self.log.log_rr(domain, str(address_from), response.to_string())
 
-            # Segunda fase
+        socket_udp.close()
 
 
     @staticmethod
@@ -268,7 +285,7 @@ class Server:
                 break
 
             message = DNSMessage.deserialize(message)
-            domain = query.domain_name
+            domain = query.domain
 
             if query.flags == "Q":  # Pedir versão/transferência de zona e envia
                 query = message
@@ -291,7 +308,7 @@ class Server:
             elif query.flags == "A" and query.type == "AXFR":  # Secundário aceitou linhas e respondeu com o nº de linhas
                 self.log.log_rr(domain, str(address_from), query.to_string())
 
-                num_entries, entries = self.cache.get_file_entries_by_domain(query.domain_name)
+                num_entries, entries = self.cache.get_file_entries_by_domain(query.domain)
                 lines_number = int(query.response_values[0].value)
 
                 if lines_number == num_entries:
@@ -318,7 +335,7 @@ class Server:
         while True:
             self.ask_for_zone_transfer_process(domain)
 
-            soarefresh = int(self.cache.get_records_by_name_and_type(domain, "SOAREFRESH")[0].value)
+            soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
             time.sleep(soarefresh)
 
     def ask_for_zone_transfer_process(self, domain):
@@ -411,7 +428,7 @@ class Server:
         Obtém a versão da base de dados do servidor secundário
         :return: Versão
         """
-        list = self.cache.get_records_by_name_and_type(domain, "SOASERIAL")
+        list = self.cache.get_records_by_domain_and_type(domain, "SOASERIAL")
 
         if len(list) == 0:
             ss_version = -1
