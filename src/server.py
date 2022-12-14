@@ -150,6 +150,9 @@ class Server:
         message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
         domain = message.domain_name
 
+        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
+        #socket_udp.bind(("127.0.0.1", self.port))
+
         if "Q" in message.flags and "R" not in message.flags:  # Verifica que é uma query
             query = message
 
@@ -200,14 +203,42 @@ class Server:
             response.flags = "" # Tirar o A de autoritativo
 
             if response.response_code == 0:
+                # Guardar na cache
                 # Mandar para o cliente
-            elif response.response_code == 1:
+                # Locks ?
 
+                for record in response.response_values:
+                    self.cache.add_entry(record, response.domain_name)
+
+                for record in response.authorities_values:
+                    self.cache.add_entry(record, response.domain_name)
+
+                for record in response.extra_values:
+                    self.cache.add_entry(record. response.domain_name)
+
+                socket_udp.sendto(response.serialize(), )
+
+            elif response.response_code == 1:
+                response = self.build_response(response)
+
+                extra_values = response.extra_values
+                ip_address = Server.find_ip_address(extra_values, response.domain_name)
+
+                socket_udp.sendto(response.serialize(), ip_address)
             elif response.response_code == 2:
 
             self.log.log_rr(domain, str(address_from), response.to_string())
 
             # Segunda fase
+
+
+    @staticmethod
+    def find_ip_address(extra_values, domain):
+        for record in extra_values:
+            record_domain = record.domain
+
+            if record_domain in domain: # Condição?
+                return record.value
 
     def receive_zone_transfer(self):
         """

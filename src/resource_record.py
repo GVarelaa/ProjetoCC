@@ -26,17 +26,17 @@ class Status(Enum):
 
 
 class ResourceRecord:
-    def __init__(self, name, type, value, ttl, priority, origin=Origin.OTHERS):
+    def __init__(self, domain, type, value, ttl, priority, origin=Origin.OTHERS):
         """
         Construtor de um objeto Resource Record
-        :param name: Nome
+        :param domain: Domínio
         :param type: Tipo de valor
         :param value: Valor
         :param ttl: TTL
         :param priority: Prioridade
         :param origin: Origem
         """
-        self.name = name
+        self.domain = domain
         self.type = type
         self.value = value
         self.ttl = ttl
@@ -50,7 +50,7 @@ class ResourceRecord:
         Devolve a representação em string do objeto Resource Record
         :return: String
         """
-        return self.name + " " + self.type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
+        return self.domain + " " + self.type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
                + " " + str(self.origin) + " " + str(self.time_stamp) + " " + str(self.status)
 
     def __repr__(self):
@@ -58,7 +58,7 @@ class ResourceRecord:
         Devolve a representação oficial em string do objeto Resource Record
         :return: String
         """
-        return self.name + " " + self.type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
+        return self.domain + " " + self.type + " " + self.value + " " + str(self.ttl) + " " + str(self.priority) \
                + " " + str(self.origin) + " " + str(self.time_stamp) + " " + str(self.status)
 
     def resource_record_to_string(self):
@@ -66,7 +66,7 @@ class ResourceRecord:
         Transforma um objeto Resource Record numa string
         :return: String
         """
-        string = str(self.name) + " " + str(self.type) + " " + str(self.value) + " " + str(self.ttl) + " " + str(self.priority)
+        string = str(self.domain) + " " + str(self.type) + " " + str(self.value) + " " + str(self.ttl) + " " + str(self.priority)
         return string
 
     @staticmethod
@@ -162,8 +162,8 @@ class ResourceRecord:
     def serialize(self):
         bit_array = BitArray()
 
-        bit_array.append(BitArray(uint=len(self.name), length=8))
-        bit_array.append(ResourceRecord.string_to_bit_array(self.name))
+        bit_array.append(BitArray(uint=len(self.domain), length=8))
+        bit_array.append(ResourceRecord.string_to_bit_array(self.domain))
 
         bit_array.append(ResourceRecord.encode_type(self.type))
 
@@ -182,8 +182,8 @@ class ResourceRecord:
 
     @staticmethod
     def deserialize(stream):
-        len_name = stream.read('uint:8')
-        name = ResourceRecord.bit_array_to_string(stream, len_name)
+        len_domain = stream.read('uint:8')
+        domain = ResourceRecord.bit_array_to_string(stream, len_domain)
 
         type = ResourceRecord.decode_type(stream.read('uint:4'))
 
@@ -198,7 +198,7 @@ class ResourceRecord:
         if has_priority:
             priority = stream.read('uint:8')
         
-        return ResourceRecord(name, type, value, ttl, priority)
+        return ResourceRecord(domain, type, value, ttl, priority)
 
 
 
