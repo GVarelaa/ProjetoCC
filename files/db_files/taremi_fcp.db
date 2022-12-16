@@ -19,9 +19,9 @@ TTL DEFAULT 86400
 @ MX ms1.@ TTL 
 
 # Addresses
-ns1 A 10.4.4.1:2009 TTL
-ns2 A 10.1.1.3:2010 TTL
-ns3 A 10.2.2.3:2011 TTL
+ns1 A 10.4.4.1:2000 TTL
+ns2 A 10.1.1.3:2000 TTL
+ns3 A 10.2.2.3:2000 TTL
 taremi A 10.3.3.3 TTL
 pepe A 10.4.4.3 TTL
 zaidu A 10.3.3.2 TTL

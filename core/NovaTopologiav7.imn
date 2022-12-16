@@ -278,8 +278,25 @@ node n12 {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('preenche_resolvconf.sh', 'ggm.db', 'runGGMPrimary.sh', 'updateSrc.sh', 'servidor1.txt', 'rootservers.txt', 'root.db', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'cp -r /home/core/ProjetoCC/src dns/src', 'mkdir dns/files', 'mkdir dns/files/db_files', 'mkdir dns/files/config_files', 'mv ggm.txt dns/files/config_files/ggm.txt', 'mv rootservers.db dns/files/rootservers.db', 'mkdir dns/files/log_files', 'touch dns/files/log_files/ggm.log', 'mv ggm.db dns/files/db_files/ggm.db', )
+	files=('preenche_resolvconf.sh', 'ggm.db', 'updateSrc.sh', 'servidor1.txt', 'root.db', 'run.sh', 'rootservers.db', )
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'cp -r /home/core/ProjetoCC/src dns/src', 'mkdir dns/files', 'mkdir dns/files/db_files', 'mkdir dns/files/config_files', 'mv rootservers.db dns/files/rootservers.db', 'mkdir dns/files/log_files', 'touch dns/files/log_files/ggm.log', 'mv ggm.db dns/files/db_files/ggm.db', 'mv servidor1.txt dns/files/config_files/servidor1.txt', 'mv root.db dns/files/db_files/root.db', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:rootservers.db
+	custom-command rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1:2000
+	10.3.3.1:2000
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:run.sh
+	custom-command run.sh
+	config {
+	python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 100
 	}
     }
     custom-config {
@@ -303,17 +320,16 @@ node n12 {
 	# Addresses
 	
 	sp.ggm. A 10.2.2.1:2000 TTL
-	sp.fcp. A 10.2.2.2:2001 TTL
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:rootservers.txt
-	custom-command rootservers.txt
-	config {
-	# List of root files for topology
+	ss1.ggm. A 10.3.3.1:2000 TTL
+	ss2.ggm. A 10.4.4.1:2000 TTL
+	sp.fcp. A 10.2.2.2:2000 TTL
+	ss1.fcp. A 10.3.3.2:2000 TTL
+	ss2.fcp. A 10.4.4.3:2000 TTl
+	sp.reverse. A 10.3.3.2:2000 TTL
 	
-	10.2.2.1:2000
-	# 10.3.3.1:1999
+	s1. A 10.2.2.1:2000 TTL
+	s2. A 10.3.3.1:2000 TTL
+	
 	}
     }
     custom-config {
@@ -323,8 +339,8 @@ node n12 {
 	# Configuration file for primary server for ggm domain
 	
 	ggm DB dns/files/db_files/ggm.db
-	ggm SS 10.3.3.1:2001
-	ggm SS 10.4.1.1:2002
+	ggm SS 10.3.3.1:2000
+	ggm SS 10.4.1.1:2000
 	ggm LG dns/files/log_files/ggm.log
 	all LG dns/files/log_files/all.log
 	root ST dns/files/rootservers.db
@@ -340,13 +356,6 @@ node n12 {
 	custom-command updateSrc.sh
 	config {
 	cp -r /home/core/ProjetoCC/src/* dns/src
-	}
-    }
-    custom-config {
-	custom-config-id service:UserDefined:runGGMPrimary.sh
-	custom-command runGGMPrimary.sh
-	config {
-	python3 dns/src/run_server.py dns/files/config_files/ggm.txt 2000 100
 	}
     }
     custom-config {
@@ -376,9 +385,9 @@ node n12 {
 	@ MX ms2.@ TTL
 	
 	sp A 10.2.2.1:2000 TTL
-	ss1 A 10.3.3.1:2001 TTL
-	ss2 A 10.4.4.1:2002 TTL
-	sp.cc A 10.1.1.2:2006 TTL
+	ss1 A 10.3.3.1:2000 TTL
+	ss2 A 10.4.4.1:2000 TTL
+	sp.cc A 10.1.1.2:2000 TTL
 	mike A 10.1.1.3 TTL
 	gui A 10.4.4.1 TTL
 	gabs A 10.3.3.2 TTL
@@ -442,16 +451,40 @@ node n13 {
 	!
     }
     canvas c1
-    iconcoords {30.0 107.0}
-    labelcoords {30.0 139.0}
+    iconcoords {33.0 108.0}
+    labelcoords {33.0 140.0}
     services {DefaultRoute SSH StaticRoute UserDefined}
     interface-peer {eth0 n8}
     custom-config {
 	custom-config-id service:UserDefined
 	custom-command UserDefined
 	config {
-	files=('preenche_resolvconf.sh', 'servidor2.txt', 'fcp.db', )
-	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', 'mv servidor2.txt dns/files/config_files', )
+	files=('preenche_resolvconf.sh', 'servidor2.txt', 'fcp.db', 'rootservers.db', 'run.sh', 'updateSrc.sh', )
+	cmdup=('mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir /run/resolvconf', 'touch /run/resolvconf/resolv.conf', 'sh preenche_resolvconf.sh', 'mkdir dns', 'mkdir dns/files', 'mkdir dns/files/config_files', 'mkdir dns/files/db_files', 'mkdir dns/files/log_files', 'mv servidor2.txt dns/files/config_files', 'mv fcp.db dns/files/db_files', 'mv rootservers.db dns/files/', 'cp -r /home/core/ProjetoCC/src dns/src', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:updateSrc.sh
+	custom-command updateSrc.sh
+	config {
+	cp -r /home/core/ProjetoCC/src/* dns/src
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:run.sh
+	custom-command run.sh
+	config {
+	python3 dns/src/run_server.py dns/files/config_files/servidor2.txt 2000 100
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:rootservers.db
+	custom-command rootservers.db
+	config {
+	# List of root files for topology
+	
+	10.2.2.1:2000
+	10.3.3.1:2000
 	}
     }
     custom-config {
@@ -481,10 +514,10 @@ node n13 {
 	@ MX ms1.fcp. TTL
 	
 	# Addresses
-	ns1 A 10.2.2.2:2003 TTL
-	ns2 A 10.3.3.2:2004 TTL
-	ns3 A 10.4.4.3:2005 TTL
-	ns1.taremi A 10.4.4.1:2009 TTL
+	ns1 A 10.2.2.2:2000 TTL
+	ns2 A 10.3.3.2:2000 TTL
+	ns3 A 10.4.4.3:2000 TTL
+	ns1.taremi A 10.4.4.1:2000 TTL
 	ms1 A 10.2.2.1 TTL
 	pdc A 10.4.4.1 TTL
 	avb A 10.4.4.2 TTL 
@@ -503,8 +536,8 @@ node n13 {
 	# Configuration file for server 2
 	
 	fcp DB dns/files/db_files/fcp.db
-	fcp SS 10.3.3.2:2004
-	fcp SS 10.4.4.3:2005
+	fcp SS 10.3.3.2:2000
+	fcp SS 10.4.4.3:2000
 	fcp LG dns/files/log_files/fcp.log
 	all LG dns/files/log_files/all.log
 	root ST dns/files/rootservers.db
@@ -1134,8 +1167,8 @@ node n18 {
 	!
     }
     canvas c1
-    iconcoords {905.0 35.0}
-    labelcoords {905.0 67.0}
+    iconcoords {909.0 36.0}
+    labelcoords {909.0 68.0}
     services {DefaultRoute SSH StaticRoute UserDefined}
     interface-peer {eth0 n11}
     custom-config {
@@ -1414,8 +1447,8 @@ node n20 {
 	!
     }
     canvas c1
-    iconcoords {109.0 142.0}
-    labelcoords {109.0 174.0}
+    iconcoords {109.0 141.0}
+    labelcoords {109.0 173.0}
     services {DefaultRoute SSH StaticRoute UserDefined}
     interface-peer {eth0 n8}
     custom-config {
