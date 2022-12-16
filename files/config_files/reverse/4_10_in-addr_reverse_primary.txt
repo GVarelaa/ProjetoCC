@@ -1,6 +1,0 @@
-# Configuration file for 4.10 domain
-
-4.10.in-addr.reverse. LG dns/files/log_files/4_10_in-addr_reverse.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
