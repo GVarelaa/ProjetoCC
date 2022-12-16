@@ -72,7 +72,6 @@ class Server:
     def is_domain_in_dd(self, domain):
         return domain in self.config["DD"].keys()
 
-
     def find_next_step(self, query):
         tld_server = None # Top level domain server
         for record in query.extra_values:
@@ -82,7 +81,6 @@ class Server:
                 tld_server = record.value
 
         return tld_server
-
 
     def fill_extra_values(self, response_values, authorities_values):
         """
@@ -102,8 +100,6 @@ class Server:
             extra_values += records
 
         return extra_values
-
-
 
     def build_response(self, query):
         """
@@ -134,8 +130,8 @@ class Server:
             authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
 
-            if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
-            elif len(response_values) != 0:
+            #if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
+            if len(response_values) != 0:
                 self.change_authority_flag(query)
                 query.response_code = 0
             elif len(response_values) == 0 and \
@@ -172,30 +168,38 @@ class Server:
 
         socket_udp.close()
 
-    def interpret_message(self, message, address_from):
+    def interpret_message(self, message, client):
         """
         Determina o próximo passo de uma mensagem DNS
         :param message: Mensagem DNS
-        :param address_from: Endereço de onde foi enviada a mensagem
+        :param client: Endereço de onde foi enviada a mensagem
         :param socket_udp: Socket UDP
         """
-        message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
-
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP para enviar mensagens
         #socket_udp.bind(("127.0.0.1", self.port)) ??
+
+        message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
+
+        if "Q" in message.flags:
+            self.log.log_qr(message.domain, str(client), message.to_string())
+        else:
+            self.log.log_rr(message.domain, str(client), message.to_string())
 
         if self.is_name_server(): # Se for SP ou SS para algum domínio
             if self.is_domain_in_dd(message.domain): # Pode responder
                 response = self.build_response(message) # Caso em que falha ao encontrar na cache
 
-                socket_udp.sendto(response.serialize(), address_from)
-
+                socket_udp.sendto(response.serialize(), client)
+                self.log.log_rp(response.domain, str(client), response.to_string())
             else: # Timeout?
+                self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
+
         elif self.is_resolution_server(): # Se for servidor de resolução
             response = self.build_response(message)
 
             if response.response_code == 0: # Foi à cache e encontrou resposta
-                socket_udp.sendto(response.serialize(), address_from)
+                socket_udp.sendto(response.serialize(), client)
+                self.log.log_rp(response.domain, str(client), response.to_string())
             else: # Inicia o processo iterativo
                 # Primeiro vai aos DD
                 # Senão vai so ST
@@ -205,30 +209,23 @@ class Server:
                     next_step = self.config["ST"][0] # Qual ST pegar?
 
                 socket_udp.sendto(response.serialize(), next_step)
+                self.log.log_rp(response.domain, str(next_step), response.to_string())
 
                 response_code = -1
                 while response_code != 1:
                     response = socket_udp.recv(4096)
                     response = DNSMessage.deserialize(message)  # Cria uma DNSMessage
-
                     response_code = response.response_code
 
                     if response_code == 1:
                         next_step = self.find_next_step(response)
                         socket_udp.sendto(response.serialize(), next_step)
+                        self.log.log_rp(response.domain, str(next_step), response.to_string())
 
-                socket_udp.sendto(response.serialize(), address_from) # Enviar de volta para o cliente
+                socket_udp.sendto(response.serialize(), client) # Enviar de volta para o cliente
+                self.log.log_rp(response.domain, str(client), response.to_string())
 
         #else: # ST (?)
-
-
-    @staticmethod
-    def find_ip_address(extra_values, domain):
-        for record in extra_values:
-            record_domain = record.domain
-
-            if record_domain in domain: # Condição?
-                return record.value
 
     def receive_zone_transfer(self):
         """
