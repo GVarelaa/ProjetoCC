@@ -182,6 +182,11 @@ class ResourceRecord:
 
     @staticmethod
     def deserialize(stream):
+        """
+
+        :param stream:
+        :return:
+        """
         len_domain = stream.read('uint:8')
         domain = ResourceRecord.bit_array_to_string(stream, len_domain)
 
