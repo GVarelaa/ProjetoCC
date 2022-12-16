@@ -58,10 +58,12 @@ class Server:
         return (ip_address, port)
 
     def change_authority_flag(self, query):
+        query.flags = ""
         for domain in self.config["DB"].keys():
             if domain == query.domain:
                 query.flags = "A"
                 break
+
 
     def is_resolution_server(self):
         return len(self.config["SS"].keys()) != 0 and len(self.config["SP"].keys()) != 0
@@ -188,6 +190,7 @@ class Server:
         if self.is_name_server(): # Se for SP ou SS para algum domínio
             if self.is_domain_in_dd(message.domain): # Pode responder
                 response = self.build_response(message) # Caso em que falha ao encontrar na cache
+                print(response)
 
                 socket_udp.sendto(response.serialize(), client)
                 self.log.log_rp(response.domain, str(client), response.to_string())
@@ -227,7 +230,7 @@ class Server:
 
         #else: # ST (?)
 
-    def receive_zone_transfer(self):
+    def sp_zone_transfer(self):
         """
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
         """
@@ -238,11 +241,11 @@ class Server:
         while True:
             connection, address_from = socket_tcp.accept()
 
-            threading.Thread(target=self.receive_zone_transfer_process, args=(connection, address_from)).start()
+            threading.Thread(target=self.sp_zone_transfer_process, args=(connection, address_from)).start()
 
         socket_tcp.close()
 
-    def receive_zone_transfer_process(self, connection, address_from):
+    def sp_zone_transfer_process(self, connection, address_from):
         """
         Processo de transferência de zona
         :param connection: Conexão estabelecida
@@ -297,17 +300,17 @@ class Server:
                 break
 
 
-    def ask_for_zone_transfer(self, domain): # Ir aos seus SPs
+    def ss_zone_transfer(self, domain): # Ir aos seus SPs
         soarefresh = 10     # soarefresh default
         while True:
-            self.ask_for_zone_transfer_process(domain)
+            self.ss_zone_transfer_process(domain)
 
             self.cache.register_soaexpire(domain)
             soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
-
+            print(self.cache)
             time.sleep(soarefresh)
 
-    def ask_for_zone_transfer_process(self, domain):
+    def ss_zone_transfer_process(self, domain):
         """
         Processo de transferência de zona do servidor secundário
         """

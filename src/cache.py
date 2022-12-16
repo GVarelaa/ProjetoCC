@@ -185,6 +185,7 @@ class Cache:
     def check_expire_domain(self, domain):
         if domain in self.soaexpire.keys():
             soaexpire = None
+            print(self.domains.keys())
             for record in self.domains[domain]:
                 if record.type == "SOAEXPIRE":
                     soaexpire = int(record.value)

@@ -78,16 +78,34 @@ class DNSMessage:
 
     def encode_flags(self):
         match self.flags:
-            case "Q":
+            case "":
                 flags = 0
-            case "R":
+            case "Q":
                 flags = 1
-            case "A":
+            case "R":
                 flags = 2
-            case "Q+R":
+            case "A":
                 flags = 3
+            case "Q+R":
+                flags = 4
 
         return BitArray(uint=flags, length=3) # MUDAMOS
+
+    @staticmethod
+    def decode_flags(flags):
+        match flags:
+            case 0:
+                flags = ""
+            case 1:
+                flags = "Q"
+            case 2:
+                flags = "R"
+            case 3:
+                flags = "A"
+            case 4:
+                flags = "Q+R"
+
+        return flags
 
     def serialize(self):
         bit_array = BitArray()
@@ -129,20 +147,6 @@ class DNSMessage:
         bit_array.append(BitArray(uint=0, length=8 - len(bit_array) % 8)) # Completar multiplo de 8
 
         return bit_array.bytes
-
-    @staticmethod
-    def decode_flags(flags):
-        match flags:
-            case 0:
-                flags = "Q"
-            case 1:
-                flags = "R"
-            case 2:
-                flags = "A"
-            case 3:
-                flags = "Q+R"
-
-        return flags
 
     @staticmethod
     def deserialize(bytes):
