@@ -21,10 +21,10 @@ taremi.@ NS ns1.taremi.fcp.
 @ MX ms1.fcp. TTL
 
 # Addresses
-ns1 A 10.2.2.2:2003 TTL
-ns2 A 10.3.3.2:2004 TTL
-ns3 A 10.4.4.3:2005 TTL
-ns1.taremi A 10.4.4.1:2009 TTL
+ns1 A 10.2.2.2:2000 TTL
+ns2 A 10.3.3.2:2000 TTL
+ns3 A 10.4.4.3:2000 TTL
+ns1.taremi A 10.4.4.1:2000 TTL
 ms1 A 10.2.2.1 TTL
 pdc A 10.4.4.1 TTL
 avb A 10.4.4.2 TTL 
