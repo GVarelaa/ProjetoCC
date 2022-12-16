@@ -302,7 +302,9 @@ class Server:
         while True:
             self.ask_for_zone_transfer_process(domain)
 
+            self.cache.register_soaexpire(domain)
             soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
+
             time.sleep(soarefresh)
 
     def ask_for_zone_transfer_process(self, domain):

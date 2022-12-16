@@ -17,6 +17,7 @@ class Cache:
         :param list: Lista vazia
         """
         self.domains = dict()
+        self.soaexpire = dict()
         self.lock = threading.Lock()
 
     def __str__(self):
@@ -102,6 +103,8 @@ class Cache:
         """
         self.lock.acquire()
 
+        self.check_expire_domain(domain)
+
         entries = list()
         counter = 0
 
@@ -122,6 +125,8 @@ class Cache:
         :return: Lista com as entradas que deram match
         """
         self.lock.acquire()
+
+        self.check_expire_domain(domain)
 
         entries = list()
         records = []
@@ -173,3 +178,16 @@ class Cache:
                     record.status = Status.FREE
 
         self.lock.release()
+
+    def register_soaexpire(self, domain):
+        self.soaexpire[domain] = datetime.timestamp(datetime.now())
+
+    def check_expire_domain(self, domain):
+        if domain in self.soaexpire.keys():
+            soaexpire = None
+            for record in self.domains[domain]:
+                if record.type == "SOAEXPIRE":
+                    soaexpire = int(record.value)
+
+            if datetime.timestamp(datetime.now()) - self.soaexpire[domain] > soaexpire:
+                self.domains.pop(domain)
