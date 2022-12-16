@@ -37,6 +37,8 @@ class Cache:
         Adiciona uma nova entrada na cache
         :param new_record: Nova entrada
         """
+        self.lock.acquire()
+
         if domain not in self.domains.keys():
             self.domains[domain] = [ResourceRecord.create_free_record()]
 
@@ -91,11 +93,15 @@ class Cache:
             new_record.timestamp = datetime.timestamp(datetime.now())
             entries.append(new_record)
 
+        self.lock.release()
+
     def get_file_entries_by_domain(self, domain):
         """
         Obtém as entradas com origem ficheiro de um domínio da cache
         :return: Lista com as entradas de um domínio
         """
+        self.lock.acquire()
+
         entries = list()
         counter = 0
 
@@ -103,6 +109,8 @@ class Cache:
             if record.origin == Origin.FILE:
                 entries.append(record)
                 counter += 1
+
+        self.lock.release()
 
         return counter, entries
 
@@ -113,6 +121,8 @@ class Cache:
         :param type: Type
         :return: Lista com as entradas que deram match
         """
+        self.lock.acquire()
+
         entries = list()
         records = []
 
@@ -130,6 +140,8 @@ class Cache:
             if record.domain == domain and record.type == type:
                 records.append(record)
 
+        self.lock.release()
+
         return records
 
     def free_cache(self, domain):  # SOAEXPIRE
@@ -137,17 +149,27 @@ class Cache:
         Liberta a cache, colocando as entradas a FREE
         :param domain: Nome do domínio
         """
-        entries = self.domains[domain]
+        self.lock.acquire()
 
-        for record in entries:
-            record.status = Status.FREE
+        if domain in self.domains.keys():
+            entries = self.domains[domain]
+
+            for record in entries:
+                record.status = Status.FREE
+
+        self.lock.release()
 
     def free_sp_entries(self, domain):
         """
         Liberta as entradas do servidor primário
         """
-        entries = self.domains[domain]
+        self.lock.acquire()
 
-        for record in entries:
-            if record.origin == Origin.SP:
-                record.status = Status.FREE
+        if domain in self.domains.keys():
+            entries = self.domains[domain]
+
+            for record in entries:
+                if record.origin == Origin.SP:
+                    record.status = Status.FREE
+
+        self.lock.release()

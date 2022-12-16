@@ -70,6 +70,24 @@ class ResourceRecord:
         return string
 
     @staticmethod
+    def to_record(string, origin):
+        """
+        Transforma uma string num objeto Resource Record
+        :param string: String
+        :param origin: Origem
+        :return: Record
+        """
+        fields = string.split(" ")
+        priority = -1
+
+        if len(fields) > 4:
+            priority = fields[4]
+
+        record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, origin)
+
+        return record
+
+    @staticmethod
     def create_free_record():
         """
         Cria um objeto com o status FREE
@@ -105,6 +123,8 @@ class ResourceRecord:
                 type = 9
             case "PTR":
                 type = 10
+            case "AXFR":
+                type = 11
 
         return BitArray(uint=type, length=4)
 
@@ -133,6 +153,8 @@ class ResourceRecord:
                 type = "MX"
             case 10:
                 type = "PTR"
+            case 11:
+                type = "AXFR"
 
         return type
 

@@ -112,7 +112,7 @@ class Server:
         domain = query.domain
 
         if query.type == "AXFR" and domain in self.config["SS"].keys():  # Query AXFR
-            record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), -1, -1, Origin.SP)
+            record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), 0, -1, Origin.SP)
 
             query.flags = "A"
             query.response_values.append(record)
@@ -254,12 +254,10 @@ class Server:
             if not message:
                 break
 
-            message = DNSMessage.deserialize(message)
+            query = DNSMessage.deserialize(message)
             domain = query.domain
 
             if query.flags == "Q":  # Pedir versão/transferência de zona e envia
-                query = message
-
                 self.log.log_qr(domain, str(address_from), query.to_string())
 
                 if query.type == "AXFR":
@@ -286,18 +284,17 @@ class Server:
                     for record in entries:
                         if record.origin == Origin.FILE:
                             record = str(counter) + " " + record.resource_record_to_string() + "\n" # VER COM O LOST - INDICE
-
                             connection.sendall(record.encode('utf-8'))
 
                             counter += 1
 
                 self.log.log_zt(domain, str(address_from), "SP : All entries sent", "0")
-
+                connection.close()
+                break
             else:
                 self.log.log_ez(domain, str(address_from), "SP : Unexpected message")
+                connection.close()
                 break
-
-        connection.close()
 
 
     def ask_for_zone_transfer(self, domain): # Ir aos seus SPs
@@ -320,63 +317,59 @@ class Server:
         expected_value = 1
         lines_number = 0
 
-        query = DNSMessage(random.randint(1, 65535), "Q", domain, "SOASERIAL")
+        query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
         socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
 
         self.log.log_qe(domain, str(address), query.to_string())
 
         while True:
             message = socket_tcp.recv(4096)  # Recebe mensagens (queries/linhas da base de dados)
+            message = DNSMessage.deserialize(message)
+
+            if message.flags == "A" and message.type == "SOASERIAL":
+                self.log.log_rr(domain, str(address), message.to_string())
+
+                ss_version = self.get_version(domain)
+                sp_version = message.response_values[0].value
+
+                if not self.interpret_version(sp_version, ss_version, socket_tcp, address, message, domain):
+                    break
+
+            elif message.flags == "A" and message.type == "AXFR":
+                self.log.log_rr(domain, str(address), message.to_string())
+
+                lines_number = int(message.response_values[0].value)
+
+                socket_tcp.sendall(message.serialize())  # Confirma o nº de linhas e reenvia
+                self.log.log_rp(domain, str(address), message.to_string())
+                break
+
+        database_lines = ""
+        while True:
+            message = socket_tcp.recv(4096)
 
             if not message:
                 break
 
-            if DNSMessage.is_query(message):
-                response = DNSMessage.deserialize(message)  # Cria query DNS
+            database_lines += message.decode('utf-8')
 
-                if response.flags == "A" and response.type == "SOASERIAL":
-                    self.log.log_rr(domain, str(address), response.to_string())
+        database_lines = database_lines[:-1].split("\n")
 
-                    ss_version = self.get_version(domain)
-                    sp_version = response.response_values[0].value
+        for line in database_lines:
+            index, record = Server.remove_index(line)
 
-                    if not self.interpret_version(sp_version, ss_version, socket_tcp, address, response, domain):
-                        break
+            if index != expected_value:  # timeout
+                self.log.log_ez(domain, str(address), "SS : Expected value does not match")
 
-                elif response.flags == "A" and response.type == "AXFR":
-                    self.log.log_rr(domain, str(address), response.to_string())
+                socket_tcp.close()
+                break
 
-                    lines_number = int(response.response_values[0].value)
+            self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP), domain)
 
-                    socket_tcp.sendall(response.serialize())  # Confirma o nº de linhas e reenvia
+            expected_value += 1
 
-                    self.log.log_rp(domain, str(address), response.to_string())
-
-            else:
-                message = message[:-1]
-                lines = message.split("\n")
-
-                for line in lines:
-                    (index, record) = Server.remove_index(line)
-
-                    if index != expected_value:  # timeout
-                        self.log.log_ez(domain, str(address), "SS : Expected value does not match")
-
-                        socket_tcp.close()
-                        break
-
-                    self.cache.lock.acquire()
-                    self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP), domain)
-                    self.cache.lock.release()
-
-                    expected_value += 1
-
-                if lines_number == (expected_value - 1):
-                    self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", "0")
-
-                    socket_tcp.close()
-                    break
-
+        self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", "0")
+        socket_tcp.close()
 
     @staticmethod
     def remove_index(record):
@@ -422,10 +415,9 @@ class Server:
         if float(sp_version) > float(ss_version):
             self.cache.free_sp_entries(domain)  # apagar as entradas "SP"
 
-            query = DNSMessage(random.randint(1, 65535), "Q", domain, "AXFR")  # Query AXFR
+            query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR
 
             socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
-
             self.log.log_rp(domain, str(address), response.to_string())
             self.log.log_zt(domain, str(address), "SS : Zone Transfer started", "0")
 
@@ -433,7 +425,6 @@ class Server:
 
         else:  # BD está atualizada
             self.log.log_zt(domain, str(address), "SS : Database is up-to-date", "0")
-
             socket_tcp.close()
 
         return bool

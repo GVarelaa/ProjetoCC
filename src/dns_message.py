@@ -76,28 +76,6 @@ class DNSMessage:
 
         return string
 
-    @staticmethod
-    def is_query(message):  # Verificar função
-        """
-        Verifica se uma mensagem é uma query
-        :param message: Mensagem
-        :return: Bool
-        """
-        fields = message.split(";")
-
-        if len(fields) < 2:
-            return False
-
-        fields.remove(fields[-1])
-
-        header_fields = fields[0].split(",")
-        data_fields = fields[1].split(",")
-
-        if len(header_fields) < 6 or len(data_fields) < 2:
-            return False
-
-        return True
-
     def encode_flags(self):
         match self.flags:
             case "Q":
