@@ -185,10 +185,10 @@ class Cache:
     def check_expire_domain(self, domain):
         if domain in self.soaexpire.keys():
             soaexpire = None
-            print(self.domains.keys())
             for record in self.domains[domain]:
                 if record.type == "SOAEXPIRE":
                     soaexpire = int(record.value)
 
             if datetime.timestamp(datetime.now()) - self.soaexpire[domain] > soaexpire:
                 self.domains.pop(domain)
+                self.soaexpire.pop(domain)
