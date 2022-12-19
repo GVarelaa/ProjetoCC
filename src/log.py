@@ -147,20 +147,19 @@ class Log:
         Regista log nos ficheiros das variáveis de instância
         :param message: Mensagem a ser registada
         """
+        dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
         if domain in self.file_paths.keys():
             self.lock.acquire()
 
             domain_fd = open(self.file_paths[domain], "a")
-            dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
 
             domain_fd.write(dt + " " + message + "\n")
-
-            if self.is_debug:
-                sys.stdout.write(dt + " " + message + "\n")
 
             domain_fd.close()
 
             self.lock.release()
 
+        if self.is_debug:
+            sys.stdout.write(dt + " " + message + "\n")
 
 

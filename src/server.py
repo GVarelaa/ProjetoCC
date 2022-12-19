@@ -56,7 +56,7 @@ class Server:
         else:
             port = 5353  # porta default
 
-        return (ip_address, port)
+        return ip_address, port
 
     def change_authority_flag(self, query):
         query.flags = ""
@@ -66,7 +66,7 @@ class Server:
                 break
 
     def is_resolution_server(self):
-        return len(self.config["SS"].keys()) != 0 and len(self.config["SP"].keys()) != 0
+        return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
 
     def is_name_server(self):
         return len(self.config["SS"].keys()) != 0 or len(self.config["SP"].keys()) != 0
@@ -103,6 +103,13 @@ class Server:
 
         return extra_values
 
+    @staticmethod
+    def find_next_domain(domain):
+        ret = domain.split(".", 1)[1]
+        if ret == "":
+            ret = "."
+        return ret
+
     def build_response(self, query):
         """
         Formula a resposta a uma query
@@ -111,10 +118,8 @@ class Server:
         """
         response_values = list()
         authorities_values = list()
-        domain = query.domain
-
-        if query.type == "AXFR" and domain in self.config["SS"].keys():  # Query AXFR
-            record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), 0, -1,
+        if query.type == "AXFR" and query.domain in self.config["SS"].keys():  # Query AXFR
+            record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]), 0, -1,
                                     Origin.SP)
 
             query.flags = ""
@@ -123,38 +128,45 @@ class Server:
             query.num_response = 1
 
         else:
-            response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
+            found = False
+            domain = query.domain
 
-            if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
-                cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
-                if len(cname) > 0:
-                    domain = cname[0].value
-                    response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
+            while not found:
+                response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
 
-            authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
-            extra_values = self.fill_extra_values(response_values, authorities_values)
+                if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
+                    cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
+                    if len(cname) > 0:
+                        domain = cname[0].value
+                        response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
 
-            # if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
-            if len(response_values) != 0:
-                self.change_authority_flag(query)
+                authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
+                extra_values = self.fill_extra_values(response_values, authorities_values)
+
+                query.num_response += len(response_values)
+                query.num_authorities += len(authorities_values)
+                query.num_extra += len(extra_values)
+                query.response_values += response_values
+                query.authorities_values += authorities_values
+                query.extra_values += extra_values
+
+                if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
+                    if domain == ".":
+                        break
+
+                    domain = Server.find_next_domain(domain)
+
+                else:
+                    found = True
+
+            if len(query.response_values) != 0:
+                query.flags = ""
                 query.response_code = 0
-            elif len(response_values) == 0 and \
-                    (len(authorities_values) != 0 or len(extra_values) != 0) and \
-                    domain in self.config["SP"].keys() or domain in self.config["SS"].keys():  # DB?
-                self.change_authority_flag(query)
+            elif found:
+                query.flags = ""
                 query.response_code = 1
-            elif len(response_values) == 0 and \
-                    (len(authorities_values) != 0 or len(extra_values) != 0) and \
-                    domain not in self.config["SP"].keys() or domain not in self.config["SS"].keys():  # DB?
-                # self.change_authority_flag(query)
+            elif not found and "Q" not in query.flags:
                 query.response_code = 2
-
-            query.num_response = len(response_values)
-            query.num_authorities = len(authorities_values)
-            query.num_extra = len(extra_values)
-            query.response_values = response_values
-            query.authorities_values = authorities_values
-            query.extra_values = extra_values
 
         return query
 
@@ -191,6 +203,7 @@ class Server:
             self.log.log_rr(message.domain, str(client), message.to_string())
 
         if self.is_name_server():  # Se for SP ou SS para algum domínio
+            print("NS")
             if self.is_domain_in_dd(message.domain):  # Pode responder
                 response = self.build_response(message)  # Caso em que falha ao encontrar na cache
 
@@ -202,7 +215,7 @@ class Server:
         elif self.is_resolution_server():  # Se for servidor de resolução
             response = self.build_response(message)
 
-            if response.response_code == 0:  # Foi à cache e encontrou resposta
+            if response.response_code == 0 and "Q" not in response.flags:  # Foi à cache e encontrou resposta
                 socket_udp.sendto(response.serialize(), client)
                 self.log.log_rp(response.domain, str(client), response.to_string())
             else:  # Inicia o processo iterativo
@@ -213,24 +226,33 @@ class Server:
                 else:
                     next_step = self.config["ST"][0]  # Qual ST pegar?
 
-                socket_udp.sendto(response.serialize(), next_step)
+                socket_udp.sendto(response.serialize(), Server.parse_address(next_step))
                 self.log.log_rp(response.domain, str(next_step), response.to_string())
 
-                response_code = -1
-                while response_code != 1:
-                    response = socket_udp.recv(4096)
-                    response = DNSMessage.deserialize(message)  # Cria uma DNSMessage
+                response_code = 1
+                while response_code == 1:
+                    response, address = socket_udp.recvfrom(4096)
+                    response = DNSMessage.deserialize(response)  # Cria uma DNSMessage
+
+                    self.log.log_rr(response.domain, str(address), response.to_string())
                     response_code = response.response_code
 
                     if response_code == 1:
                         next_step = self.find_next_step(response)
-                        socket_udp.sendto(response.serialize(), next_step)
+
+                        socket_udp.sendto(response.serialize(), Server.parse_address(next_step))
                         self.log.log_rp(response.domain, str(next_step), response.to_string())
 
                 socket_udp.sendto(response.serialize(), client)  # Enviar de volta para o cliente
                 self.log.log_rp(response.domain, str(client), response.to_string())
 
-        # else: # ST (?)
+        else:
+            response = self.build_response(message)
+            print(response)
+
+            socket_udp.sendto(response.serialize(), client)
+            self.log.log_rp(response.domain, str(client), response.to_string())
+
 
     def sp_zone_transfer(self):
         """
