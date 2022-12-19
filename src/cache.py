@@ -192,3 +192,4 @@ class Cache:
             if datetime.timestamp(datetime.now()) - self.soaexpire[domain] > soaexpire:
                 self.domains.pop(domain)
                 self.soaexpire.pop(domain)
+

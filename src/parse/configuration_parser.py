@@ -60,7 +60,7 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
         if len(words) > 0:
             if len(words) == 3:
-                if words[0] != "root" and words[0] != "all":
+                if words[0] != "root" and words[0] != "all" and words[0] != ".":
                     words[0] = words[0] + "."
 
                 parameter = words[0]

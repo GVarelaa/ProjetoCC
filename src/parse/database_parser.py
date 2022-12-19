@@ -68,7 +68,10 @@ def concatenate_suffix_aux(suffix, name):
     :return: Nome com o sufixo concatenado
     """
     if name[-1] != ".":
-        name += "." + suffix
+        if suffix != ".":
+            name += "." + suffix
+        else:
+            name += "."
 
     return name
 
