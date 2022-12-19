@@ -7,10 +7,10 @@ import random
 import socket
 import threading
 import time
+from datetime import datetime
 
 from dns_message import *
 from resource_record import ResourceRecord
-
 
 class Server:
     def __init__(self, config, log, port):
@@ -190,7 +190,6 @@ class Server:
         if self.is_name_server(): # Se for SP ou SS para algum domínio
             if self.is_domain_in_dd(message.domain): # Pode responder
                 response = self.build_response(message) # Caso em que falha ao encontrar na cache
-                print(response)
 
                 socket_udp.sendto(response.serialize(), client)
                 self.log.log_rp(response.domain, str(client), response.to_string())
@@ -252,7 +251,7 @@ class Server:
         :param address_from: Endereço do servidor secundário
         """
         while True:
-            message = connection.recv(4096)  # Recebe queries (versão/pedido de transferência)
+            message = connection.recv(2048)  # Recebe queries (versão/pedido de transferência)
 
             if not message:
                 break
@@ -301,14 +300,22 @@ class Server:
 
 
     def ss_zone_transfer(self, domain): # Ir aos seus SPs
-        soarefresh = 10     # soarefresh default
-        while True:
-            self.ss_zone_transfer_process(domain)
+        soaretry = 10     # soaretry default
 
-            self.cache.register_soaexpire(domain)
-            soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
-            print(self.cache)
-            time.sleep(soarefresh)
+        while True:
+            success = self.ss_zone_transfer_process(domain)
+
+            if not success:
+                wait = soaretry
+            else:
+                self.cache.register_soaexpire(domain)
+                soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
+                soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
+                wait = soarefresh
+
+            time.sleep(wait)
+
+
 
     def ss_zone_transfer_process(self, domain):
         """
@@ -320,7 +327,6 @@ class Server:
         socket_tcp.connect((address, port))
 
         expected_value = 1
-        lines_number = 0
 
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
         socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
@@ -328,7 +334,7 @@ class Server:
         self.log.log_qe(domain, str(address), query.to_string())
 
         while True:
-            message = socket_tcp.recv(4096)  # Recebe mensagens (queries/linhas da base de dados)
+            message = socket_tcp.recv(2048)  # Recebe mensagens (queries/linhas da base de dados)
             message = DNSMessage.deserialize(message)
 
             if message.flags == "A" and message.type == "SOASERIAL":
@@ -343,20 +349,25 @@ class Server:
             elif message.flags == "A" and message.type == "AXFR":
                 self.log.log_rr(domain, str(address), message.to_string())
 
-                lines_number = int(message.response_values[0].value)
-
-                socket_tcp.sendall(message.serialize())  # Confirma o nº de linhas e reenvia
+                socket_tcp.sendall(message.serialize())  # Recebe o nº de linhas e reenvia
                 self.log.log_rp(domain, str(address), message.to_string())
                 break
 
+        end = time.time() + 10
+        success = False
+
         database_lines = ""
-        while True:
-            message = socket_tcp.recv(4096)
+        while time.time() < end:
+            message = socket_tcp.recv(2048)
 
             if not message:
+                success = True
                 break
 
             database_lines += message.decode('utf-8')
+
+        if not success:
+            return False
 
         database_lines = database_lines[:-1].split("\n")
 
@@ -375,6 +386,8 @@ class Server:
 
         self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", "0")
         socket_tcp.close()
+
+        return True
 
     @staticmethod
     def remove_index(record):
