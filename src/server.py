@@ -109,6 +109,12 @@ class Server:
         if ret == "":
             ret = "."
         return ret
+    def axfr_responde(self, query):
+        record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]),0, -1,Origin.SP)
+        query.flags = ""
+        query.response_code = 0
+        query.response_values.append(record)
+        query.num_response = 1
 
     def build_response(self, query):
         """
@@ -118,55 +124,44 @@ class Server:
         """
         response_values = list()
         authorities_values = list()
-        if query.type == "AXFR" and query.domain in self.config["SS"].keys():  # Query AXFR
-            record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]), 0, -1,
-                                    Origin.SP)
 
-            query.flags = ""
+        found = False
+        domain = query.domain
+
+        while not found:
+            response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
+
+            if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
+                cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
+                if len(cname) > 0:
+                    domain = cname[0].value
+                    response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
+
+            authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
+            extra_values = self.fill_extra_values(response_values, authorities_values)
+
+            query.num_response += len(response_values)
+            query.num_authorities += len(authorities_values)
+            query.num_extra += len(extra_values)
+            query.response_values += response_values
+            query.authorities_values += authorities_values
+            query.extra_values += extra_values
+
+            if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
+                if domain == ".":
+                    break
+
+                domain = Server.find_next_domain(domain)
+            else:
+                found = True
+
+        if len(query.response_values) != 0:
             query.response_code = 0
-            query.response_values.append(record)
-            query.num_response = 1
-
-        else:
-            found = False
-            domain = query.domain
-
-            while not found:
-                response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
-
-                if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
-                    cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
-                    if len(cname) > 0:
-                        domain = cname[0].value
-                        response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
-
-                authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
-                extra_values = self.fill_extra_values(response_values, authorities_values)
-
-                query.num_response += len(response_values)
-                query.num_authorities += len(authorities_values)
-                query.num_extra += len(extra_values)
-                query.response_values += response_values
-                query.authorities_values += authorities_values
-                query.extra_values += extra_values
-
-                if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
-                    if domain == ".":
-                        break
-
-                    domain = Server.find_next_domain(domain)
-
-                else:
-                    found = True
-
-            if len(query.response_values) != 0:
-                query.flags = ""
-                query.response_code = 0
-            elif found:
-                query.flags = ""
-                query.response_code = 1
-            elif not found and "Q" not in query.flags:
-                query.response_code = 2
+        elif found:
+            query.response_code = 1
+        elif not found and "Q" not in query.flags:
+            query.response_code = 2
+        self.change_authority_flag(query)
 
         return query
 
@@ -193,7 +188,6 @@ class Server:
         :param socket_udp: Socket UDP
         """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP para enviar mensagens
-        # socket_udp.bind(("127.0.0.1", self.port)) ??
 
         message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
 
@@ -203,7 +197,6 @@ class Server:
             self.log.log_rr(message.domain, str(client), message.to_string())
 
         if self.is_name_server():  # Se for SP ou SS para algum domínio
-            print("NS")
             if self.is_domain_in_dd(message.domain):  # Pode responder
                 response = self.build_response(message)  # Caso em que falha ao encontrar na cache
 
@@ -248,7 +241,6 @@ class Server:
 
         else:
             response = self.build_response(message)
-            print(response)
 
             socket_udp.sendto(response.serialize(), client)
             self.log.log_rp(response.domain, str(client), response.to_string())
