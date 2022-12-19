@@ -30,18 +30,21 @@ def main():
     if len(args_split) > 1:  # Se a porta for especificada, atualizar
         port = int(args_split[1])
 
-    if len(args) == 4:  # Modo recursivo
-        if args[3] == "R":
-            flags = "Q+R"
-        else:
-            sys.stdout.write("Wrong flag")
-            return
-
-    if len(args) == 5:  # Debug/Normal
-        if args[4] == "debug":
+    if 4 <= len(args) <= 5:
+        if args[3] == "debug":
             debug = True
+
+        elif args[3] == "R":
+            flags = "Q+R"
+
+            if args[4] == "debug":
+                debug = True
+            else:
+                sys.stdout.write("Wrong mode")
+                return
+
         else:
-            sys.stdout.write("Wrong mode")
+            sys.stdout.write("Wrong argument")
             return
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
