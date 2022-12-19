@@ -14,7 +14,7 @@ from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, config, log, port):
+    def __init__(self, config, log, port, timeout, handles_recursion):
         """
         Construtor de um objeto Server
         :param config: Estrutura com os dados de configuração
@@ -24,6 +24,8 @@ class Server:
         self.config = config
         self.log = log
         self.port = int(port)
+        self.timeout = timeout
+        self.handles_recursion = handles_recursion
 
         self.cache = None
 
@@ -205,7 +207,8 @@ class Server:
             if response.response_code == 0:  # Foi à cache e encontrou resposta
                 socket_udp.sendto(response.serialize(), client)
                 self.log.log_rp(response.domain, str(client), response.to_string())
-            else:  # Inicia o processo iterativo
+            else:  
+                # Inicia o processo iterativo
                 # Primeiro vai aos DD
                 # Senão vai so ST
                 if self.is_domain_in_dd(response.domain):

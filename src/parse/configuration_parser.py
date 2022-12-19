@@ -30,7 +30,7 @@ def parser_root_servers(file_path):
     return servers
 
 
-def parser_configuration(file_path, port, timeout, mode):
+def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     """
     Função responsável pelo parse dos ficheiros de configuração
     :param file_path: Ficheiro de configuração
@@ -113,7 +113,7 @@ def parser_configuration(file_path, port, timeout, mode):
     log.log_ev("all", "localhost", "conf-file-read", file_path)
     log.log_ev("all", "localhost", "log-file-create", config["LG"]["all"])
 
-    server = Server(config, log, port)
+    server = Server(config, log, port, timeout, handles_recursion)
 
     parser_database_caller(server)
 

@@ -16,14 +16,15 @@ def main():
     config_path = args[1]  # Ficheiro de configuração
     port = args[2]  # Porta onde o servidor vai estar à escuta
     timeout = args[3]  # Tempo que o servidor vai esperar por uma resposta
+    handles_recursion = args[4]
 
-    if len(args) > 4:
-        mode = args[4]  # Modo (Debug/Shy)
+    if len(args) > 5:
+        mode = args[5]  # Modo (Debug/Shy)
     else:
         mode = "debug"
 
     try:
-        server = parser_configuration(config_path, port, timeout, mode)  # Parser dos dados
+        server = parser_configuration(config_path, port, timeout, handles_recursion, mode)  # Parser dos dados
     except InvalidIPError:
         sys.stdout.write("Error running server configurations: Invalid IP address")
         return
