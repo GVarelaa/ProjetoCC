@@ -263,7 +263,8 @@ class Server:
                 self.log.log_qr(domain, str(address_from), query.to_string())
 
                 if query.type == "AXFR":
-                    self.log.log_zt(domain, str(address_from), "SP : Zone transfer started", "0")
+                    self.log.log_zt(domain, str(address_from), "SP : Zone transfer started")
+                    t_start = time.time()
 
                 response = self.build_response(query)
 
@@ -290,7 +291,8 @@ class Server:
 
                             counter += 1
 
-                self.log.log_zt(domain, str(address_from), "SP : All entries sent", "0")
+                t_end = time.time()
+                self.log.log_zt(domain, str(address_from), "SP : All entries sent", str(t_end-t_start))
                 connection.close()
                 break
             else:
@@ -346,6 +348,8 @@ class Server:
                 if not self.interpret_version(sp_version, ss_version, socket_tcp, address, message, domain):
                     break
 
+                t_start = time.time()
+
             elif message.flags == "A" and message.type == "AXFR":
                 self.log.log_rr(domain, str(address), message.to_string())
 
@@ -384,7 +388,8 @@ class Server:
 
             expected_value += 1
 
-        self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", "0")
+        t_end = time.time()
+        self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", str(t_end-t_start))
         socket_tcp.close()
 
         return True
@@ -436,13 +441,13 @@ class Server:
             query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR
 
             socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
-            self.log.log_rp(domain, str(address), response.to_string())
-            self.log.log_zt(domain, str(address), "SS : Zone Transfer started", "0")
+            self.log.log_qe(domain, str(address), query.to_string())
+            self.log.log_zt(domain, str(address), "SS : Zone Transfer started")
 
             bool = True
 
         else:  # BD está atualizada
-            self.log.log_zt(domain, str(address), "SS : Database is up-to-date", "0")
+            self.log.log_zt(domain, str(address), "SS : Database is up-to-date")
             socket_tcp.close()
 
         return bool

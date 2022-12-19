@@ -63,7 +63,7 @@ class Log:
         message = "RR " + ip_address + " " + data                           
         self.add_log(domain, message)
 
-    def log_zt(self, domain, ip_address, data, duration):
+    def log_zt(self, domain, ip_address, data, duration=""):
         """
         Regista log de inicio/conclusão de transferência de zona
         :param ip_address: Endereço IP
