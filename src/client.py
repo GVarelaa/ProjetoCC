@@ -25,6 +25,7 @@ def main():
     domain_name = args[1]
     type = args[2]
     flags = "Q"
+    debug = False
 
     if len(args_split) > 1:  # Se a porta for especificada, atualizar
         port = int(args_split[1])
@@ -36,14 +37,28 @@ def main():
             sys.stdout.write("Wrong flag")
             return
 
+    if len(args) == 5:  # Debug/Normal
+        if args[4] == "debug":
+            debug = True
+        else:
+            sys.stdout.write("Wrong mode")
+            return
+
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
 
     query = DNSMessage(message_id, flags, 0, domain_name, type)  # Criar mensagem
 
-    socket_udp.sendto(query.serialize(), (ip_address, port))  # Enviar query para o socket do server
+    if debug:  # Enviar query para o socket do server
+        socket_udp.sendto(query.to_string(), (ip_address, port))
+    else:
+        socket_udp.sendto(query.serialize(), (ip_address, port))
 
-    message, address = socket_udp.recvfrom(4096)
-    message = DNSMessage.deserialize(message)
+    message = socket_udp.recv(4096)  # Receber resposta do servidor
+
+    if debug:  # Descodificação da resposta do servidor
+        message = DNSMessage.from_string(message)
+    else:
+        message = DNSMessage.deserialize(message)
 
     sys.stdout.write(message.to_string())
 

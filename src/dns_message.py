@@ -76,6 +76,91 @@ class DNSMessage:
 
         return string
 
+    @staticmethod
+    def from_string(query):
+        """
+        Transforma uma string num objeto DNSMessage
+        :param query: Mensagem (string)
+        :return: Objeto DNSMessage
+        """
+        (message_id, flags, response_code, num_response_values, num_authorities_values,
+         num_extra_values, name, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
+
+        query = DNSMessage(message_id, flags, name, type)
+        query.response_code = int(response_code)
+        query.number_of_values = int(num_response_values)
+        query.number_of_authorities = int(num_authorities_values)
+        query.number_of_extra_values = int(num_extra_values)
+
+        for value in response_values:
+            fields = value.split(" ")
+            priority = -1
+
+            if len(fields) > 4:
+                priority = fields[4]
+
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+            query.response_values.append(record)
+
+        for value in authorities_values:
+            fields = value.split(" ")
+            priority = -1
+
+            if len(fields) > 4:
+                priority = fields[4]
+
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+            query.authorities_values.append(record)
+
+        for value in extra_values:
+            fields = value.split(" ")
+            priority = -1
+
+            if len(fields) > 4:
+                priority = fields[4]
+
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+            query.extra_values.append(record)
+
+        return query
+
+    @staticmethod
+    def parse(message):
+        """
+        Parse de uma mensagem
+        :param message: Mensagem
+        :return: Strings com os valores para as variáveis do objeto
+                 Response values, authorities values e extra values são listas de strings
+        """
+        message = message.replace("\n", "")
+        fields = re.split(";|,", message)
+        fields.remove("")
+
+        message_id = fields[0]
+        flags = fields[1]
+        response_code = fields[2]
+        num_response_values = fields[3]
+        num_authorities_values = fields[4]
+        num_extra_values = fields[5]
+        name = fields[6]
+        type = fields[7]
+
+        response_values = list()
+        authorities_values = list()
+        extra_values = list()
+
+        for i in range(1, int(num_response_values) + 1):
+            response_values.append(fields[7 + i])
+
+        for i in range(1, int(num_authorities_values)):
+            authorities_values.append(fields[7 + int(num_response_values) + i])
+
+        for i in range(1, int(num_extra_values)):
+            extra_values.append(fields[7 + int(num_response_values) + int(num_authorities_values) + i])
+
+        return (message_id, flags, response_code, num_response_values, num_authorities_values,
+                num_extra_values, name, type, response_values, authorities_values, extra_values)
+
     def encode_flags(self):
         match self.flags:
             case "":
