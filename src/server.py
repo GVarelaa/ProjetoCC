@@ -12,6 +12,7 @@ from datetime import datetime
 from dns_message import *
 from resource_record import ResourceRecord
 
+
 class Server:
     def __init__(self, config, log, port):
         """
@@ -32,7 +33,7 @@ class Server:
         :return: String
         """
         return "fazer"
-    
+
     def __repr__(self):
         """
         Devolve a representação oficial em string do objeto Server
@@ -53,7 +54,7 @@ class Server:
         if len(substrings) > 1:
             port = int(substrings[1])
         else:
-            port = 5353 # porta default
+            port = 5353  # porta default
 
         return (ip_address, port)
 
@@ -63,7 +64,6 @@ class Server:
             if domain == query.domain:
                 query.flags = "A"
                 break
-
 
     def is_resolution_server(self):
         return len(self.config["SS"].keys()) != 0 and len(self.config["SP"].keys()) != 0
@@ -75,10 +75,10 @@ class Server:
         return domain in self.config["DD"].keys()
 
     def find_next_step(self, query):
-        tld_server = None # Top level domain server
+        tld_server = None  # Top level domain server
         for record in query.extra_values:
             if record.domain == query.domain:
-                return record.value # Authoritative server
+                return record.value  # Authoritative server
             elif record.domain in query.domain:
                 tld_server = record.value
 
@@ -114,9 +114,11 @@ class Server:
         domain = query.domain
 
         if query.type == "AXFR" and domain in self.config["SS"].keys():  # Query AXFR
-            record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), 0, -1, Origin.SP)
+            record = ResourceRecord(domain, query.type, str(self.cache.get_file_entries_by_domain(domain)[0]), 0, -1,
+                                    Origin.SP)
 
-            query.flags = "A"
+            query.flags = ""
+            query.response_code = 0
             query.response_values.append(record)
             query.num_response = 1
 
@@ -132,19 +134,19 @@ class Server:
             authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
 
-            #if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
+            # if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
             if len(response_values) != 0:
                 self.change_authority_flag(query)
                 query.response_code = 0
             elif len(response_values) == 0 and \
                     (len(authorities_values) != 0 or len(extra_values) != 0) and \
-                    domain in self.config["SP"].keys() or domain in self.config["SS"].keys(): # DB?
+                    domain in self.config["SP"].keys() or domain in self.config["SS"].keys():  # DB?
                 self.change_authority_flag(query)
                 query.response_code = 1
             elif len(response_values) == 0 and \
                     (len(authorities_values) != 0 or len(extra_values) != 0) and \
-                    domain not in self.config["SP"].keys() or domain not in self.config["SS"].keys(): # DB?
-                #self.change_authority_flag(query)
+                    domain not in self.config["SP"].keys() or domain not in self.config["SS"].keys():  # DB?
+                # self.change_authority_flag(query)
                 query.response_code = 2
 
             query.num_response = len(response_values)
@@ -166,7 +168,8 @@ class Server:
         while True:
             message, address_from = socket_udp.recvfrom(4096)  # Receives a message
 
-            threading.Thread(target=self.interpret_message, args=(message, address_from)).start()  # Thread per connection
+            threading.Thread(target=self.interpret_message,
+                             args=(message, address_from)).start()  # Thread per connection
 
         socket_udp.close()
 
@@ -178,7 +181,7 @@ class Server:
         :param socket_udp: Socket UDP
         """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP para enviar mensagens
-        #socket_udp.bind(("127.0.0.1", self.port)) ??
+        # socket_udp.bind(("127.0.0.1", self.port)) ??
 
         message = DNSMessage.deserialize(message)  # Cria uma DNSMessage
 
@@ -187,28 +190,28 @@ class Server:
         else:
             self.log.log_rr(message.domain, str(client), message.to_string())
 
-        if self.is_name_server(): # Se for SP ou SS para algum domínio
-            if self.is_domain_in_dd(message.domain): # Pode responder
-                response = self.build_response(message) # Caso em que falha ao encontrar na cache
+        if self.is_name_server():  # Se for SP ou SS para algum domínio
+            if self.is_domain_in_dd(message.domain):  # Pode responder
+                response = self.build_response(message)  # Caso em que falha ao encontrar na cache
 
                 socket_udp.sendto(response.serialize(), client)
                 self.log.log_rp(response.domain, str(client), response.to_string())
-            else: # Timeout?
+            else:  # Timeout?
                 self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
-        elif self.is_resolution_server(): # Se for servidor de resolução
+        elif self.is_resolution_server():  # Se for servidor de resolução
             response = self.build_response(message)
 
-            if response.response_code == 0: # Foi à cache e encontrou resposta
+            if response.response_code == 0:  # Foi à cache e encontrou resposta
                 socket_udp.sendto(response.serialize(), client)
                 self.log.log_rp(response.domain, str(client), response.to_string())
-            else: # Inicia o processo iterativo
+            else:  # Inicia o processo iterativo
                 # Primeiro vai aos DD
                 # Senão vai so ST
                 if self.is_domain_in_dd(response.domain):
                     next_step = self.config["DD"][response.domain]
                 else:
-                    next_step = self.config["ST"][0] # Qual ST pegar?
+                    next_step = self.config["ST"][0]  # Qual ST pegar?
 
                 socket_udp.sendto(response.serialize(), next_step)
                 self.log.log_rp(response.domain, str(next_step), response.to_string())
@@ -224,10 +227,10 @@ class Server:
                         socket_udp.sendto(response.serialize(), next_step)
                         self.log.log_rp(response.domain, str(next_step), response.to_string())
 
-                socket_udp.sendto(response.serialize(), client) # Enviar de volta para o cliente
+                socket_udp.sendto(response.serialize(), client)  # Enviar de volta para o cliente
                 self.log.log_rp(response.domain, str(client), response.to_string())
 
-        #else: # ST (?)
+        # else: # ST (?)
 
     def sp_zone_transfer(self):
         """
@@ -268,15 +271,14 @@ class Server:
 
                 response = self.build_response(query)
 
-                if "A" in response.flags:
+                if response.response_code == 0:
                     self.log.log_rp(domain, str(address_from), response.to_string())
-
                     connection.sendall(response.serialize())
 
                 else:
                     self.log.log_to(domain, str(address_from), "Query Miss")
 
-            elif query.flags == "A" and query.type == "AXFR":  # Secundário aceitou linhas e respondeu com o nº de linhas
+            elif query.response_code == 0:  # Secundário aceitou linhas e respondeu com o nº de linhas
                 self.log.log_rr(domain, str(address_from), query.to_string())
 
                 num_entries, entries = self.cache.get_file_entries_by_domain(query.domain)
@@ -286,23 +288,19 @@ class Server:
                     counter = 1
                     for record in entries:
                         if record.origin == Origin.FILE:
-                            record = str(counter) + " " + record.resource_record_to_string() + "\n" # VER COM O LOST - INDICE
+                            record = str(
+                                counter) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
                             connection.sendall(record.encode('utf-8'))
 
                             counter += 1
 
                 t_end = time.time()
-                self.log.log_zt(domain, str(address_from), "SP : All entries sent", str(t_end-t_start))
-                connection.close()
-                break
-            else:
-                self.log.log_ez(domain, str(address_from), "SP : Unexpected message")
+                self.log.log_zt(domain, str(address_from), "SP : All entries sent", str(round(t_end - t_start, 5)) + "s")
                 connection.close()
                 break
 
-
-    def ss_zone_transfer(self, domain): # Ir aos seus SPs
-        soaretry = 10     # soaretry default
+    def ss_zone_transfer(self, domain):  # Ir aos seus SPs
+        soaretry = 10  # soaretry default
 
         while True:
             success = self.ss_zone_transfer_process(domain)
@@ -316,8 +314,6 @@ class Server:
                 wait = soarefresh
 
             time.sleep(wait)
-
-
 
     def ss_zone_transfer_process(self, domain):
         """
@@ -339,23 +335,24 @@ class Server:
             message = socket_tcp.recv(2048)  # Recebe mensagens (queries/linhas da base de dados)
             message = DNSMessage.deserialize(message)
 
-            if message.flags == "A" and message.type == "SOASERIAL":
-                self.log.log_rr(domain, str(address), message.to_string())
+            if message.response_code == 0:
+                if message.type == "SOASERIAL":
+                    self.log.log_rr(domain, str(address), message.to_string())
 
-                ss_version = self.get_version(domain)
-                sp_version = message.response_values[0].value
+                    ss_version = self.get_version(domain)
+                    sp_version = message.response_values[0].value
 
-                if not self.interpret_version(sp_version, ss_version, socket_tcp, address, message, domain):
+                    if not self.interpret_version(sp_version, ss_version, socket_tcp, address, message, domain):
+                        break
+
+                    t_start = time.time()
+
+                elif message.type == "AXFR":
+                    self.log.log_rr(domain, str(address), message.to_string())
+
+                    socket_tcp.sendall(message.serialize())  # Recebe o nº de linhas e reenvia
+                    self.log.log_rp(domain, str(address), message.to_string())
                     break
-
-                t_start = time.time()
-
-            elif message.flags == "A" and message.type == "AXFR":
-                self.log.log_rr(domain, str(address), message.to_string())
-
-                socket_tcp.sendall(message.serialize())  # Recebe o nº de linhas e reenvia
-                self.log.log_rp(domain, str(address), message.to_string())
-                break
 
         end = time.time() + 10
         success = False
@@ -382,14 +379,14 @@ class Server:
                 self.log.log_ez(domain, str(address), "SS : Expected value does not match")
 
                 socket_tcp.close()
-                break
+                return False
 
             self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP), domain)
 
             expected_value += 1
 
         t_end = time.time()
-        self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", str(t_end-t_start))
+        self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", str(round(t_end - t_start, 5)) + "s")
         socket_tcp.close()
 
         return True
