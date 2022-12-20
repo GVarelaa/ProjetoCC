@@ -80,14 +80,20 @@ class Server:
         return len(self.config["DD"].keys()) != 0
 
     def find_next_step(self, query):
-        tld_server = None  # Top level domain server
-        for record in query.extra_values:
-            if record.domain == query.domain:
-                return record.value  # Authoritative server
-            elif record.domain in query.domain:
-                tld_server = record.value
+        server = None  # Top level domain server
+        for record in query.authorities_values:
+            if record.domain in query.domain:
+                server = record.value
 
-        return tld_server
+        if server is not None:
+            for record in query.extra_values:
+                if server == record.domain:
+                    return Server.parse_address(record.value)
+
+        if not self.is_name_server() and self.is_domain_in_dd(query.domain):
+            return Server.parse_address(self.config["DD"][query.domain])
+
+        return Server.parse_address(self.config["ST"][0])
 
     @staticmethod
     def find_next_domain(domain):
@@ -114,6 +120,17 @@ class Server:
             extra_values += records
 
         return extra_values
+
+    def cache_response(self, response):
+        for record in response.response_values:
+            self.cache.add_entry(record, response.domain)
+
+        for record in response.authorities_values:
+            self.cache.add_entry(record, response.domain)
+
+        for record in response.extra_values:
+            self.cache.add_entry(record, response.domain)
+
     def axfr_response(self, query):
         record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]),0, -1,Origin.SP)
         query.flags = ""
@@ -156,12 +173,12 @@ class Server:
             else:
                 found = True
 
-        query.num_response += len(response_values)
-        query.num_authorities += len(authorities_values)
-        query.num_extra += len(extra_values)
-        query.response_values += response_values
-        query.authorities_values += authorities_values
-        query.extra_values += extra_values
+        query.num_response = len(response_values)
+        query.num_authorities = len(authorities_values)
+        query.num_extra = len(extra_values)
+        query.response_values = response_values
+        query.authorities_values = authorities_values
+        query.extra_values = extra_values
 
         if len(query.response_values) != 0:
             query.response_code = 0
@@ -220,18 +237,25 @@ class Server:
                 response = self.build_response(message)
 
                 if "Q" in response.flags: # Inicia o modo iterativo
-                    next_step = Server.parse_address(self.config["ST"][0])
+                    next_step = self.find_next_step(response)
                     response_code = 1
 
                     while response_code == 1:
                         socket_udp.sendto(response.serialize(), next_step)
-                        self.log.log_rp(response.domain, str(client), response.to_string()) # if para quando é query
+
+                        if "Q" in response.flags:
+                            self.log.log_qe(response.domain, str(client), response.to_string())
+                        else:
+                            self.log.log_rp(response.domain, str(client), response.to_string())
 
                         response, address = socket_udp.recvfrom(4096)
-                        response = DNSMessage.deserialize(response)  # Cria uma DNSMessage
+                        response = DNSMessage.deserialize(response)
 
                         response_code = response.response_code
                         next_step = self.find_next_step(response)
+
+                    if response_code == 0:
+                        self.cache_response(response)
 
                     socket_udp.sendto(response.serialize(), client)  # Enviar de volta para o cliente
                     self.log.log_rp(response.domain, str(client), response.to_string())
@@ -239,7 +263,6 @@ class Server:
                 else:
                     socket_udp.sendto(response.serialize(), client)
                     self.log.log_rp(response.domain, str(client), response.to_string())
-
 
         elif self.is_resolution_server():  # Se for servidor de resolução
             response = self.build_response(message) # TODO: adicionar flag R se aceitar modo recursivo
@@ -251,30 +274,28 @@ class Server:
                 # Inicia o processo iterativo
                 # Primeiro vai aos DD
                 # Senão vai so ST
-                if self.handles_recursion == False:
+                #if self.handles_recursion == False:
                     # Erro para o cliente
-
-                if self.is_domain_in_dd(response.domain):
-                    next_step = self.config["DD"][response.domain]
-                else:
-                    next_step = self.config["ST"][0]  # Qual ST pegar?
-
-                socket_udp.sendto(response.serialize(), Server.parse_address(next_step))
-                self.log.log_rp(response.domain, str(next_step), response.to_string())
+                next_step = self.find_next_step(response)
 
                 response_code = 1
                 while response_code == 1:
+                    socket_udp.sendto(response.serialize(), next_step)
+
+                    if "Q" in response.flags:
+                        self.log.log_qe(response.domain, str(next_step), response.to_string())
+                    else:
+                        self.log.log_rp(response.domain, str(next_step), response.to_string())
+
                     response, address = socket_udp.recvfrom(4096)
                     response = DNSMessage.deserialize(response)  # Cria uma DNSMessage
-
                     self.log.log_rr(response.domain, str(address), response.to_string())
+
                     response_code = response.response_code
+                    next_step = self.find_next_step(response)
 
-                    if response_code == 1:
-                        next_step = self.find_next_step(response)
-
-                        socket_udp.sendto(response.serialize(), Server.parse_address(next_step))
-                        self.log.log_rp(response.domain, str(next_step), response.to_string())
+                if response_code == 0:
+                    self.cache_response(response)
 
                 socket_udp.sendto(response.serialize(), client)  # Enviar de volta para o cliente
                 self.log.log_rp(response.domain, str(client), response.to_string())
