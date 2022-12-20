@@ -18,6 +18,13 @@ def main():
     timeout = args[3]  # Tempo que o servidor vai esperar por uma resposta
     handles_recursion = args[4]
 
+    print(port)
+
+    if handles_recursion == 1:
+        handles_recursion = True
+    elif handles_recursion == 0:
+        handles_recursion = False
+
     if len(args) > 5:
         mode = args[5]  # Modo (Debug/Shy)
     else:

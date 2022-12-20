@@ -172,7 +172,7 @@ class Server:
         Recebe queries através de um socket udp e cria uma thread para cada query (thread-per-connection)
         """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
-        socket_udp.bind(("127.0.0.1", self.port))
+        socket_udp.bind(("", self.port))
 
         while True:
             message, address_from = socket_udp.recvfrom(4096)  # Receives a message
@@ -208,7 +208,7 @@ class Server:
                 self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
         elif self.is_resolution_server():  # Se for servidor de resolução
-            response = self.build_response(message)
+            response = self.build_response(message) # TODO: adicionar flag R se aceitar modo recursivo
 
             if response.response_code == 0 and "Q" not in response.flags:  # Foi à cache e encontrou resposta
                 socket_udp.sendto(response.serialize(), client)
@@ -217,6 +217,9 @@ class Server:
                 # Inicia o processo iterativo
                 # Primeiro vai aos DD
                 # Senão vai so ST
+                if self.handles_recursion == False:
+                    # Erro para o cliente
+
                 if self.is_domain_in_dd(response.domain):
                     next_step = self.config["DD"][response.domain]
                 else:

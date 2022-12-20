@@ -46,6 +46,9 @@ def main():
         else:
             sys.stdout.write("Wrong argument")
             return
+            
+    print(ip_address)
+    print(port)
 
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
 
