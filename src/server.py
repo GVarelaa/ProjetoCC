@@ -76,6 +76,9 @@ class Server:
     def is_domain_in_dd(self, domain):
         return domain in self.config["DD"].keys()
 
+    def has_default_domains(self):
+        return len(self.config["DD"].keys()) != 0
+
     def find_next_step(self, query):
         tld_server = None  # Top level domain server
         for record in query.extra_values:
@@ -85,6 +88,13 @@ class Server:
                 tld_server = record.value
 
         return tld_server
+
+    @staticmethod
+    def find_next_domain(domain):
+        ret = domain.split(".", 1)[1]
+        if ret == "":
+            ret = "."
+        return ret
 
     def fill_extra_values(self, response_values, authorities_values):
         """
@@ -104,19 +114,14 @@ class Server:
             extra_values += records
 
         return extra_values
-
-    @staticmethod
-    def find_next_domain(domain):
-        ret = domain.split(".", 1)[1]
-        if ret == "":
-            ret = "."
-        return ret
-    def axfr_responde(self, query):
+    def axfr_response(self, query):
         record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]),0, -1,Origin.SP)
         query.flags = ""
         query.response_code = 0
         query.response_values.append(record)
         query.num_response = 1
+
+        return query
 
     def build_response(self, query):
         """
@@ -126,6 +131,7 @@ class Server:
         """
         response_values = list()
         authorities_values = list()
+        extra_values = list()
 
         found = False
         domain = query.domain
@@ -142,28 +148,30 @@ class Server:
             authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
 
-            query.num_response += len(response_values)
-            query.num_authorities += len(authorities_values)
-            query.num_extra += len(extra_values)
-            query.response_values += response_values
-            query.authorities_values += authorities_values
-            query.extra_values += extra_values
-
             if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
-                if domain == ".":
-                    break
-
                 domain = Server.find_next_domain(domain)
+
+                if domain == ".": # Mudar
+                    break
             else:
                 found = True
 
+        query.num_response += len(response_values)
+        query.num_authorities += len(authorities_values)
+        query.num_extra += len(extra_values)
+        query.response_values += response_values
+        query.authorities_values += authorities_values
+        query.extra_values += extra_values
+
         if len(query.response_values) != 0:
             query.response_code = 0
+            self.change_authority_flag(query)
         elif found:
             query.response_code = 1
+            self.change_authority_flag(query)
         elif not found and "Q" not in query.flags:
             query.response_code = 2
-        self.change_authority_flag(query)
+            self.change_authority_flag(query)
 
         return query
 
@@ -199,13 +207,39 @@ class Server:
             self.log.log_rr(message.domain, str(client), message.to_string())
 
         if self.is_name_server():  # Se for SP ou SS para algum domínio
-            if self.is_domain_in_dd(message.domain):  # Pode responder
-                response = self.build_response(message)  # Caso em que falha ao encontrar na cache
+            if self.has_default_domains(): # Name server tem domínios por defeito
+                if self.is_domain_in_dd(message.domain):  # Pode responder
+                    response = self.build_response(message)  # Caso em que falha ao encontrar na cache
 
-                socket_udp.sendto(response.serialize(), client)
-                self.log.log_rp(response.domain, str(client), response.to_string())
-            else:  # Timeout?
-                self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
+                    socket_udp.sendto(response.serialize(), client)
+                    self.log.log_rp(response.domain, str(client), response.to_string())
+                else:  # Timeout?
+                    self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
+
+            else: # Pode responder a todos os domínios
+                response = self.build_response(message)
+
+                if "Q" in response.flags: # Inicia o modo iterativo
+                    next_step = Server.parse_address(self.config["ST"][0])
+                    response_code = 1
+
+                    while response_code == 1:
+                        socket_udp.sendto(response.serialize(), next_step)
+                        self.log.log_rp(response.domain, str(client), response.to_string()) # if para quando é query
+
+                        response, address = socket_udp.recvfrom(4096)
+                        response = DNSMessage.deserialize(response)  # Cria uma DNSMessage
+
+                        response_code = response.response_code
+                        next_step = self.find_next_step(response)
+
+                    socket_udp.sendto(response.serialize(), client)  # Enviar de volta para o cliente
+                    self.log.log_rp(response.domain, str(client), response.to_string())
+
+                else:
+                    socket_udp.sendto(response.serialize(), client)
+                    self.log.log_rp(response.domain, str(client), response.to_string())
+
 
         elif self.is_resolution_server():  # Se for servidor de resolução
             response = self.build_response(message) # TODO: adicionar flag R se aceitar modo recursivo
@@ -289,7 +323,7 @@ class Server:
                     self.log.log_zt(domain, str(address_from), "SP : Zone transfer started")
                     t_start = time.time()
 
-                response = self.build_response(query)
+                response = self.axfr_response(query)
 
                 if response.response_code == 0:
                     self.log.log_rp(domain, str(address_from), response.to_string())
