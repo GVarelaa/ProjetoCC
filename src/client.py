@@ -24,33 +24,48 @@ def main():
     port = 5353  # porta default
     domain_name = args[1]
     type = args[2]
-    flags = "Q"
-    debug = False
+    flags = "Q"  # Flags default
+    timeout = 10  # Valor de timeout default
+    debug = False  # Modo debug desligado por default
 
     if len(args_split) > 1:  # Se a porta for especificada, atualizar
         port = int(args_split[1])
 
-    if 4 <= len(args) <= 5:
-        if args[3] == "debug":
-            debug = True
-
-        elif args[3] == "R":
+    if 4 <= len(args) <= 6:
+        if args[3] == "R":
             flags = "Q+R"
 
-            if args[4] == "debug":
-                debug = True
-            else:
-                sys.stdout.write("Wrong mode")
-                return
+            if len(args) > 4:
+                if args[4].isdigit():
+                    timeout = int(args[4])
+
+                elif args[4] == "debug":
+                    debug = True
+
+                else:
+                    sys.stdout.write("Invalid timeout value or mode")
+                    return
+
+        elif args[3].isdigit():
+            timeout = int(args[3])
+
+            if len(args) > 4:
+                if args[4] == "debug":
+                    debug = True
+
+                else:
+                    sys.stdout.write("Invalid mode")
+                    return
+
+        elif args[3] == "debug":
+            debug = True
 
         else:
-            sys.stdout.write("Wrong argument")
+            sys.stdout.write("Invalid flag, timeout value or mode")
             return
 
-    print(ip_address)
-    print(port)
-
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
+    socket_udp.settimeout(timeout)
 
     query = DNSMessage(message_id, flags, 0, domain_name, type)  # Criar mensagem
 
@@ -59,16 +74,21 @@ def main():
     else:
         socket_udp.sendto(query.serialize(), (ip_address, port))
 
-    message = socket_udp.recv(4096)  # Receber resposta do servidor
+    try:
+        message = socket_udp.recv(4096)  # Receber resposta do servidor
 
-    if debug:  # Descodificação da resposta do servidor
-        message = DNSMessage.from_string(message)
-    else:
-        message = DNSMessage.deserialize(message)
+        if debug:  # Descodificação da resposta do servidor
+            message = DNSMessage.from_string(message)
+        else:
+            message = DNSMessage.deserialize(message)
 
-    sys.stdout.write(message.to_string())
+        sys.stdout.write(message.to_string())
 
-    socket_udp.close()
+        socket_udp.close()
+
+    except socket.timeout as e:
+        sys.stdout.write("Timeout occured")
+        socket_udp.close()
 
 
 if __name__ == "__main__":

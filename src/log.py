@@ -20,13 +20,6 @@ class Log:
         self.is_debug = is_debug  # True -> print para stdout
         self.lock = threading.Lock()
 
-    def __str__(self):
-        """
-        Devolve a representação em string do objeto Log
-        """
-        #data = self.domain_filepath.read() MUDAR
-        return "FAZER"
-
     def log_qe(self, domain, ip_address, data):
         """
         Regista log de query enviada
@@ -34,7 +27,7 @@ class Log:
         :param data: Dados
         """
         message = "QE " + ip_address + " " + data
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_qr(self, domain, ip_address, data):
         """
@@ -43,7 +36,7 @@ class Log:
         :param data: Dados
         """
         message = "QR " + ip_address + " " + data                   
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_rp(self, domain, ip_address, data):
         """
@@ -52,7 +45,7 @@ class Log:
         :param data: Dados
         """
         message = "RP " + ip_address + " " + data                   
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_rr(self, domain, ip_address, data):
         """
@@ -61,7 +54,7 @@ class Log:
         :param data: Dados
         """
         message = "RR " + ip_address + " " + data                           
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_zt(self, domain, ip_address, data, duration=""):
         """
@@ -71,7 +64,7 @@ class Log:
         :param duration: Duração
         """
         message = "ZT " + ip_address + " " + data + " " + duration
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_ev(self, domain, ip_address, event, event_data):
         """
@@ -81,7 +74,7 @@ class Log:
         :param event_data: Dados do evento
         """
         message = "EV " + ip_address + " " + event + " " + event_data
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_er(self, domain, ip_address, info):
         """
@@ -90,7 +83,7 @@ class Log:
         :param info: Informação
         """
         message = "ER " + ip_address + " " + info  # ip_address - source, info - onde ocorreu o erro
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_ez(self, domain, ip_address, data):
         """
@@ -99,7 +92,7 @@ class Log:
         :param data: Dados
         """
         message = "EZ " + ip_address + " " + data  # data - papel do servidor local
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_fl(self, domain, entry, info):
         """
@@ -108,17 +101,17 @@ class Log:
         :param info: Informação
         """
         message = "FL 127.0.0.1 | Entry: " + entry + " | " + info  # Info - razão (erros de parsing, erros na descodificação, etc)
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
-    def log_to(self, domain, ip_address, info):
+    def log_to(self, info):
         """
         Regista log de um timeout
         :param ip_address: Endereço IP
         :param info: Informação
         :return:
         """
-        message = "TO " + ip_address + " " + info  # Info - tipo de timeout (ex: numa resposta a query, ou a tentar conectar ao SP para ZT)
-        self.add_log(domain, message)
+        message = "TO " + info  # Info - tipo de timeout (ex: numa resposta a query, ou a tentar conectar ao SP para ZT)
+        self.add_log(message)
 
     def log_sp(self, domain, ip_address, info):
         """
@@ -127,7 +120,7 @@ class Log:
         :param info: Informação
         """
         message = "SP " + ip_address + " " + info               
-        self.add_log(domain, message)
+        self.add_log(message, domain)
 
     def log_st(self, domain, ip_address, port, timeout, mode):
         """
@@ -139,27 +132,27 @@ class Log:
         """
         if mode == "shy" or mode == "debug":
             message = "ST " + ip_address + " " + port + " " + timeout + " " + mode
-            self.add_log(domain, message)
+            self.add_log(message, domain)
 
     # Method called by the others
-    def add_log(self, domain, message):
+    def add_log(self, message, domain=None):
         """
         Regista log nos ficheiros das variáveis de instância
         :param message: Mensagem a ser registada
         """
+        self.lock.acquire()
         dt = datetime.now().strftime("%d:%m:%Y.%H:%M:%S:%f")
         if domain in self.file_paths.keys():
-            self.lock.acquire()
-
             domain_fd = open(self.file_paths[domain], "a")
-
             domain_fd.write(dt + " " + message + "\n")
-
             domain_fd.close()
-
-            self.lock.release()
+        else:
+            all_fd = open(self.file_paths["all", "a"])
+            all_fd.write(dt + " " + message + "\n")
+            all_fd.close()
 
         if self.is_debug:
             sys.stdout.write(dt + " " + message + "\n")
 
+        self.lock.release()
 

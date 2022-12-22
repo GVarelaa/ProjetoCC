@@ -40,6 +40,7 @@ def main():
         return
 
     print(server.cache)
+    print(server.log.file_paths)
 
     if len(server.config["SS"].values()) != 0: # Só recebe pedidos de transferência se for primário para algum domínio
         threading.Thread(target=server.sp_zone_transfer).start()
