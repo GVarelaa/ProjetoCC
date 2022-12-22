@@ -68,3 +68,9 @@ class InvalidValueSoaexpire(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__("Invalid value for SOAEXPIRE")
+
+
+class ZoneTransferFailed(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__("Zone transfer failed")

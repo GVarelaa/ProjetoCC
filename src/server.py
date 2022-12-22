@@ -9,6 +9,7 @@ import threading
 import time
 from datetime import datetime
 
+import exceptions
 from dns_message import *
 from resource_record import ResourceRecord
 
@@ -227,7 +228,6 @@ class Server:
         except socket.timeout as e:
             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
-
     def interpret_message(self, message, client):
         """
         Determina o próximo passo de uma mensagem DNS
@@ -300,7 +300,6 @@ class Server:
 
             self.sendto_socket(socket_udp, response, client)
 
-
     def sp_zone_transfer(self):
         """
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
@@ -372,15 +371,15 @@ class Server:
         soaretry = 10  # soaretry default
 
         while True:
-            success = self.ss_zone_transfer_process(domain)
-
-            if not success:
-                wait = soaretry
-            else:
+            try:
+                self.ss_zone_transfer_process(domain)
                 self.cache.register_soaexpire(domain)
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
                 wait = soarefresh
+
+            except exceptions.ZoneTransferFailed as e:
+                wait = soaretry
 
             time.sleep(wait)
 
@@ -393,16 +392,13 @@ class Server:
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_tcp.connect((address, port))
 
-        expected_value = 1
-
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
         socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
 
         self.log.log_qe(domain, str(address), query.to_string())
 
         while True:
-            message = socket_tcp.recv(2048)  # Recebe mensagens (queries/linhas da base de dados)
-            message = DNSMessage.deserialize(message)
+            message, address = self.recvfrom_socket(socket_tcp)
 
             if message.response_code == 0:
                 if message.type == "SOASERIAL":
@@ -423,6 +419,20 @@ class Server:
                     self.log.log_rp(domain, str(address), message.to_string())
                     break
 
+        try:
+            database_lines = Server.receive_database_records(socket_tcp)
+            self.add_records_to_db(socket_tcp, database_lines, domain)
+
+            t_end = time.time()
+            self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", str(round(t_end - t_start, 5)) + "s")
+            socket_tcp.close()
+
+        except exceptions.ZoneTransferFailed as e:
+            socket_tcp.close()
+            raise e
+
+    @staticmethod
+    def receive_database_records(socket_tcp):
         end = time.time() + 10
         success = False
 
@@ -437,28 +447,27 @@ class Server:
             database_lines += message.decode('utf-8')
 
         if not success:
-            return False
+            raise exceptions.ZoneTransferFailed("Timeout occurred")
 
         database_lines = database_lines[:-1].split("\n")
+
+        return database_lines
+
+    def add_records_to_db(self, socket_tcp, database_lines, domain):
+        address, port = Server.parse_address(self.config["SP"][domain])
+        expected_value = 1
 
         for line in database_lines:
             index, record = Server.remove_index(line)
 
-            if index != expected_value:  # timeout
+            if index != expected_value:
                 self.log.log_ez(domain, str(address), "SS : Expected value does not match")
-
                 socket_tcp.close()
-                return False
+                raise exceptions.ZoneTransferFailed("Unexpected record")
 
             self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP), domain)
 
             expected_value += 1
-
-        t_end = time.time()
-        self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", str(round(t_end - t_start, 5)) + "s")
-        socket_tcp.close()
-
-        return True
 
     @staticmethod
     def remove_index(record):
