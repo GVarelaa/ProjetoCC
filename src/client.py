@@ -46,7 +46,7 @@ def main():
         else:
             sys.stdout.write("Wrong argument")
             return
-            
+
     print(ip_address)
     print(port)
 
