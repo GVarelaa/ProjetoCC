@@ -214,14 +214,16 @@ class Server:
         else:
             self.log.log_rp(message.domain, str(address), message.to_string())
 
-    def recvfrom_socket(self, sockett):
-        message, address = sockett.recvfrom(4096)
-        message = DNSMessage.deserialize(message)
+    def recvfrom_socket(self, socket):
+        message, address = socket.recvfrom(4096)
 
-        if "Q" in message.flags:
-            self.log.log_qr(message.domain, str(address), message.to_string())
-        else:
-            self.log.log_rr(message.domain, str(address), message.to_string())
+        if message:
+            message = DNSMessage.deserialize(message)
+
+            if "Q" in message.flags:
+                self.log.log_qr(message.domain, str(address), message.to_string())
+            else:
+                self.log.log_rr(message.domain, str(address), message.to_string())
 
         return message, address
 
@@ -312,7 +314,6 @@ class Server:
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
         """
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.timeout(int(self.timeout))
         socket_tcp.bind(("", self.port))
         socket_tcp.listen()
 
@@ -329,18 +330,21 @@ class Server:
         :param connection: Conexão estabelecida
         :param address_from: Endereço do servidor secundário
         """
+        connection.settimeout(int(self.timeout))
         domain = None
+
         while True:
             try:
                 message, address = self.recvfrom_socket(connection)
-                domain = message.domain
-            except socket.timeout as e:
+            except socket.timeout:
                 self.log.log_ez(domain, str(connection), "SP")
                 self.log.log_to("Timeout a receber mensagem DNS na transferência de zona!")
                 break
 
             if not message:
                 break
+
+            domain = message.domain
 
             if message.flags == "Q":  # Pedir versão/transferência de zona e envia
                 if message.type == "AXFR":
