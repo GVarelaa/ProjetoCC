@@ -91,10 +91,10 @@ class Server:
                 if server == record.domain:
                     return Server.parse_address(record.value)
 
-        if not self.is_name_server() and self.is_domain_in_dd(query.domain):
+        if not self.is_name_server() and self.is_domain_in_dd(query.domain): # antes ou depois
             return Server.parse_address(self.config["DD"][query.domain])
 
-        return Server.parse_address(self.config["ST"][0])
+        return Server.parse_address(self.config["ST"][0]) # pega o primeiro servidor de topo?
 
     @staticmethod
     def find_next_domain(domain):
@@ -303,7 +303,6 @@ class Server:
 
         else:
             response = self.build_response(message)
-            time.sleep(15)
             self.sendto_socket(socket_udp, response, client)
 
         socket_udp.close()
@@ -337,7 +336,7 @@ class Server:
             try:
                 message, address = self.recvfrom_socket(connection)
             except socket.timeout:
-                self.log.log_ez(domain, str(connection), "SP")
+                self.log.log_ez(domain, str(address_from), "SP")
                 self.log.log_to("Timeout a receber mensagem DNS na transferência de zona!")
                 break
 
@@ -373,11 +372,13 @@ class Server:
         connection.close()
 
     def ss_zone_transfer(self, domain):  # Ir aos seus SPs
-        soaretry = 10  # soaretry default
+        soaretry = 10
+        wait = soaretry  # soaretry default
 
         while True:
             socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket_tcp.connect(Server.parse_address(self.config["SP"][domain]))
+            socket_tcp.settimeout(int(self.timeout))
 
             try:
                 self.ss_ask_version(socket_tcp, domain)
@@ -397,7 +398,6 @@ class Server:
 
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
-
                 wait = soarefresh
 
             except exceptions.ZoneTransferFailed as e:
@@ -411,6 +411,7 @@ class Server:
 
             except socket.timeout as e:
                 self.log.log_to(e.args[0])
+                socket_tcp.close()
 
             print(self.cache)
             time.sleep(wait)
