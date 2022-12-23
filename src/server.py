@@ -214,8 +214,8 @@ class Server:
         else:
             self.log.log_rp(message.domain, str(address), message.to_string())
 
-    def recvfrom_socket(self, socket):
-        message, address = socket.recvfrom(4096)
+    def recvfrom_socket(self, sockett):
+        message, address = sockett.recvfrom(4096)
         message = DNSMessage.deserialize(message)
 
         if "Q" in message.flags:
@@ -306,6 +306,7 @@ class Server:
 
         socket_udp.close()
 
+# ===========================================   TRANSFERÊNCIA DE ZONA   ==============================================
     def sp_zone_transfer(self):
         """
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
@@ -354,14 +355,12 @@ class Server:
 
             elif message.response_code == 0:  # Secundário aceitou linhas e respondeu com o nº de linhas
                 entries = self.cache.get_file_entries_by_domain(message.domain)
-
-                counter = 1
+                index = 1
                 for record in entries:
                     if record.origin == Origin.FILE:
-                        record = str(counter) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
+                        record = str(index) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
                         connection.sendall(record.encode('utf-8'))
-
-                        counter += 1
+                        index += 1
 
                 t_end = time.time()
                 self.log.log_zt(domain, str(address_from), "SP : All entries sent", str(round(t_end - t_start, 5)) + "s")
@@ -373,10 +372,25 @@ class Server:
         soaretry = 10  # soaretry default
 
         while True:
-            try:
-                self.ss_zone_transfer_process(domain)
+            socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_tcp.connect(Server.parse_address(self.config["SP"][domain]))
 
-                self.cache.register_soaexpire(domain)
+            try:
+                self.ss_ask_version(socket_tcp, domain)
+
+                start = time.time()
+                self.log.log_zt(domain, str(Server.parse_address(self.config["SP"][domain])),
+                                "SS : Zone Transfer started")
+
+                self.ss_ask_zone_transfer(socket_tcp, domain)
+                self.ss_receive_records(socket_tcp, domain)
+
+                end = time.time()
+                self.log.log_zt(domain, str(Server.parse_address(self.config["SP"][domain])),
+                                "SS : Zone Transfer concluded successfully", str(round(end - start, 5)) + "s")
+
+                socket_tcp.close()
+
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
 
@@ -384,61 +398,63 @@ class Server:
 
             except exceptions.ZoneTransferFailed as e:
                 self.log.log_ez(domain, self.config["SP"][domain], e.message)
+                socket_tcp.close()
                 wait = soaretry
 
             except exceptions.ZoneTransferDatabaseIsUpToDate as e:
                 self.log.log_ez(domain, self.config["SP"][domain], e.message)
+                socket_tcp.close()
+
+            except socket.timeout as e:
+                self.log.log_to(e.args[0])
 
             print(self.cache)
             time.sleep(wait)
 
-    def ss_zone_transfer_process(self, domain):
+    def ss_ask_version(self, socket_tcp, domain):
+        query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
+        socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
+        self.log.log_qe(domain, str(Server.parse_address(self.config["SP"][domain])), query.to_string())
+
+        try:
+            message, address = self.recvfrom_socket(socket_tcp)
+
+            ss_version = self.get_version(domain)
+            sp_version = message.response_values[0].value
+
+            if float(sp_version) > float(ss_version):
+                self.cache.free_sp_entries(domain)
+            else:
+                raise exceptions.ZoneTransferDatabaseIsUpToDate("Database is up to date")
+
+        except socket.timeout:
+            raise socket.timeout('Attempt of getting the database version.')
+
+    def ss_ask_zone_transfer(self, socket_tcp, domain):
         """
         Processo de transferência de zona do servidor secundário
         """
-        address, port = Server.parse_address(self.config["SP"][domain])
+        query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR
+        socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
+        self.log.log_qe(domain, str(Server.parse_address(self.config["SP"][domain])), query.to_string())
 
-        socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.connect((address, port))
-
-        query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
-        socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
-
-        self.log.log_qe(domain, str(address), query.to_string())
-
-        while True:
+        try:
             message, address = self.recvfrom_socket(socket_tcp)
 
-            if message.response_code == 0:
-                if message.type == "SOASERIAL":
-                    self.log.log_rr(domain, str(address), message.to_string())
+            socket_tcp.sendall(message.serialize())
+            self.log.log_rp(domain, str(address), message.to_string())
+        except socket.timeout:
+            raise socket.timeout('Attempt of starting zone transfer.')
 
-                    ss_version = self.get_version(domain)
-                    sp_version = message.response_values[0].value
 
-                    if not self.interpret_version(sp_version, ss_version, socket_tcp, address, message, domain):
-                        raise exceptions.ZoneTransferDatabaseIsUpToDate("Database is up to date")
-
-                    t_start = time.time()
-
-                elif message.type == "AXFR":
-                    self.log.log_rr(domain, str(address), message.to_string())
-
-                    socket_tcp.sendall(message.serialize())  # Recebe o nº de linhas e reenvia
-                    self.log.log_rp(domain, str(address), message.to_string())
-                    break
-
+    def ss_receive_records(self, socket_tcp, domain):
         try:
             database_lines = Server.receive_database_records(socket_tcp)
             self.add_records_to_db(socket_tcp, database_lines, domain)
+            self.cache.register_soaexpire(domain)
 
-            t_end = time.time()
-            self.log.log_zt(domain, str(address), "SS : Zone Transfer concluded successfully", str(round(t_end - t_start, 5)) + "s")
-            socket_tcp.close()
-
-        except exceptions.ZoneTransferFailed as e:
-            socket_tcp.close()
-            raise e
+        except exceptions.ZoneTransferFailed:
+            raise
 
     @staticmethod
     def receive_database_records(socket_tcp):
@@ -463,19 +479,15 @@ class Server:
         return database_lines
 
     def add_records_to_db(self, socket_tcp, database_lines, domain):
-        address, port = Server.parse_address(self.config["SP"][domain])
         expected_value = 1
 
         for line in database_lines:
             index, record = Server.remove_index(line)
 
             if index != expected_value:
-                self.log.log_ez(domain, str(address), "SS : Expected value does not match")
-                socket_tcp.close()
                 raise exceptions.ZoneTransferFailed("Unexpected record")
 
             self.cache.add_entry(ResourceRecord.to_record(record, Origin.SP), domain)
-
             expected_value += 1
 
     @staticmethod
@@ -507,30 +519,4 @@ class Server:
 
         return ss_version
 
-    def interpret_version(self, sp_version, ss_version, socket_tcp, address, response, domain):
-        """
-        Interpreta as versões do SP e do SS e envia a query a pedir transferência se a BD do SS estiver desatualizada
-        :param sp_version: Versão do servidor primário
-        :param ss_version: Versáo do servidor secundário
-        :param socket_tcp: Socket TCP
-        :param address: Endereço IP do servidor primário
-        :param response: Resposta do servidor primário a interpretar
-        :return: Bool
-        """
-        bool = False
 
-        if float(sp_version) > float(ss_version):
-            self.cache.free_sp_entries(domain)  # apagar as entradas "SP"
-
-            query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR
-
-            socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
-            self.log.log_qe(domain, str(address), query.to_string())
-            self.log.log_zt(domain, str(address), "SS : Zone Transfer started")
-
-            bool = True
-
-        else:  # BD está atualizada
-            socket_tcp.close()
-
-        return bool
