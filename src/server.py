@@ -373,14 +373,21 @@ class Server:
         while True:
             try:
                 self.ss_zone_transfer_process(domain)
+
                 self.cache.register_soaexpire(domain)
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
+
                 wait = soarefresh
 
             except exceptions.ZoneTransferFailed as e:
+                self.log.log_ez(domain, self.config["SP"][domain], e.message)
                 wait = soaretry
 
+            except exceptions.ZoneTransferDatabaseIsUpToDate as e:
+                self.log.log_ez(domain, self.config["SP"][domain], e.message)
+
+            print(self.cache)
             time.sleep(wait)
 
     def ss_zone_transfer_process(self, domain):
@@ -408,7 +415,7 @@ class Server:
                     sp_version = message.response_values[0].value
 
                     if not self.interpret_version(sp_version, ss_version, socket_tcp, address, message, domain):
-                        break
+                        raise exceptions.ZoneTransferDatabaseIsUpToDate("Database is up to date")
 
                     t_start = time.time()
 
@@ -522,7 +529,6 @@ class Server:
             bool = True
 
         else:  # BD está atualizada
-            self.log.log_zt(domain, str(address), "SS : Database is up-to-date")
             socket_tcp.close()
 
         return bool

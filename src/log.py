@@ -147,7 +147,7 @@ class Log:
             domain_fd.write(dt + " " + message + "\n")
             domain_fd.close()
         else:
-            all_fd = open(self.file_paths["all", "a"])
+            all_fd = open(self.file_paths["all"], "a")
             all_fd.write(dt + " " + message + "\n")
             all_fd.close()
 
