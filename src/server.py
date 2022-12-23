@@ -215,18 +215,15 @@ class Server:
             self.log.log_rp(message.domain, str(address), message.to_string())
 
     def recvfrom_socket(self, socket):
-        try:
-            message, address = socket.recvfrom(4096)
-            message = DNSMessage.deserialize(message)
+        message, address = socket.recvfrom(4096)
+        message = DNSMessage.deserialize(message)
 
-            if "Q" in message.flags:
-                self.log.log_qr(message.domain, str(address), message.to_string())
-            else:
-                self.log.log_rr(message.domain, str(address), message.to_string())
+        if "Q" in message.flags:
+            self.log.log_qr(message.domain, str(address), message.to_string())
+        else:
+            self.log.log_rr(message.domain, str(address), message.to_string())
 
-            return message, address
-        except socket.timeout as e:
-            self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+        return message, address
 
     def interpret_message(self, message, client):
         """
@@ -236,7 +233,7 @@ class Server:
         :param socket_udp: Socket UDP
         """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP para enviar mensagens
-        socket_udp.settimeout(self.timeout)
+        socket_udp.settimeout(int(self.timeout))
 
         if self.is_name_server():  # Se for SP ou SS para algum domínio
             if self.has_default_domains(): # Name server tem domínios por defeito
@@ -257,15 +254,21 @@ class Server:
                     while response_code == 1:
                         self.sendto_socket(socket_udp, response, next_step)
 
-                        response, address = self.recvfrom_socket(socket_udp)
+                        try:
+                            response, address = self.recvfrom_socket(socket_udp)
+                        except socket.timeout as e:
+                            self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+                            break
 
                         response_code = response.response_code
                         next_step = self.find_next_step(response)
 
                     if response_code == 0:
+                        self.sendto_socket(socket_udp, response, client)
                         self.cache_response(response)
+                    elif response_code == 2:
+                        self.sendto_socket(socket_udp, response, client)
 
-                    self.sendto_socket(socket_udp, response, client)
                 else:
                     self.sendto_socket(socket_udp, response, client)
 
@@ -275,37 +278,41 @@ class Server:
             if response.response_code == 0 and "Q" not in response.flags:  # Foi à cache e encontrou resposta
                 self.sendto_socket(socket_udp, response, client)
             else:
-                # Inicia o processo iterativo
-                # Primeiro vai aos DD
-                # Senão vai so ST
-                #if self.handles_recursion == False:
-                    # Erro para o cliente
                 next_step = self.find_next_step(response)
-
                 response_code = 1
+
                 while response_code == 1:
                     self.sendto_socket(socket_udp, response, next_step)
 
-                    response, address = self.recvfrom_socket(socket_udp)
+                    try:
+                        response, address = self.recvfrom_socket(socket_udp)
+                    except socket.timeout as e:
+                        self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+                        break
 
                     response_code = response.response_code
                     next_step = self.find_next_step(response)
 
                 if response_code == 0:
                     self.cache_response(response)
+                    self.sendto_socket(socket_udp, response, client)
+                elif response_code == 2:
+                    self.sendto_socket(socket_udp, response, client)
 
-                self.sendto_socket(socket_udp, response, client)
         else:
             response = self.build_response(message)
-
+            time.sleep(15)
             self.sendto_socket(socket_udp, response, client)
+
+        socket_udp.close()
 
     def sp_zone_transfer(self):
         """
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
         """
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket_tcp.bind(("127.0.0.1", self.port))
+        socket_tcp.timeout(int(self.timeout))
+        socket_tcp.bind(("", self.port))
         socket_tcp.listen()
 
         while True:
@@ -321,51 +328,46 @@ class Server:
         :param connection: Conexão estabelecida
         :param address_from: Endereço do servidor secundário
         """
+        domain = None
         while True:
-            message = connection.recv(2048)  # Recebe queries (versão/pedido de transferência)
+            try:
+                message, address = self.recvfrom_socket(connection)
+                domain = message.domain
+            except socket.timeout as e:
+                self.log.log_ez(domain, str(connection), "SP")
+                self.log.log_to("Timeout a receber mensagem DNS na transferência de zona!")
+                break
 
             if not message:
                 break
 
-            query = DNSMessage.deserialize(message)
-            domain = query.domain
-
-            if query.flags == "Q":  # Pedir versão/transferência de zona e envia
-                self.log.log_qr(domain, str(address_from), query.to_string())
-
-                if query.type == "AXFR":
-                    self.log.log_zt(domain, str(address_from), "SP : Zone transfer started")
+            if message.flags == "Q":  # Pedir versão/transferência de zona e envia
+                if message.type == "AXFR":
                     t_start = time.time()
+                    self.log.log_zt(domain, str(address_from), "SP : Zone transfer started")
+                    response = self.axfr_response(message)
+                elif message.type == "SOASERIAL":
+                    response = self.build_response(message)
 
-                response = self.axfr_response(query)
+                connection.sendall(response.serialize())
+                self.log.log_rp(domain, str(address_from), response.to_string())
 
-                if response.response_code == 0:
-                    self.log.log_rp(domain, str(address_from), response.to_string())
-                    connection.sendall(response.serialize())
+            elif message.response_code == 0:  # Secundário aceitou linhas e respondeu com o nº de linhas
+                entries = self.cache.get_file_entries_by_domain(message.domain)
 
-                else:
-                    self.log.log_to(domain, str(address_from), "Query Miss")
+                counter = 1
+                for record in entries:
+                    if record.origin == Origin.FILE:
+                        record = str(counter) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
+                        connection.sendall(record.encode('utf-8'))
 
-            elif query.response_code == 0:  # Secundário aceitou linhas e respondeu com o nº de linhas
-                self.log.log_rr(domain, str(address_from), query.to_string())
-
-                num_entries, entries = self.cache.get_file_entries_by_domain(query.domain)
-                lines_number = int(query.response_values[0].value)
-
-                if lines_number == num_entries:
-                    counter = 1
-                    for record in entries:
-                        if record.origin == Origin.FILE:
-                            record = str(
-                                counter) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
-                            connection.sendall(record.encode('utf-8'))
-
-                            counter += 1
+                        counter += 1
 
                 t_end = time.time()
                 self.log.log_zt(domain, str(address_from), "SP : All entries sent", str(round(t_end - t_start, 5)) + "s")
-                connection.close()
                 break
+
+        connection.close()
 
     def ss_zone_transfer(self, domain):  # Ir aos seus SPs
         soaretry = 10  # soaretry default

@@ -106,16 +106,13 @@ class Cache:
         self.check_expire_domain(domain)
 
         entries = list()
-        counter = 0
-
         for record in self.domains[domain]:
             if record.origin == Origin.FILE:
                 entries.append(record)
-                counter += 1
 
         self.lock.release()
 
-        return counter, entries
+        return entries
 
     def get_records_by_domain_and_type(self, domain, type):
         """
