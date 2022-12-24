@@ -162,33 +162,31 @@ class DNSMessage:
                 num_extra_values, name, type, response_values, authorities_values, extra_values)
 
     def encode_flags(self):
-        match self.flags:
-            case "":
-                flags = 0
-            case "Q":
-                flags = 1
-            case "R":
-                flags = 2
-            case "A":
-                flags = 3
-            case "Q+R":
-                flags = 4
+        if self.flags == "":
+            flags = 0
+        elif self.flags == "Q":
+            flags = 1
+        elif self.flags == "R":
+            flags = 2
+        elif self.flags == "A":
+            flags = 3
+        elif self.flags == "Q+R":
+            flags = 4
 
         return BitArray(uint=flags, length=3) # MUDAMOS
 
     @staticmethod
     def decode_flags(flags):
-        match flags:
-            case 0:
-                flags = ""
-            case 1:
-                flags = "Q"
-            case 2:
-                flags = "R"
-            case 3:
-                flags = "A"
-            case 4:
-                flags = "Q+R"
+        if flags == 0:
+            flags = ""
+        elif flags == 1:
+            flags = "Q"
+        elif flags == 2:
+            flags = "R"
+        elif flags == 3:
+            flags = "A"
+        elif flags == 4:
+            flags = "Q+R"
 
         return flags
 
