@@ -1,0 +1,35 @@
+# DNS database file for domain .fcp
+
+@ DEFAULT fcp.
+TTL DEFAULT 86400
+
+@ SOASP ns1.fcp. TTL
+@ SOADMIN admin.\fcp. TTL
+@ SOASERIAL 1 TTL
+@ SOAREFRESH 14400 TTL
+@ SOARETRY 3600
+@ SOAEXPIRE 604800 TTL
+
+# Name servers
+@ NS ns1.fcp. TTL
+@ NS ns2.fcp. TTL
+@ NS ns3.fcp. TTL
+
+taremi.@ NS ns1.taremi.fcp.
+
+# MAIL SERVERS
+@ MX ms1.fcp. TTL
+
+# Addresses
+ns1 A 10.2.2.2:2000 TTL
+ns2 A 10.3.3.2:2000 TTL
+ns3 A 10.4.4.3:2000 TTL
+ns1.taremi A 10.4.4.1:2000 TTL
+ms1 A 10.2.2.1 TTL
+pdc A 10.4.4.1 TTL
+avb A 10.4.4.2 TTL
+
+sp CNAME ns1 TTL
+ss1 CNAME ns2 TTL
+ss2 CNAME ns3 TTL
+mail1 CNAME ms1 TTL

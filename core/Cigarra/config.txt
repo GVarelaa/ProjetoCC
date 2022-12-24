@@ -1,0 +1,6 @@
+ggm SP 10.2.2.1:2000
+ggm LG dns/files/log_files/ggm.log
+in-addr.reverse. DB dns/files/db_files/in-addr_reverse.db
+in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
