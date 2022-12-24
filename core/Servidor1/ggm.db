@@ -17,7 +17,7 @@ TTL DEFAULT 86400
 # Primary server of cc.ggm subdomain
 cc.@ NS sp.cc.@ TTL
 
-@ MX ms1.@ TTL 
+@ MX ms1.@ TTL
 @ MX ms2.@ TTL
 
 sp A 10.2.2.1:2000 TTL
@@ -31,8 +31,5 @@ ms1 A 10.3.3.1 TTL
 ms2 A 10.3.3.3 TTL
 
 miguel CNAME mike TTL
-guilherme CNAME gui TTL 
+guilherme CNAME gui TTL
 gabriela CNAME gabs TTL
-
-
-
