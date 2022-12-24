@@ -1,6 +1,6 @@
 # DNS database file for domain taremi.fcp
 
-@ DEFAULT .taremi.fcp
+@ DEFAULT taremi.fcp
 TTL DEFAULT 86400
 
 @ SOASP ns1.taremi.fcp. TTL

@@ -1,6 +1,6 @@
 # DNS database file for reverse domain.
 
-@ DEFAULT .reverse.
+@ DEFAULT reverse.
 TTL DEFAULT 86400
 
 # Config data
