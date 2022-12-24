@@ -325,7 +325,8 @@
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -458,7 +459,8 @@ ip route add default via 2001:2:2::254
         <startup>mv servidor2.txt dns/files/config_files</startup>
         <startup>mv fcp.db dns/files/db_files</startup>
         <startup>mv rootservers.db dns/files/</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor2.txt 2000 100 0]]></file>
@@ -535,7 +537,8 @@ ip route add default via 2001:2:2::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -627,7 +630,8 @@ ip route add default via 2001:1:1::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -728,7 +732,8 @@ ip route add default via 2001:1:1::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -839,7 +844,8 @@ ip route add default via 2001:4:4::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -929,7 +935,8 @@ ip route add default via 2001:4:4::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -1034,7 +1041,8 @@ ip route add default via 2001:3:3::254
         <startup>mv reverse.db dns/files/db_files/reverse.db</startup>
         <startup>mv Golfinho.txt dns/files/config_files/Golfinho.txt</startup>
         <startup>mv rootservers.db dns/files/rootservers.db</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/Golfinho.txt 2000 100 0]]></file>
@@ -1131,7 +1139,8 @@ ip route add default via 2001:3:3::254
         <startup>mkdir dns/files/log_files</startup>
         <startup>mv rootservers.db dns/files/</startup>
         <startup>mv servidor3.txt dns/files/config_files/</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor3.txt 2000 100 0]]></file>
@@ -1172,7 +1181,8 @@ ip route add default via 2001:2:2::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -1228,7 +1238,8 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/log_files</startup>
         <startup>mv Foca.txt dns/files/config_files</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mv rootservers.db dns/files/rootservers.db</startup>
       </startups>
       <files>
@@ -1286,7 +1297,8 @@ ip route add default via 2001:3:3::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/ dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
