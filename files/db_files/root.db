@@ -11,8 +11,12 @@ TTL DEFAULT 86400
 # Name servers
 root. NS s1. TTL 
 root. NS s2. TTL 
-ggm. NS ns1.ggm. TTL 
-fcp. NS ns1.fcp. TTL 
+ggm. NS sp.ggm. TTL
+ggm. NS ss1.ggm. TTL
+ggm. NS ss2.ggm. TTL
+fcp. NS sp.fcp. TTL
+fcp. NS ss1.fcp. TTL
+fcp. NS ss2.fcp. TTL
 reverse. NS ns1.reverse. TTL 
 
 # Addresses
@@ -26,7 +30,7 @@ ss2.fcp. A 10.4.4.3:2000 TTL
 sp.reverse. A 10.3.3.2:2000 TTL
 
 s1. A 10.2.2.1:2000 TTL
-s2. A 10.3.3.1:2000 TTL 
+s2. A 10.3.3.1:2000 TTL
 
 
 
