@@ -396,6 +396,8 @@ class Server:
 
                 socket_tcp.close()
 
+                print(self.cache)
+
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
                 wait = soarefresh
