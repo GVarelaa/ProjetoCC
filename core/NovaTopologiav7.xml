@@ -325,9 +325,9 @@
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
+        <startup>mkdir dns/files</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/core/Servidor1 dns/files</startup>
-        <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
         <startup>mv rootservers.db dns/files/rootservers.db</startup>
@@ -537,8 +537,6 @@ ip route add default via 2001:2:2::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Portatil1 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -548,6 +546,8 @@ ip route add default via 2001:2:2::254
         <startup>mv portatil1.txt dns/files/config_files/portatil1.txt</startup>
         <startup>mv rootservers.db dns/files/</startup>
         <startup>mv 10_in-addr_reverse.db dns/files/db_files/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil1 dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Portatil1/config.txt 2000 100 0]]></file>
@@ -630,8 +630,6 @@ ip route add default via 2001:1:1::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Portatil2 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -640,6 +638,8 @@ ip route add default via 2001:1:1::254
         <startup>touch dns/files/log_files/ggm.log</startup>
         <startup>mv portatil2.txt dns/files/config_files/portatil2.txt</startup>
         <startup>mv cc_ggm.db dns/files/db_files/cc_ggm.db</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil2 dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Portatil2/config.txt 2000 100 0]]></file>
@@ -732,8 +732,6 @@ ip route add default via 2001:1:1::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Grilo dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -743,6 +741,8 @@ ip route add default via 2001:1:1::254
         <startup>touch dns/files/log_files/taremi_fcp.log</startup>
         <startup>touch dns/files/log_files/ggm.log</startup>
         <startup>mv taremi_fcp.db dns/files/db_files</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Grilo dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Grilo/config.txt 2000 100 0]]></file>
@@ -844,8 +844,6 @@ ip route add default via 2001:4:4::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Cigarra dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -856,6 +854,8 @@ ip route add default via 2001:4:4::254
         <startup>mv Cigarra.txt dns/files/config_files/Cigarra.txt</startup>
         <startup>touch dns/files/log_files/all.log</startup>
         <startup>touch dns/files/log_files/cc_ggm.log</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Cigarra dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Cigarra/config.txt 2000 100 0]]></file>
@@ -935,8 +935,6 @@ ip route add default via 2001:4:4::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Orca dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -945,6 +943,8 @@ ip route add default via 2001:4:4::254
         <startup>touch dns/files/log_files/ggm.log</startup>
         <startup>mv root.db dns/files/db_files/</startup>
         <startup>mv orca.txt dns/files/config_files/orca.txt</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Orca dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Orca/config.txt 2000 100 0]]></file>
@@ -1181,8 +1181,6 @@ ip route add default via 2001:2:2::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Portatil3 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -1190,6 +1188,8 @@ ip route add default via 2001:2:2::254
         <startup>mkdir dns/files/log_files</startup>
         <startup>touch dns/files/log_files/ggm.log</startup>
         <startup>mv portatil3.txt dns/files/config_files/</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil3 dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Portatil3/config.txt 2000 100 0]]></file>
@@ -1297,8 +1297,6 @@ ip route add default via 2001:3:3::254
         <startup>touch /run/resolvconf/resolv.conf</startup>
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
-        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Vespa dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -1307,6 +1305,8 @@ ip route add default via 2001:3:3::254
         <startup>touch dns/files/log_files/fcp.log</startup>
         <startup>touch dns/files/log_files/all.log</startup>
         <startup>mv Vespa.txt dns/files/config_files/Vespa.txt</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Vespa dns/files</startup>
       </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/Vespa.txt 2000 100 0]]></file>
