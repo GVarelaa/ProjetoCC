@@ -97,7 +97,7 @@ class Server:
                     return Server.parse_address(record.value)
 
         if not self.is_name_server() and self.is_domain_in_dd(query.domain): # antes ou depois
-            return Server.parse_address(self.config["DD"][query.domain])
+            return Server.parse_address(self.config["DD"][query.domain][0])
 
         return Server.parse_address(self.config["ST"][0]) # pega o primeiro servidor de topo?
 
@@ -283,7 +283,7 @@ class Server:
                     self.sendto_socket(socket_udp, response, client)
 
         elif self.is_resolution_server():  # Se for servidor de resolução
-            response = self.build_response(message) # TODO: adicionar flag R se aceitar modo recursivo
+            response = self.build_response(message)  # TODO: adicionar flag R se aceitar modo recursivo
 
             if response.response_code == 0 and "Q" not in response.flags:  # Foi à cache e encontrou resposta
                 self.sendto_socket(socket_udp, response, client)
@@ -533,5 +533,6 @@ class Server:
             ss_version = list[0].value
 
         return ss_version
+
 
 
