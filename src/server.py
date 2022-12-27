@@ -295,6 +295,7 @@ class Server:
                         try:
                             response, address = self.recvfrom_socket(socket_udp)
 
+                            self.change_flags(response)
                             self.sendto_socket(socket_udp, response, client)
                         except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
@@ -357,6 +358,7 @@ class Server:
                 try:
                     response, address = self.recvfrom_socket(socket_udp)
 
+                    self.change_flags(response)
                     self.sendto_socket(socket_udp, response, client)
                 except socket.timeout:
                     self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
