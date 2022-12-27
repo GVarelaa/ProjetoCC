@@ -1,7 +1,5 @@
-ggm DB dns/files/db_files/ggm.db
-ggm SS 10.3.3.1:2001
-ggm SS 10.4.1.1:2002
-ggm LG dns/files/log_files/ggm.log
+# Configuration file for root server
+
 . DB dns/files/config_files/root.db
 . LG dns/files/log_files/root.log
 all LG dns/files/log_files/all.log
