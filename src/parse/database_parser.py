@@ -95,9 +95,6 @@ def concatenate_suffix(type, suffix, parameter, value):
         parameter = concatenate_suffix_aux(suffix, parameter)
         value = concatenate_suffix_aux(suffix, value)
 
-    elif type == "PTR":
-        value = concatenate_suffix_aux(suffix, value)
-
     return parameter, value
 
 
@@ -257,14 +254,8 @@ def parser_database(server, file_path, domain, data):
                         data.add_entry(record, domain)
 
                     elif type == "PTR":
-                        if validate_ip(parameter):
-                            record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
-                            data.add_entry(record, domain)
-                        else:
-                            try:
-                                raise InvalidIPError(entry.replace("\n", ""))
-                            except InvalidIPError as e:
-                                server.log.log_fl(domain, e.message, "Invalid IP address")
+                        record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
+                        data.add_entry(record, domain)
 
                     else:
                         try:
