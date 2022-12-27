@@ -62,16 +62,17 @@ class Server:
         return ip_address, port
 
     def change_authority_flag(self, query):
-        authoritative = False
-        for domain in self.config["DB"].keys():
-            if domain == query.domain:
-                authoritative = True
-                break
+        if "Q" not in query.flags:
+            authoritative = False
+            for domain in self.config["DB"].keys():
+                if domain == query.domain:
+                    authoritative = True
+                    break
 
-        if self.handles_recursion and authoritative:
-            query.flags = "A+R"
-        else:
-            query.flags = "R"
+            if self.handles_recursion and authoritative:
+                query.flags = "A+R"
+            else:
+                query.flags = "R"
 
 
     def is_resolution_server(self):
