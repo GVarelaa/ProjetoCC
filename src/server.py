@@ -69,7 +69,7 @@ class Server:
                 break
 
         if self.handles_recursion and authoritative and "R" in query.flags:
-            query.flags = "A+R"
+            query.flags = "R+A"
         elif self.handles_recursion and "R" in query.flags:
             query.flags = "R"
         else:
