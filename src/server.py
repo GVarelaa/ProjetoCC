@@ -353,6 +353,13 @@ class Server:
             if self.handles_recursion and "R" in message.flags:
                 next_step = self.find_next_step(response)
                 self.sendto_socket(socket_udp, response, next_step)
+
+                try:
+                    response, address = self.recvfrom_socket(socket_udp)
+
+                    self.sendto_socket(socket_udp, response, client)
+                except socket.timeout:
+                    self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
             else:
                 self.sendto_socket(socket_udp, response, client)
 
