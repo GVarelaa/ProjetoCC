@@ -4,7 +4,7 @@
 TTL DEFAULT 86400
 
 @ SOASP ns1.taremi.fcp. TTL
-@ SOAADMIN admin\.taremin.fcp. TTL
+@ SOAADMIN admin\.taremi.fcp. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600 TTL
@@ -26,7 +26,7 @@ taremi A 10.3.3.3 TTL
 pepe A 10.4.4.3 TTL
 zaidu A 10.3.3.2 TTL
 ms1 A 10.3.3.1 TTL
-sr 10.2.2.3 TTL 
+sr A 10.2.2.3 TTL 
 
 sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
