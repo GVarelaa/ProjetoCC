@@ -17,7 +17,7 @@ ggm. NS ss2.ggm. TTL
 fcp. NS sp.fcp. TTL
 fcp. NS ss1.fcp. TTL
 fcp. NS ss2.fcp. TTL
-reverse. NS ns1.reverse. TTL 
+reverse. NS sp.reverse. TTL 
 
 # Addresses
 
