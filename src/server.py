@@ -76,7 +76,7 @@ class Server:
             query.flags = ""
 
     def is_root_server(self):
-        return self.config["DB"][0] == "."
+        return "." in self.config["DB"].keys()
     def is_resolution_server(self):
         return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
 
