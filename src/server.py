@@ -62,11 +62,17 @@ class Server:
         return ip_address, port
 
     def change_authority_flag(self, query):
-        query.flags = ""
+        authoritative = False
         for domain in self.config["DB"].keys():
             if domain == query.domain:
-                query.flags = "A"
+                authoritative = True
                 break
+
+        if self.handles_recursion and authoritative:
+            query.flags = "A+R"
+        else:
+            query.flags = "R"
+
 
     def is_resolution_server(self):
         return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
@@ -257,7 +263,61 @@ class Server:
             else:  # Pode responder a todos os domínios
                 response = self.build_response(message)
 
-                if "Q" in response.flags:  # Inicia o modo iterativo
+                if "Q" in response.flags or response.response_code == 1:  # Inicia o modo iterativo
+                    if self.handles_recursion and "R" in response.flags:  # Modo recursivo
+                        next_step = self.find_next_step(response)
+
+                        self.sendto_socket(socket_udp, response, next_step)
+
+                        try:
+                            response, address = self.recvfrom_socket(socket_udp)
+
+                            self.sendto_socket(socket_udp, response, client)
+                        except socket.timeout:
+                            self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+
+                    else:
+                        next_step = self.find_next_step(response)
+                        response_code = 1
+
+                        while response_code == 1:
+                            self.sendto_socket(socket_udp, response, next_step)
+
+                            try:
+                                response, address = self.recvfrom_socket(socket_udp)
+                            except socket.timeout as e:
+                                self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+                                break
+
+                            response_code = response.response_code
+                            next_step = self.find_next_step(response)
+
+                        if response_code == 0:
+                            self.sendto_socket(socket_udp, response, client)
+                            self.cache_response(response, 30)
+                        elif response_code == 2:
+                            self.sendto_socket(socket_udp, response, client)
+
+                else:
+                    self.sendto_socket(socket_udp, response, client)
+
+        elif self.is_resolution_server():  # Se for servidor de resolução
+            response = self.build_response(message)  # TODO: adicionar flag R se aceitar modo recursivo
+
+            if "Q" in response.flags or response.response_code == 1:
+                if self.handles_recursion and "R" in response.flags: # Modo recursivo
+                    next_step = self.find_next_step(response)
+
+                    self.sendto_socket(socket_udp, response, next_step)
+
+                    try:
+                        response, address = self.recvfrom_socket(socket_udp)
+
+                        self.sendto_socket(socket_udp, response, client)
+                    except socket.timeout:
+                        self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+
+                else: # Modo iterativo
                     next_step = self.find_next_step(response)
                     response_code = 1
 
@@ -266,7 +326,7 @@ class Server:
 
                         try:
                             response, address = self.recvfrom_socket(socket_udp)
-                        except socket.timeout as e:
+                        except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
                             break
 
@@ -274,40 +334,13 @@ class Server:
                         next_step = self.find_next_step(response)
 
                     if response_code == 0:
-                        self.sendto_socket(socket_udp, response, client)
                         self.cache_response(response, 30)
+                        self.sendto_socket(socket_udp, response, client)
                     elif response_code == 2:
                         self.sendto_socket(socket_udp, response, client)
 
-                else:
-                    self.sendto_socket(socket_udp, response, client)
-
-        elif self.is_resolution_server():  # Se for servidor de resolução
-            response = self.build_response(message)  # TODO: adicionar flag R se aceitar modo recursivo
-
-            if response.response_code == 0 and "Q" not in response.flags:  # Foi à cache e encontrou resposta
-                self.sendto_socket(socket_udp, response, client)
             else:
-                next_step = self.find_next_step(response)
-                response_code = 1
-
-                while response_code == 1:
-                    self.sendto_socket(socket_udp, response, next_step)
-
-                    try:
-                        response, address = self.recvfrom_socket(socket_udp)
-                    except socket.timeout as e:
-                        self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-                        break
-
-                    response_code = response.response_code
-                    next_step = self.find_next_step(response)
-
-                if response_code == 0:
-                    self.cache_response(response, 30)
-                    self.sendto_socket(socket_udp, response, client)
-                elif response_code == 2:
-                    self.sendto_socket(socket_udp, response, client)
+                self.sendto_socket(socket_udp, response, client)
 
         else:
             response = self.build_response(message)

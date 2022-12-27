@@ -18,8 +18,6 @@ def main():
     timeout = args[3]  # Tempo que o servidor vai esperar por uma resposta
     handles_recursion = args[4]
 
-    print(port)
-
     if handles_recursion == 1:
         handles_recursion = True
     elif handles_recursion == 0:
@@ -40,7 +38,6 @@ def main():
         return
 
     print(server.cache)
-    print(server.log.file_paths)
 
     if len(server.config["SS"].values()) != 0: # Só recebe pedidos de transferência se for primário para algum domínio
         threading.Thread(target=server.sp_zone_transfer).start()
