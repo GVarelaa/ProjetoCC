@@ -1,6 +1,6 @@
 # Configuration file for primary server for 10.in-addr.reverse domain
 
-10.in-addr.reverse. DB dns/files/db_files/dns_reverse/10_in-addr_reverse.db
+10.in-addr.reverse. DB dns/files/db_files/reverse_dns/10_in-addr_reverse.db
 10.in-addr.reverse. LG dns/files/log_files/10_in-addr_reverse.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
