@@ -1,12 +1,4 @@
-# Configuration file for primary server for ggm domain
-
-ggm DB dns/files/db_files/ggm.db
-ggm SS 10.3.3.1:2001
-ggm SS 10.4.1.1:2002
-ggm LG dns/files/log_files/ggm.log
-
 # Configuration file for secondary server 1 for taremi.fcp domain
-
 taremi.fcp SP 10.4.4.1:2009
 taremi.fcp LG dns/files/log_files/taremi_fcp.log
 
