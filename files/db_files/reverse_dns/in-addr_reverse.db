@@ -1,6 +1,6 @@
 # DNS database file for .in-addr domain.
 
-@ DEFAULT .in-addr.reverse.
+@ DEFAULT in-addr.reverse.
 TTL DEFAULT 86400
 
 # Config data
