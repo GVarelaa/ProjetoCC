@@ -326,6 +326,7 @@
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Servidor1 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -350,7 +351,7 @@ root ST dns/files/rootservers.db
 . LG dns/files/log_files/root.log
 
 ]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Servidor1/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -459,9 +460,10 @@ ip route add default via 2001:2:2::254
         <startup>mv fcp.db dns/files/db_files</startup>
         <startup>mv rootservers.db dns/files/</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Servidor2 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor2.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Servidor2/config.txt 2000 100 0]]></file>
         <file name="fcp.db"><![CDATA[# DNS database file for domain .fcp
 
 @ DEFAULT fcp.
@@ -536,6 +538,7 @@ ip route add default via 2001:2:2::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil1 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -547,7 +550,7 @@ ip route add default via 2001:2:2::254
         <startup>mv 10_in-addr_reverse.db dns/files/db_files/</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil1.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Portatil1/config.txt 2000 100 0]]></file>
         <file name="10_in-addr_reverse.db"><![CDATA[ 
 # DNS database file for domain 10.in-addr.reverse
 
@@ -628,6 +631,7 @@ ip route add default via 2001:1:1::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil2 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -638,7 +642,7 @@ ip route add default via 2001:1:1::254
         <startup>mv cc_ggm.db dns/files/db_files/cc_ggm.db</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Portatil2/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -729,6 +733,7 @@ ip route add default via 2001:1:1::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Grilo dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -740,7 +745,7 @@ ip route add default via 2001:1:1::254
         <startup>mv taremi_fcp.db dns/files/db_files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/Grilo.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Grilo/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -840,6 +845,7 @@ ip route add default via 2001:4:4::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Cigarra dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -852,7 +858,7 @@ ip route add default via 2001:4:4::254
         <startup>touch dns/files/log_files/cc_ggm.log</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Cigarra/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -930,6 +936,7 @@ ip route add default via 2001:4:4::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Orca dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -940,7 +947,7 @@ ip route add default via 2001:4:4::254
         <startup>mv orca.txt dns/files/config_files/orca.txt</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/orca.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Orca/config.txt 2000 100 0]]></file>
         <file name="orca.txt"><![CDATA[# Configuration file for orca server
 
 ggm SP 10.2.2.1:2000
@@ -1035,9 +1042,10 @@ ip route add default via 2001:3:3::254
         <startup>mv Golfinho.txt dns/files/config_files/Golfinho.txt</startup>
         <startup>mv rootservers.db dns/files/rootservers.db</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Golfinho dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/Golfinho.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Golfinho/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -1132,9 +1140,10 @@ ip route add default via 2001:3:3::254
         <startup>mv rootservers.db dns/files/</startup>
         <startup>mv servidor3.txt dns/files/config_files/</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Servidor3 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor3.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Servidor3/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -1173,6 +1182,7 @@ ip route add default via 2001:2:2::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil3 dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
@@ -1182,7 +1192,7 @@ ip route add default via 2001:2:2::254
         <startup>mv portatil3.txt dns/files/config_files/</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/core/Portatil3/config.txt 2000 100 0]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -1229,6 +1239,7 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns/files/log_files</startup>
         <startup>mv Foca.txt dns/files/config_files</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Foca dns/files</startup>
         <startup>mv rootservers.db dns/files/rootservers.db</startup>
       </startups>
       <files>
@@ -1287,6 +1298,7 @@ ip route add default via 2001:3:3::254
         <startup>sh preenche_resolvconf.sh</startup>
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Vespa dns/files</startup>
         <startup>mkdir dns/files</startup>
         <startup>mkdir dns/files/db_files</startup>
         <startup>mkdir dns/files/config_files</startup>
