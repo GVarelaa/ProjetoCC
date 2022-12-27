@@ -68,10 +68,12 @@ class Server:
                 authoritative = True
                 break
 
-        if self.handles_recursion and authoritative:
+        if self.handles_recursion and authoritative and "R" in query.flags:
             query.flags = "A+R"
-        else:
+        elif "R" in query.flags:
             query.flags = "R"
+        else:
+            query.flags = ""
 
 
     def is_resolution_server(self):
