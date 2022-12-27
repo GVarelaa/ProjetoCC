@@ -1275,6 +1275,15 @@ ip route add default via 2001:4:4::254
       </files>
     </service>
     <service name="UserDefined" node="24">
+      <startups>
+        <startup>mkdir /run/resolvconf</startup>
+        <startup>touch /run/resolvconf/resolv.conf</startup>
+        <startup>sh preenche_resolvconf.sh</startup>
+        <startup>mkdir dns</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil4 dns/files</startup>
+      </startups>
       <files>
         <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil4/config.txt 2000 100 0]]></file>
       </files>
