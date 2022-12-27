@@ -26,7 +26,7 @@ def main():
     type = args[2]
     flags = "Q"  # Flags default
     timeout = 10  # Valor de timeout default
-    debug = False  # Modo debug desligado por default
+    debug = True  # Modo debug ligado por default
 
     if len(args_split) > 1:  # Se a porta for especificada, atualizar
         port = int(args_split[1])
@@ -39,10 +39,10 @@ def main():
                 if args[4].isdigit():
                     timeout = int(args[4])
 
-                elif args[4] == "debug":
-                    debug = True
+                elif args[4] == "shy":
+                    debug = False
 
-                else:
+                elif args[4] != "debug":
                     sys.stdout.write("Invalid timeout value or mode")
                     return
 
@@ -50,17 +50,17 @@ def main():
             timeout = int(args[3])
 
             if len(args) > 4:
-                if args[4] == "debug":
-                    debug = True
+                if args[4] == "shy":
+                    debug = False
 
-                else:
+                elif args[4] != "debug":
                     sys.stdout.write("Invalid mode")
                     return
 
-        elif args[3] == "debug":
-            debug = True
+        elif args[3] == "shy":
+            debug = False
 
-        else:
+        elif args[4] != "debug":
             sys.stdout.write("Invalid flag, timeout value or mode")
             return
 
