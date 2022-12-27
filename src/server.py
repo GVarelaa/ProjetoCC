@@ -344,7 +344,12 @@ class Server:
 
         else:
             response = self.build_response(message)
-            self.sendto_socket(socket_udp, response, client)
+
+            if self.handles_recursion and "R" in message.flags:
+                next_step = self.find_next_step(response)
+                self.sendto_socket(socket_udp, response, next_step)
+            else:
+                self.sendto_socket(socket_udp, response, client)
 
         socket_udp.close()
 
