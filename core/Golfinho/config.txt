@@ -5,7 +5,7 @@ fcp SS 10.4.4.3:2000
 fcp LG dns/files/log_files/fcp.log
 
 # Primary server for reverse domain
-reverse. DB dns/files/db_files/reverse_dns/reverse.db
+reverse DB dns/files/db_files/reverse_dns/reverse.db
 reverse LG dns/files/log_files/reverse.log
 
 
