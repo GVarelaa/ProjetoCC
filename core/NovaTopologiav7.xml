@@ -105,7 +105,7 @@
       </services>
     </device>
     <device id="15" name="Portatil2" type="PC" class="" image="">
-      <position x="178" y="531" lat="47.57433986827188" lon="-122.12992349819142" alt="2.0"/>
+      <position x="84" y="564" lat="47.57403988099298" lon="-122.13119012274201" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="StaticRoute"/>
@@ -121,7 +121,7 @@
       </services>
     </device>
     <device id="17" name="Cigarra" type="PC" class="" image="">
-      <position x="865" y="531" lat="47.57433986827188" lon="-122.12066635918853" alt="2.0"/>
+      <position x="850" y="542" lat="47.574239872703195" lon="-122.12086848012748" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="StaticRoute"/>
@@ -156,7 +156,7 @@
       </services>
     </device>
     <device id="21" name="Portatil3" type="PC" class="" image="">
-      <position x="36" y="529" lat="47.57435804926386" lon="-122.13183690974657" alt="2.0"/>
+      <position x="28" y="513" lat="47.57450349697239" lon="-122.13194470758066" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="StaticRoute"/>
@@ -173,10 +173,17 @@
       </services>
     </device>
     <device id="22" name="Vespa" type="PC" class="" image="">
-      <position x="929" y="477" lat="47.57483075283952" lon="-122.1198039765158" alt="2.0"/>
+      <position x="942" y="480" lat="47.57480348159537" lon="-122.1196288050354" alt="2.0"/>
       <services>
         <service name="DefaultRoute"/>
         <service name="StaticRoute"/>
+        <service name="UserDefined"/>
+      </services>
+    </device>
+    <device id="24" name="Portatil4" type="PC" class="" image="">
+      <position x="215" y="552" lat="47.574148967475054" lon="-122.12942493320871" alt="2.0"/>
+      <services>
+        <service name="DefaultRoute"/>
         <service name="UserDefined"/>
       </services>
     </device>
@@ -212,6 +219,10 @@
     </link>
     <link node1="9" node2="21">
       <iface2 id="0" name="eth0" mac="00:00:00:aa:00:71" ip4="10.1.1.3" ip4_mask="24" ip6="2001:1:1::3" ip6_mask="64"/>
+      <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0"/>
+    </link>
+    <link node1="9" node2="24">
+      <iface2 id="0" name="eth0" mac="00:00:00:aa:00:00" ip4="10.1.1.4" ip4_mask="24" ip6="2001:1:1::4" ip6_mask="64"/>
       <options delay="0" bandwidth="0" loss="0.0" dup="0" jitter="0" unidirectional="0"/>
     </link>
     <link node1="10" node2="4">
@@ -331,55 +342,6 @@
         <startup>touch dns/files/log_files/ggm.log</startup>
       </startups>
       <files>
-        <file name="servidor1.txt"><![CDATA[# Configuration file for primary server for ggm domain
-
-ggm DB dns/files/db_files/ggm.db
-ggm SS 10.3.3.1:2000
-ggm SS 10.4.1.1:2000
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-. DB dns/files/db_files/root.db
-. LG dns/files/log_files/root.log
-
-]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Servidor1/config.txt 2000 100 0]]></file>
-        <file name="rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1:2000
-10.3.3.1:2000]]></file>
-        <file name="root.db"><![CDATA[@ DEFAULT root.
-TTL DEFAULT 86400
-
-# Config data
-@ SOAADMIN mike\.ggm TTL
-@ SOASERIAL 1 TTL
-
-# Name servers
-root. NS s1. TTL
-root. NS s2. TTL
-ggm. NS sp.ggm. TTL
-ggm. NS ss1.ggm. TTL
-ggm. NS ss2.ggm. TTL
-fcp. NS sp.fcp. TTL
-fcp. NS ss1.fcp. TTL
-fcp. NS ss2.fcp. TTL
-reverse. NS ns1.reverse. TTL
-
-# Addresses
-
-sp.ggm. A 10.2.2.1:2000 TTL
-ss1.ggm. A 10.3.3.1:2000 TTL
-ss2.ggm. A 10.4.4.1:2000 TTL
-sp.fcp. A 10.2.2.2:2000 TTL
-ss1.fcp. A 10.3.3.2:2000 TTL
-ss2.fcp. A 10.4.4.3:2000 TTL
-sp.reverse. A 10.3.3.2:2000 TTL
-
-s1. A 10.2.2.1:2000 TTL
-s2. A 10.3.3.1:2000 TTL
-]]></file>
         <file name="ggm.db"><![CDATA[# DNS database file domain .ggm
 
 @ DEFAULT ggm.
@@ -417,11 +379,60 @@ guilherme CNAME gui TTL
 gabriela CNAME gabs TTL 
 
 ]]></file>
-        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
 echo "" >> /etc/resolv.conf ]]></file>
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1:2000
+10.3.3.1:2000]]></file>
+        <file name="servidor1.txt"><![CDATA[# Configuration file for primary server for ggm domain
+
+ggm DB dns/files/db_files/ggm.db
+ggm SS 10.3.3.1:2000
+ggm SS 10.4.1.1:2000
+ggm LG dns/files/log_files/ggm.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+. DB dns/files/db_files/root.db
+. LG dns/files/log_files/root.log
+
+]]></file>
+        <file name="root.db"><![CDATA[@ DEFAULT root.
+TTL DEFAULT 86400
+
+# Config data
+@ SOAADMIN mike\.ggm TTL
+@ SOASERIAL 1 TTL
+
+# Name servers
+root. NS s1. TTL
+root. NS s2. TTL
+ggm. NS sp.ggm. TTL
+ggm. NS ss1.ggm. TTL
+ggm. NS ss2.ggm. TTL
+fcp. NS sp.fcp. TTL
+fcp. NS ss1.fcp. TTL
+fcp. NS ss2.fcp. TTL
+reverse. NS ns1.reverse. TTL
+
+# Addresses
+
+sp.ggm. A 10.2.2.1:2000 TTL
+ss1.ggm. A 10.3.3.1:2000 TTL
+ss2.ggm. A 10.4.4.1:2000 TTL
+sp.fcp. A 10.2.2.2:2000 TTL
+ss1.fcp. A 10.3.3.2:2000 TTL
+ss2.fcp. A 10.4.4.3:2000 TTL
+sp.reverse. A 10.3.3.2:2000 TTL
+
+s1. A 10.2.2.1:2000 TTL
+s2. A 10.3.3.1:2000 TTL
+]]></file>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Servidor1/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="12">
@@ -450,7 +461,6 @@ ip route add default via 2001:2:2::254
         <startup>cp -r /home/core/ProjetoCC/core/Servidor2 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Servidor2/config.txt 2000 100 0]]></file>
         <file name="fcp.db"><![CDATA[# DNS database file for domain .fcp
 
 @ DEFAULT fcp.
@@ -487,15 +497,16 @@ ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL
 mail1 CNAME ms1 TTL
 ]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
 10.3.3.1:2000]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Servidor2/config.txt 2000 100 0]]></file>
         <file name="servidor2.txt"><![CDATA[# Configuration file for server 2
 
 fcp DB dns/files/db_files/fcp.db
@@ -530,7 +541,6 @@ ip route add default via 2001:2:2::254
         <startup>cp -r /home/core/ProjetoCC/core/Portatil1 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil1/config.txt 2000 100 0]]></file>
         <file name="10_in-addr_reverse.db"><![CDATA[ 
 # DNS database file for domain 10.in-addr.reverse
 
@@ -557,7 +567,6 @@ ns1 A 10.1.1.1:2000 TTL
 10.1.1.2 PTR sp.cc.ggm.
 
 ]]></file>
-        <file name="runClient.sh"><![CDATA[python3 dns/src/client.py 10.2.2.1:2000 mike.ggm. A ]]></file>
         <file name="portatil1.txt"><![CDATA[# Configuration file for "portatil1"
 
 10.in-addr.reverse. DB dns/files/db_files/10_in-addr_reverse.db
@@ -565,15 +574,17 @@ ns1 A 10.1.1.1:2000 TTL
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
+        <file name="runClient.sh"><![CDATA[python3 dns/src/client.py 10.2.2.1:2000 mike.ggm. A ]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
 10.3.3.1:2000]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil1/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="14">
@@ -615,7 +626,22 @@ ip route add default via 2001:1:1::254
         <startup>cp -r /home/core/ProjetoCC/core/Portatil2 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil2/config.txt 2000 100 0]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
+        <file name="portatil2.txt"><![CDATA[# Configuration file for "portatil2"
+
+# SP cc.ggm
+cc.ggm SS 10.4.4.2:2000
+cc.ggm SS 10.3.3.3:2000
+cc.ggm LG dns/files/log_files/cc_ggm.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
+]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -652,23 +678,8 @@ tunes A 10.1.1.3 TTL
 sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL]]></file>
-        <file name="portatil2.txt"><![CDATA[# Configuration file for "portatil2"
-
-# SP cc.ggm
-cc.ggm SS 10.4.4.2:2000
-cc.ggm SS 10.3.3.3:2000
-cc.ggm LG dns/files/log_files/cc_ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-
-
-]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil2/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="15">
@@ -710,32 +721,6 @@ ip route add default via 2001:1:1::254
         <startup>cp -r /home/core/ProjetoCC/core/Grilo dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Grilo/config.txt 2000 100 0]]></file>
-        <file name="rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1:2000
-10.3.3.1:2000
-
-]]></file>
-        <file name="Grilo.txt"><![CDATA[# Configuration file "Grilo"
-
-# SS ggm
-ggm SP 10.2.2.1:2000
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-# SP taremi.fcp
-taremi.fcp SS 10.1.1.3:2000
-taremi.fcp SS 10.2.2.3:2000
-taremi.fcp DB dns/files/db_files/taremi_fcp.db
-taremi.fcp LG dns/files/log_files/taremi_fcp.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-
-]]></file>
-        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -773,6 +758,32 @@ sp CNAME ns1 TTL
 ss1 CNAME ns2 TTL
 ss2 CNAME ns3 TTL
 ]]></file>
+        <file name="Grilo.txt"><![CDATA[# Configuration file "Grilo"
+
+# SS ggm
+ggm SP 10.2.2.1:2000
+ggm LG dns/files/log_files/ggm.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+# SP taremi.fcp
+taremi.fcp SS 10.1.1.3:2000
+taremi.fcp SS 10.2.2.3:2000
+taremi.fcp DB dns/files/db_files/taremi_fcp.db
+taremi.fcp LG dns/files/log_files/taremi_fcp.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+]]></file>
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1:2000
+10.3.3.1:2000
+
+]]></file>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Grilo/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="16">
@@ -814,12 +825,6 @@ ip route add default via 2001:4:4::254
         <startup>cp -r /home/core/ProjetoCC/core/Cigarra dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Cigarra/config.txt 2000 100 0]]></file>
-        <file name="rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1:2000
-10.3.3.1:2000
-]]></file>
         <file name="in-addr_reverse.db"><![CDATA[# DNS database file for .in-addr.reverse domain primary server 
 
 @ DEFAULT .in-addr.reverse.
@@ -838,7 +843,15 @@ TTL DEFAULT 86400
 
 ns1 A 10.4.4.2:2000 TTL
 ns1.10.in-addr A 10.1.1.1:2000 TTL]]></file>
-        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1:2000
+10.3.3.1:2000
+]]></file>
         <file name="Cigarra.txt"><![CDATA[# Configuration file for "Cigarra"
 
 # SS cc.ggm
@@ -851,10 +864,8 @@ root ST dns/files/rootservers.db
 in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Cigarra/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="17">
@@ -896,7 +907,6 @@ ip route add default via 2001:4:4::254
         <startup>cp -r /home/core/ProjetoCC/core/Orca dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Orca/config.txt 2000 100 0]]></file>
         <file name="orca.txt"><![CDATA[# Configuration file for orca server
 
 ggm SP 10.2.2.1:2000
@@ -907,6 +917,10 @@ root ST dns/files/rootservers.db
 . DB dns/files/db_files/root.db
 . LG dns/files/log_files/root.log
 ]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -943,10 +957,7 @@ s1. A 10.2.2.1:2000 TTL
 s2. A 10.3.3.1:2000 TTL
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Orca/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="18">
@@ -988,12 +999,26 @@ ip route add default via 2001:3:3::254
         <startup>cp -r /home/core/ProjetoCC/core/Golfinho dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Golfinho/config.txt 2000 100 0]]></file>
-        <file name="rootservers.db"><![CDATA[# List of root files for topology
+        <file name="Golfinho.txt"><![CDATA[# Configuration file for primary server for "Golfinho"
 
-10.2.2.1:2000
-10.3.3.1:2000
+# SP reverse
+reverse LG dns/files/log_files/reverse.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+# SS fcp
+fcp SP 10.2.2.2:2000
+fcp LG dns/files/log_files/fcp.log
+all LG dns/files/log_files/all.log
+root ST dns/files/rootservers.db
+
+
+
 ]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="reverse.db"><![CDATA[# DNS database file for reverse domain.
 
 @ DEFAULT .reverse.
@@ -1013,27 +1038,13 @@ in-addr.reverse. NS ns1.in-addr.reverse. TTL
 
 ns1 A 10.3.3.2:2000 TTL
 ns1.in-addr A 10.4.4.2:2000 TTL]]></file>
-        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
-        <file name="Golfinho.txt"><![CDATA[# Configuration file for primary server for "Golfinho"
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
 
-# SP reverse
-reverse LG dns/files/log_files/reverse.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-# SS fcp
-fcp SP 10.2.2.2:2000
-fcp LG dns/files/log_files/fcp.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
-
-
-
+10.2.2.1:2000
+10.3.3.1:2000
 ]]></file>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Golfinho/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="19">
@@ -1081,24 +1092,24 @@ ip route add default via 2001:3:3::254
         <startup>cp -r /home/core/ProjetoCC/core/Servidor3 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Servidor3/config.txt 2000 100 0]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
 10.3.3.1:2000
 
 ]]></file>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
         <file name="servidor3.txt"><![CDATA[# Configuration file for "Servidor3"
 
 taremi.fcp SP 10.4.4.1:2000
 taremi.fcp LG dns/files/log_files/taremi_fcp.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db]]></file>
-        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Servidor3/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="20">
@@ -1124,7 +1135,10 @@ ip route add default via 2001:2:2::254
         <startup>cp -r /home/core/ProjetoCC/core/Portatil3 dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil3/config.txt 2000 100 0]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf ]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
@@ -1141,10 +1155,7 @@ all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf ]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil3/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="21">
@@ -1170,7 +1181,11 @@ ip route add default via 2001:1:1::254
         <startup>cp -r /home/core/ProjetoCC/core/Foca dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Foca/config.txt 2000 100 0]]></file>
+        <file name="rootservers.db"><![CDATA[# List of root files for topology
+
+10.2.2.1:2000
+10.3.3.1:2000
+]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -1183,11 +1198,7 @@ cc.ggm LG dns/files/log_files/cc_ggm.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
-        <file name="rootservers.db"><![CDATA[# List of root files for topology
-
-10.2.2.1:2000
-10.3.3.1:2000
-]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Foca/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="23">
@@ -1229,12 +1240,17 @@ ip route add default via 2001:3:3::254
         <startup>cp -r /home/core/ProjetoCC/core/Vespa dns/files</startup>
       </startups>
       <files>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Vespa/config.txt 2000 100 0]]></file>
+        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
+echo "domain cc.pt" >> /etc/resolv.conf
+echo "nameserver 10.2.2.1" >> /etc/resolv.conf
+echo "" >> /etc/resolv.conf
+]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 
 10.2.2.1:2000
 10.3.3.1:2000
 ]]></file>
+        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
         <file name="Vespa.txt"><![CDATA[# Configuration file for "Vespa"
 
 # SS fcp
@@ -1243,12 +1259,7 @@ fcp LG dns/files/log_files/fcp.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
-        <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
-echo "domain cc.pt" >> /etc/resolv.conf
-echo "nameserver 10.2.2.1" >> /etc/resolv.conf
-echo "" >> /etc/resolv.conf
-]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Vespa/config.txt 2000 100 0]]></file>
       </files>
     </service>
     <service name="DefaultRoute" node="22">
@@ -1261,6 +1272,20 @@ echo "" >> /etc/resolv.conf
 ip route add default via 10.4.4.254
 ip route add default via 2001:4:4::254
 ]]></file>
+      </files>
+    </service>
+    <service name="UserDefined" node="24">
+      <startups>
+        <startup>mkdir /run/resolvconf</startup>
+        <startup>touch /run/resolvconf/resolv.conf</startup>
+        <startup>sh preenche_resolvconf.sh</startup>
+        <startup>mkdir dns</startup>
+        <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
+        <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil4 dns/files</startup>
+      </startups>
+      <files>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil4/config.txt 2000 100 0]]></file>
       </files>
     </service>
   </service_configurations>
@@ -1282,7 +1307,7 @@ ip route add default via 2001:4:4::254
     <configuration name="annotation a1" value="{iconcoords {141 68 714 481}} {type oval} {label {}} {labelcolor black} {fontfamily {Arial}} {fontsize {12}} {color #cbecff} {width 0} {border black} {canvas c1}"/>
     <configuration name="annotation a2" value="{iconcoords {370.0 18.0}} {type text} {label {CC-LEI 2022}} {labelcolor black} {fontfamily {Arial}} {fontsize {22}} {effects {bold}} {canvas c1}"/>
     <configuration name="annotation a3" value="{iconcoords {3.0 5.0 189.0 172.0}} {type rectangle} {label {}} {labelcolor black} {fontfamily {Arial}} {fontsize {12}} {color #ccecd1} {width 0} {border black} {rad 28} {canvas c1}"/>
-    <configuration name="annotation a4" value="{iconcoords {2 402 216 575}} {type rectangle} {label {}} {labelcolor black} {fontfamily {Arial}} {fontsize {12}} {color #ccecd1} {width 0} {border black} {rad 25} {canvas c1}"/>
+    <configuration name="annotation a4" value="{iconcoords {2.0 402.0 250.0 600.0}} {type rectangle} {label {}} {labelcolor black} {fontfamily {Arial}} {fontsize {12}} {color #ccecd1} {width 0} {border black} {rad 25} {canvas c1}"/>
     <configuration name="annotation a5" value="{iconcoords {706 384 961 569}} {type rectangle} {label {}} {labelcolor black} {fontfamily {Arial}} {fontsize {12}} {color #ccecd1} {width 0} {border black} {rad 25} {canvas c1}"/>
     <configuration name="annotation a6" value="{iconcoords {704.0 1.0 943.0 180.0}} {type rectangle} {label {}} {labelcolor black} {fontfamily {Arial}} {fontsize {12}} {color #ccecd1} {width 0} {border black} {rad 25} {canvas c1}"/>
     <configuration name="annotation a7" value="{iconcoords {810.0 364.0}} {type text} {label {LAN4}} {labelcolor #00a900} {fontfamily {Arial}} {fontsize {16}} {effects {bold}} {canvas c1}"/>

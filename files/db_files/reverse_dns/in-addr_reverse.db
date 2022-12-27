@@ -1,6 +1,6 @@
 # DNS database file for .in-addr domain.
 
-@ DEFAULT .in-addr.reverse.
+@ DEFAULT in-addr.reverse.
 TTL DEFAULT 86400
 
 # Config data
@@ -18,6 +18,6 @@ TTL DEFAULT 86400
 
 # Addresses
 
-ns1 A 10.4.4.2:2013
-ns1.10.in-addr A 10.1.1.1:2014 TTL
+ns1 A 10.4.4.2:2000 TTL
+ns1.10 A 10.1.1.1:2000 TTL
 

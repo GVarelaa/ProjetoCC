@@ -11,17 +11,62 @@ TTL DEFAULT 86400
 @ SOAEXPIRE 604800 TTL
 
 # Name servers
-
 @ NS ns1.10.in-addr.reverse. TTL
-1.@ NS ns1.1.1.10.in-addr.reverse. TTL
-2.@ NS ns1.2.10.in-addr.reverse. TTL
-3.@ NS ns1.3.10.in-addr.reverse. TTL
-4.@ NS ns1.4.10.in-addr.reverse. TTL
 
 # Addresses
-ns1 A 10.1.1.1:2014 TTL
-ns1.1 A 10.2.2.1:2015 TTL
-ns1.2 A 10.2.2.2:2016 TTL
-ns1.3 A 10.2.2.3:2017 TTL
-ns1.4 A 10.3.3.1:2018 TTL
+ns1 A 10.1.1.1:2000 TTL
+
+# PTR Records
+# 10.1.1
+1.1.1 PTR sp.10.in-addr.reverse. TTL
+1.1.1 PTR tone.cc.ggm. TTL
+
+2.1.1 PTR ss1.taremi.fcp. TTL
+2.1.1 PTR mike.ggm. TTL
+
+3.1.1 PTR sp.cc.ggm. TTL
+3.1.1 PTR tunes.cc.ggm. TTL
+
+# 10.2.2
+1.2.2 PTR s1. TTL
+1.2.2 PTR sp.ggm. TTL
+1.2.2 PTR sp.1.10.in-addr.reverse. TTL
+1.2.2 PTR ms1.fcp. TTL
+
+2.2.2 PTR sp.fcp. TTL
+2.2.2 sp.2.10.in-addr.reverse. TTL
+
+3.2.2 PTR ss2.taremi.fcp. TTL
+3.2.2 PTR sr.taremi.fcp. TTL
+3.2.2 PTR sp.3.10.in-addr.reverse.
+
+# 10.3.3
+1.3.3 PTR s1. TTL
+1.3.3 PTR ss1.ggm. TTL
+1.3.3 PTR sp.4.10.in-addr.reverse TTL
+1.3.3 PTR ms1.ggm. TTL
+
+2.3.3 PTR ss1.fcp. TTL
+2.3.3 PTR sp.reverse. TTL
+2.3.3 PTR sp.1.1.19.in-addr.reverse. TTL
+2.3.3 PTR gabs.ggm. TTL
+
+3.3.3 PTR ss2.cc.ggm. TTL
+3.3.3 PTR sp.2.2.10.in-addr.reverse. TTL
+3.3.3 PTR ms2.ggm. TTL
+
+# 10.4.4
+1.4.4 PTR ss2.ggm. TTL
+1.4.4 PTR sp.taremi.fcp. TTL
+1.4.4 PTR sp.3.3.10.in-addr.reverse. TTL
+1.4.4 PTR pdc.fcp. TTL
+1.4.4 PTR gui.ggm. TTL
+
+2.4.4 PTR ss2.fcp. TTL
+2.4.4 PTR sp.4.4.10.in-addr.reverse. TTL
+2.4.4 PTR ms1.cc.ggm. TTL
+2.4.4 PTR avb.fcp. TTL
+
+3.4.4 PTR ss1.cc.ggm. TTL
+3.4.4 PTR sp.in-addr.reverse. TTL
 
