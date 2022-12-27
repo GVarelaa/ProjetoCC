@@ -83,6 +83,9 @@ class Server:
     def find_next_step(self, query):
         server = None  # Top level domain server
         for record in query.authorities_values:
+            if record.domain == query.domain:
+                server = record.value
+                break
             if record.domain in query.domain:
                 server = record.value
 
@@ -396,7 +399,7 @@ class Server:
 
                 socket_tcp.close()
 
-                print(self.cache)
+                print(self.cache) # Soaexpire register
 
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
