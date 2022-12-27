@@ -1,11 +1,8 @@
-# Configuration file for primary server for 10.in-addr.reverse domain
-
+# Primary server for 10.in-addr.reverse domain
 10.in-addr.reverse. DB dns/files/db_files/10_in-addr_reverse.db
 10.in-addr.reverse. LG dns/files/log_files/10_in-addr_reverse.log
 
-
-# Configuration file for secondary server 1 for ggm domain
-
+# Secondary server for ggm domain
 ggm SP 10.2.2.2:2000
 ggm LG dns/files/log_files/ggm.log
 

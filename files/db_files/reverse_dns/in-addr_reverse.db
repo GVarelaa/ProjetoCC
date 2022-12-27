@@ -6,10 +6,10 @@ TTL DEFAULT 86400
 # Config data
 
 @ SOASP ns1.in-addr.reverse. TTL
-@ SOADMIN gabs\.ggm. TTL
+@ SOAADMIN gabs\.ggm. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
+@ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
 
 # Name servers

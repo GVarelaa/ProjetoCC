@@ -4,10 +4,10 @@
 TTL DEFAULT 86400
 
 @ SOASP ns1.fcp. TTL
-@ SOADMIN admin.\fcp. TTL
+@ SOAADMIN admin.\fcp. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
-@ SOARETRY 3600
+@ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
 
 # Name servers
@@ -15,7 +15,7 @@ TTL DEFAULT 86400
 @ NS ns2.fcp. TTL
 @ NS ns3.fcp. TTL
 
-taremi.@ NS ns1.taremi.fcp.
+taremi.@ NS ns1.taremi.fcp. TTL
 
 # MAIL SERVERS
 @ MX ms1.fcp. TTL

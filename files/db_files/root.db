@@ -4,7 +4,7 @@
 TTL DEFAULT 86400
 
 # Config data
-@ SOADMIN mike\.ggm. TTL
+@ SOAADMIN mike\.ggm. TTL
 @ SOASERIAL 1 TTL
 
 
