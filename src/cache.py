@@ -92,6 +92,8 @@ class Cache:
                     break
 
         if not found:
+            if new_record.origin == Origin.OTHERS:
+                new_record.ttl = ttl
             new_record.status = Status.VALID
             new_record.timestamp = datetime.timestamp(datetime.now())
             entries.append(new_record)
