@@ -275,7 +275,7 @@ class Server:
 
                     if response_code == 0:
                         self.sendto_socket(socket_udp, response, client)
-                        self.cache_response(response)
+                        self.cache_response(response, 30)
                     elif response_code == 2:
                         self.sendto_socket(socket_udp, response, client)
 
@@ -304,7 +304,7 @@ class Server:
                     next_step = self.find_next_step(response)
 
                 if response_code == 0:
-                    self.cache_response(response)
+                    self.cache_response(response, 30)
                     self.sendto_socket(socket_udp, response, client)
                 elif response_code == 2:
                     self.sendto_socket(socket_udp, response, client)
