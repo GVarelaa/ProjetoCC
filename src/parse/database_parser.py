@@ -67,14 +67,11 @@ def concatenate_suffix_aux(suffix, name):
     :param name: Nome
     :return: Nome com o sufixo concatenado
     """
-    if name == "@":
-        name = suffix
+    if name[-1] != ".":
+        if suffix != ".":
+            suffix = "." + suffix
 
-    elif name[-1] == "@":
         name += suffix
-
-    elif name[-1] != ".":
-        name += "." + suffix
 
     return name
 
