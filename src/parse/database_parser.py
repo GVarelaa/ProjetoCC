@@ -70,11 +70,8 @@ def concatenate_suffix_aux(suffix, name):
     if name == "@":
         name = suffix
 
-    elif name[-1] != "." and name[-1] != "@":
-        if suffix != ".":
-            name += "." + suffix
-        else:
-            name += "."
+    elif name[-1] == "@":
+        name += suffix
 
     return name
 
