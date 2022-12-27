@@ -61,7 +61,7 @@ class Server:
 
         return ip_address, port
 
-    def change_authority_flag(self, query):
+    def change_flags(self, query):
         authoritative = False
         for domain in self.config["DB"].keys():
             if domain == query.domain:
@@ -70,7 +70,7 @@ class Server:
 
         if self.handles_recursion and authoritative and "R" in query.flags:
             query.flags = "A+R"
-        elif "R" in query.flags:
+        elif self.handles_recursion and "R" in query.flags:
             query.flags = "R"
         else:
             query.flags = ""
@@ -89,8 +89,6 @@ class Server:
         return len(self.config["DD"].keys()) != 0
 
     def find_next_step(self, query):
-        self.change_authority_flag(query)
-
         server = None  # Top level domain server
         for record in query.authorities_values:
             if record.domain == query.domain:
@@ -199,13 +197,13 @@ class Server:
 
         if len(query.response_values) != 0:
             query.response_code = 0
-            self.change_authority_flag(query)
+            self.change_flags(query)
         elif found:
             query.response_code = 1
-            self.change_authority_flag(query)
+            self.change_flags(query)
         elif not found and "Q" not in query.flags:
             query.response_code = 2
-            self.change_authority_flag(query)
+            self.change_flags(query)
 
         return query
 
@@ -293,6 +291,7 @@ class Server:
 
                             response_code = response.response_code
                             next_step = self.find_next_step(response)
+                            self.change_flags(response)
 
                         if response_code == 0:
                             self.sendto_socket(socket_udp, response, client)
@@ -334,6 +333,7 @@ class Server:
 
                         response_code = response.response_code
                         next_step = self.find_next_step(response)
+                        self.change_flags(response)
 
                     if response_code == 0:
                         self.cache_response(response, 30)
