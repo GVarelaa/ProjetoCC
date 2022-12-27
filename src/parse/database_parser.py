@@ -73,6 +73,9 @@ def concatenate_suffix_aux(suffix, name):
     elif name[-1] == "@":
         name += suffix
 
+    elif name[-1] != ".":
+        name += "." + suffix
+
     return name
 
 
