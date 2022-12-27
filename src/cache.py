@@ -143,7 +143,7 @@ class Cache:
             if record.origin == Origin.OTHERS and datetime.timestamp(datetime.now()) - record.timestamp > record.ttl:
                 record.status = Status.FREE
 
-            if record.domain == domain and record.type == type:
+            if record.status == Status.VALID and record.domain == domain and record.type == type:
                 records.append(record)
 
         self.lock.release()
