@@ -1,11 +1,10 @@
-# Secondary server for ggm domain
-ggm SP 10.2.2.1:2000
-ggm LG dns/files/log_files/ggm.log
+# Secondary server for cc.ggm domain
+cc.ggm SP 10.1.1.2:2000
+cc.ggm LG dns/files/log_files/cc_ggm.log
 
 # Primary server for in-addr.reverse domain
 in-addr.reverse DB dns/files/db_files/reverse_dns/in-addr_reverse.db
 in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
-
 
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
