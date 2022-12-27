@@ -2,8 +2,8 @@
 ggm SP 10.2.2.1:2000
 ggm LG dns/files/log_files/ggm.log
 
-# Primary server for .in-addr.reverse domain
-in-addr.reverse. DB dns/files/db_files/in-addr_reverse.db
+# Primary server for in-addr.reverse domain
+in-addr.reverse. DB dns/files/db_files/reverse_dns/in-addr_reverse.db
 in-addr.reverse LG dns/files/log_files/in-addr_reverse.log
 
 
