@@ -190,7 +190,7 @@ class DNSMessage:
         elif flags == 4:
             flags = "Q+R"
         elif flags == 5:
-            flagd = "R+A"
+            flags = "R+A"
 
         return flags
 
