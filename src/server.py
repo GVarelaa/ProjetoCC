@@ -81,6 +81,8 @@ class Server:
         return len(self.config["DD"].keys()) != 0
 
     def find_next_step(self, query):
+        self.change_authority_flag(query)
+
         server = None  # Top level domain server
         for record in query.authorities_values:
             if record.domain == query.domain:
