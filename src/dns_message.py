@@ -172,8 +172,10 @@ class DNSMessage:
             flags = 3
         elif self.flags == "Q+R":
             flags = 4
+        elif self.flags == "R+A":
+            flags = 5
 
-        return BitArray(uint=flags, length=3) # MUDAMOS
+        return BitArray(uint=flags, length=3)
 
     @staticmethod
     def decode_flags(flags):
@@ -187,6 +189,8 @@ class DNSMessage:
             flags = "A"
         elif flags == 4:
             flags = "Q+R"
+        elif flags == 5:
+            flagd = "R+A"
 
         return flags
 
@@ -227,7 +231,7 @@ class DNSMessage:
         for record in self.extra_values:
             bit_array.append(record.serialize())
 
-        bit_array.append(BitArray(uint=0, length=8 - len(bit_array) % 8)) # Completar multiplo de 8
+        bit_array.append(BitArray(uint=0, length=8 - len(bit_array) % 8))  # Completar multiplo de 8
 
         return bit_array.bytes
 

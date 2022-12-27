@@ -241,6 +241,29 @@ class Server:
 
         return message, address
 
+    def iterative_mode(self, socket_udp, response, client):
+        next_step = self.find_next_step(response)
+        response_code = 1
+
+        while response_code == 1:
+            self.sendto_socket(socket_udp, response, next_step)
+
+            try:
+                response, address = self.recvfrom_socket(socket_udp)
+            except socket.timeout as e:
+                self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+                break
+
+            response_code = response.response_code
+            next_step = self.find_next_step(response)
+            self.change_flags(response)
+
+        if response_code == 0:
+            self.sendto_socket(socket_udp, response, client)
+            self.cache_response(response, 30)
+        elif response_code == 2:
+            self.sendto_socket(socket_udp, response, client)
+
     def interpret_message(self, message, client):
         """
         Determina o próximo passo de uma mensagem DNS
@@ -252,7 +275,7 @@ class Server:
         socket_udp.settimeout(int(self.timeout))
 
         if self.is_name_server():  # Se for SP ou SS para algum domínio
-            if self.has_default_domains(): # Name server tem domínios por defeito
+            if self.has_default_domains():  # Name server tem domínios por defeito
                 if self.is_domain_in_dd(message.domain):  # Pode responder
                     response = self.build_response(message)  # Caso em que falha ao encontrar na cache
 
@@ -276,37 +299,17 @@ class Server:
                         except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
-                    else:
-                        next_step = self.find_next_step(response)
-                        response_code = 1
-
-                        while response_code == 1:
-                            self.sendto_socket(socket_udp, response, next_step)
-
-                            try:
-                                response, address = self.recvfrom_socket(socket_udp)
-                            except socket.timeout as e:
-                                self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-                                break
-
-                            response_code = response.response_code
-                            next_step = self.find_next_step(response)
-                            self.change_flags(response)
-
-                        if response_code == 0:
-                            self.sendto_socket(socket_udp, response, client)
-                            self.cache_response(response, 30)
-                        elif response_code == 2:
-                            self.sendto_socket(socket_udp, response, client)
+                    else:  # Inicia o modo iterativo
+                        self.iterative_mode(socket_udp, message, client);
 
                 else:
                     self.sendto_socket(socket_udp, response, client)
 
         elif self.is_resolution_server():  # Se for servidor de resolução
-            response = self.build_response(message)  # TODO: adicionar flag R se aceitar modo recursivo
+            response = self.build_response(message)
 
             if "Q" in response.flags or response.response_code == 1:
-                if self.handles_recursion and "R" in response.flags: # Modo recursivo
+                if self.handles_recursion and "R" in response.flags:  # Modo recursivo
                     next_step = self.find_next_step(response)
 
                     self.sendto_socket(socket_udp, response, next_step)
