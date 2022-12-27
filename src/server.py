@@ -75,7 +75,8 @@ class Server:
         else:
             query.flags = ""
 
-
+    def is_root_server(self):
+        return self.config["DB"][0] == "."
     def is_resolution_server(self):
         return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
 
@@ -202,6 +203,9 @@ class Server:
             query.response_code = 1
             self.change_flags(query)
         elif not found and "Q" not in query.flags:
+            query.response_code = 2
+            self.change_flags(query)
+        elif not found and self.is_root_server():
             query.response_code = 2
             self.change_flags(query)
 
@@ -345,23 +349,6 @@ class Server:
                     elif response_code == 2:
                         self.sendto_socket(socket_udp, response, client)
 
-            else:
-                self.sendto_socket(socket_udp, response, client)
-
-        else:
-            response = self.build_response(message)
-
-            if self.handles_recursion and "R" in message.flags:
-                next_step = self.find_next_step(response)
-                self.sendto_socket(socket_udp, response, next_step)
-
-                try:
-                    response, address = self.recvfrom_socket(socket_udp)
-
-                    self.change_flags(response)
-                    self.sendto_socket(socket_udp, response, client)
-                except socket.timeout:
-                    self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
             else:
                 self.sendto_socket(socket_udp, response, client)
 
