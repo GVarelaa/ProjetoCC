@@ -127,15 +127,18 @@ class Server:
 
         return extra_values
 
-    def cache_response(self, response):
+    def cache_response(self, response, ttl):
         for record in response.response_values:
-            self.cache.add_entry(record, response.domain)
+            record.origin = Origin.OTHERS
+            self.cache.add_entry(record, response.domain, ttl)
 
         for record in response.authorities_values:
-            self.cache.add_entry(record, response.domain)
+            record.origin = Origin.OTHERS
+            self.cache.add_entry(record, response.domain, ttl)
 
         for record in response.extra_values:
-            self.cache.add_entry(record, response.domain)
+            record.origin = Origin.OTHERS
+            self.cache.add_entry(record, response.domain, ttl)
 
     def axfr_response(self, query):
         record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]),0, -1,Origin.SP)

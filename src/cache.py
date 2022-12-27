@@ -33,7 +33,7 @@ class Cache:
         """
         return str(self.domains)
 
-    def add_entry(self, new_record, domain):
+    def add_entry(self, new_record, domain, ttl=-1):
         """
         Adiciona uma nova entrada na cache
         :param new_record: Nova entrada
@@ -76,6 +76,7 @@ class Cache:
 
                     if record.origin == Origin.OTHERS:
                         record.status = Status.VALID
+                        record.ttl = ttl
                         record.timestamp = datetime.timestamp(datetime.now())
 
                     found = True
@@ -83,6 +84,7 @@ class Cache:
 
                 elif last_free != -1:
                     new_record.status = Status.VALID
+                    new_record.ttl = ttl
                     new_record.timestamp = datetime.timestamp(datetime.now())
                     entries[last_free] = new_record
 
