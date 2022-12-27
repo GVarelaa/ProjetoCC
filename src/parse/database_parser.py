@@ -88,7 +88,7 @@ def concatenate_suffix(type, suffix, parameter, value):
     if type == "SOASERIAL" or type == "SOAREFRESH" or type == "SOARETRY" or type == "SOAEXPIRE" or type == "A":
         parameter = concatenate_suffix_aux(suffix, parameter)
 
-    elif type == "SOASP" or type == "NS" or type == "CNAME" or type == "MX" or type == "SOAADMIN":
+    elif type == "SOASP" or type == "NS" or type == "CNAME" or type == "MX" or type == "SOAADMIN" or type == "PTR":
         if type == "SOAADMIN":
             value = replace_email(value)
 
