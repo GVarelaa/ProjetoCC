@@ -39,6 +39,13 @@ def main():
                 if args[4].isdigit():
                     timeout = int(args[4])
 
+                    if args[5] == "shy":
+                        debug = False
+
+                    elif args[5] != "debug":
+                        sys.stdout.write("Invalid mode")
+                        return
+
                 elif args[4] == "shy":
                     debug = False
 
@@ -60,7 +67,7 @@ def main():
         elif args[3] == "shy":
             debug = False
 
-        elif args[4] != "debug":
+        elif args[3] != "debug":
             sys.stdout.write("Invalid flag, timeout value or mode")
             return
 
