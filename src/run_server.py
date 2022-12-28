@@ -16,7 +16,7 @@ def main():
     config_path = args[1]  # Ficheiro de configuração
     port = args[2]  # Porta onde o servidor vai estar à escuta
     timeout = args[3]  # Tempo que o servidor vai esperar por uma resposta
-    handles_recursion = args[4]
+    handles_recursion = int(args[4])
 
     if handles_recursion == 1:
         handles_recursion = True
