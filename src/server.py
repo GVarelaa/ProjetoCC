@@ -288,9 +288,10 @@ class Server:
                     self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
             else:  # Pode responder a todos os domínios
+                response_code = message.response_code
                 response = self.build_response(message)
 
-                if "Q" in response.flags or response.response_code == 1:  # Inicia o modo iterativo
+                if "Q" in response.flags or response.response_code != response_code or not self.is_root_server():  # Inicia o modo iterativo
                     if self.handles_recursion and "R" in response.flags:  # Modo recursivo
                         next_step = self.find_next_step(response)
 
@@ -305,7 +306,7 @@ class Server:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
                     else:  # Inicia o modo iterativo
-                        self.iterative_mode(socket_udp, message, client);
+                        self.iterative_mode(socket_udp, message, client)
 
                 else:
                     self.sendto_socket(socket_udp, response, client)
