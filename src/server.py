@@ -202,15 +202,19 @@ class Server:
 
         if len(query.response_values) != 0:
             query.response_code = 0
+            query.flags = ""
             self.change_flags(query)
         elif found:
             query.response_code = 1
+            query.flags = ""
             self.change_flags(query)
         elif not found and "Q" not in query.flags:
             query.response_code = 2
+            query.flags = ""
             self.change_flags(query)
         elif not found and self.is_root_server():
             query.response_code = 2
+            query.flags = ""
             self.change_flags(query)
 
         return query
