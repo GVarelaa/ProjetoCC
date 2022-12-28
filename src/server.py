@@ -93,8 +93,9 @@ class Server:
         for record1 in query.authorities_values:
             if record1.domain in query.domain:
                 for record2 in query.extra_values:
-                    if record1.value == record2.domain and record2.value not in servers_visited:
-                        return Server.parse_address(record2.value)
+                    address = Server.parse_address(record2.value)
+                    if record1.value == record2.domain and address[0] not in servers_visited:
+                        return address
 
         if not self.is_name_server() and self.is_domain_in_dd(query.domain): # antes ou depois
             return Server.parse_address(self.config["DD"][query.domain][0])
