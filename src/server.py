@@ -291,7 +291,7 @@ class Server:
                 response_code = message.response_code
                 response = self.build_response(message)
 
-                if "Q" in response.flags or response.response_code != response_code or not self.is_root_server():  # Inicia o modo iterativo
+                if ("Q" in response.flags or (response.response_code == 1 and response_code == 0)) and not self.is_root_server():  # Inicia o modo iterativo
                     if self.handles_recursion and "R" in response.flags:  # Modo recursivo
                         next_step = self.find_next_step(response)
 
