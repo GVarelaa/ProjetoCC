@@ -81,7 +81,7 @@ class Server:
         return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
 
     def is_name_server(self):
-        return len(self.config["SS"].keys()) != 0 or len(self.config["SP"].keys()) != 0
+        return len(self.config["SS"].keys()) != 0 or len(self.config["SP"].keys()) != 0 or len(self.config["DB"].keys()) != 0
 
     def is_domain_in_dd(self, domain):
         return domain in self.config["DD"].keys()
