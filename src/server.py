@@ -300,8 +300,9 @@ class Server:
                     self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
             else:  # Pode responder a todos os domínios
-                if "R" in message.flags and self.handles_recursion:
-                    response = self.build_response(message)
+                response = self.build_response(message)
+
+                if "R" in message.flags and self.handles_recursion and (response.flags == "Q" or response.response_code == 1):
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
 
@@ -318,15 +319,12 @@ class Server:
                         next_step = self.find_next_step(response)
                         self.change_flags(response)
 
-                    self.sendto_socket(socket_udp, response, client)
-                else:
-                    response = self.build_response(message)
-                    self.sendto_socket(socket_udp, response, client)
+                self.sendto_socket(socket_udp, response, client)
 
 
         elif self.is_resolution_server():  # Se for servidor de resolução
+            response = self.build_response(message)
             if "R" in message.flags:
-                response = self.build_response(message)
                 next_step = self.find_next_step(response)
                 self.change_flags(response)
 
@@ -343,11 +341,8 @@ class Server:
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
 
-                self.sendto_socket(socket_udp, response, client)
+            self.sendto_socket(socket_udp, response, client)
 
-            else:
-                response = self.build_response(message) # mete os records do ST e envia para o cliente
-                self.sendto_socket(socket_udp, response, client)
 
         socket_udp.close()
 
