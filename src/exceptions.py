@@ -75,6 +75,7 @@ class ZoneTransferFailed(Exception):
         self.message = message
         super().__init__("Zone transfer failed")
 
+
 class ZoneTransferDatabaseIsUpToDate(Exception):
     def __init__(self, message):
         self.message = message

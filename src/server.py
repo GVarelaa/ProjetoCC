@@ -450,12 +450,12 @@ class Server:
                 wait = soarefresh
 
             except exceptions.ZoneTransferFailed as e:
-                self.log.log_ez(domain, self.config["SP"][domain], e.message)
+                self.log.log_ez(domain, self.config["SP"][domain], "SS: " + e.message)
                 socket_tcp.close()
                 wait = soaretry
 
             except exceptions.ZoneTransferDatabaseIsUpToDate as e:
-                self.log.log_ez(domain, self.config["SP"][domain], e.message)
+                self.log.log_ez(domain, self.config["SP"][domain], "SS: " + e.message)
                 socket_tcp.close()
 
             except socket.timeout as e:

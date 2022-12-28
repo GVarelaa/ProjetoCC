@@ -109,12 +109,15 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     if not validate_port(port):
         raise InvalidPortError
 
-    log.log_st("all", "localhost", port, timeout, mode)
     log.log_ev("all", "localhost", "conf-file-read", file_path)
-    log.log_ev("all", "localhost", "log-file-create", config["LG"]["all"])
+    log.log_st("127.0.0.1", port, timeout, mode)
+
+    for log_file in config["LG"]:
+        log.log_ev("all", "localhost", "log-file-create", config["LG"][log_file])
 
     server = Server(config, log, port, timeout, handles_recursion)
 
     parser_database_caller(server)
+    log.log_ev("all", "localhost", "db-file-read", config["DB"])
 
     return server

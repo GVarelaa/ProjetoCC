@@ -122,7 +122,7 @@ class Log:
         message = "SP " + ip_address + " " + info               
         self.add_log(message, domain)
 
-    def log_st(self, domain, ip_address, port, timeout, mode):
+    def log_st(self, ip_address, port, timeout, mode):
         """
         Regista log de início da execução de um componente
         :param ip_address: Endereço de IP
