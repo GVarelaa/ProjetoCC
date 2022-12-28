@@ -253,11 +253,12 @@ class Server:
 
         return message, address
 
-    def fill_root_servers(self, query):
+    def fill_root_servers(self, message):
         for i in range(len(self.config["SP"])):
             name = "root" + str(i)
-            query.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
-            query.extra_values.append(ResourceRecord(name, "A", self.config["SP"][i], 0, -1))
+            message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
+            message.extra_values.append(ResourceRecord(name, "A", self.config["SP"][i], 0, -1))
+        return message
 
     def message_resolver(self, message, socket):
         servers_visited = list()
@@ -318,7 +319,7 @@ class Server:
                 self.message_resolver(message, socket_udp)
 
             else:
-                self.fill_root_servers(message)
+                message = self.fill_root_servers(message)
 
             self.sendto_socket(socket_udp, message, client)
 
