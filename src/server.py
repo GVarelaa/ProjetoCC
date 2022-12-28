@@ -119,7 +119,6 @@ class Server:
             ret = "."
         return ret
 
-
     def fill_extra_values(self, response_values, authorities_values):
         """
         Preenche os extra values relativos a uma query
@@ -277,6 +276,7 @@ class Server:
                 response = self.build_response(message)
 
                 if "R" in message.flags and self.handles_recursion and ("Q" in response.flags or response.response_code == 1):
+                    servers_visited = list()
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
 
@@ -289,16 +289,25 @@ class Server:
                         except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
+                            servers_visited.append(next_step[0])
+                            if next_step == self.find_next_step(response, servers_visited):
+                                break
+
                         response_code = response.response_code
                         next_step = self.find_next_step(response)
                         self.change_flags(response)
+
+                    if response_code == 0:
+                        self.cache_response(response, 30)
 
                 self.sendto_socket(socket_udp, response, client)
 
 
         elif self.is_resolution_server():  # Se for servidor de resolução
             response = self.build_response(message)
+
             if "R" in message.flags:
+                servers_visited = list()
                 next_step = self.find_next_step(response)
                 self.change_flags(response)
 
@@ -311,12 +320,16 @@ class Server:
                     except socket.timeout:
                         self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
+                        servers_visited.append(next_step[0])
+                        if next_step == self.find_next_step(response, servers_visited):
+                            break
+
                     response_code = response.response_code
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
 
-            else:
-
+                if response_code == 0:
+                    self.cache_response(response, 30)
 
             self.sendto_socket(socket_udp, response, client)
 
