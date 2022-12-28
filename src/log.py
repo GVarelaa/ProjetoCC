@@ -74,7 +74,7 @@ class Log:
         :param event_data: Dados do evento
         """
         message = "EV " + ip_address + " " + event + " " + event_data
-        self.add_log(message, domain)
+        self.add_log(message)
 
     def log_er(self, domain, ip_address, info):
         """
@@ -132,7 +132,7 @@ class Log:
         """
         if mode == "shy" or mode == "debug":
             message = "ST " + ip_address + " " + port + " " + timeout + " " + mode
-            self.add_log(message, domain)
+            self.add_log(message)
 
     # Method called by the others
     def add_log(self, message, domain=None):
