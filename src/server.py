@@ -89,19 +89,12 @@ class Server:
     def has_default_domains(self):
         return len(self.config["DD"].keys()) != 0
 
-    def find_next_step(self, query):
-        server = None  # Top level domain server
-        for record in query.authorities_values:
-            if record.domain == query.domain:
-                server = record.value
-                break
-            if record.domain in query.domain:
-                server = record.value
-
-        if server is not None:
-            for record in query.extra_values:
-                if server == record.domain:
-                    return Server.parse_address(record.value)
+    def find_next_step(self, query, servers_visited=list()):
+        for record1 in query.authorities_values:
+            if record1.domain in query.domain:
+                for record2 in query.extra_values:
+                    if record1.value == record2.domain and record2.value not in servers_visited:
+                        return Server.parse_address(record2.value)
 
         if not self.is_name_server() and self.is_domain_in_dd(query.domain): # antes ou depois
             return Server.parse_address(self.config["DD"][query.domain][0])
@@ -330,6 +323,7 @@ class Server:
                 else: # Modo iterativo
                     next_step = self.find_next_step(response)
                     response_code = 1
+                    servers_visited = list()
 
                     while response_code == 1:
                         self.sendto_socket(socket_udp, response, next_step)
@@ -338,10 +332,13 @@ class Server:
                             response, address = self.recvfrom_socket(socket_udp)
                         except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-                            break
+                            if next_step == self.find_next_step(response, servers_visited):
+                                break
+                            servers_visited.append(next_step)
+                            next_step = self.find_next_step(response, servers_visited)
 
                         response_code = response.response_code
-                        next_step = self.find_next_step(response)
+                        next_step = self.find_next_step(response, servers_visited)
                         self.change_flags(response)
 
                     if response_code == 0:
