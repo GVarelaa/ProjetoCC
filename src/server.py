@@ -306,8 +306,8 @@ class Server:
                     self.change_flags(response)
 
                     self.sendto_socket(socket_udp, response, next_step)
-
-                    while response.response_code == 1:
+                    response_code = 1
+                    while response_code == 1:
                         try:
                             response, address = self.recvfrom_socket(socket_udp)
                         except socket.timeout:
@@ -316,6 +316,7 @@ class Server:
                         if response.response_code == 1:
                             next_step = self.find_next_step(response)
                             self.change_flags(response)
+                        response_code = response.response_code
 
                     self.change_flags(response)
                     self.sendto_socket(socket_udp, response, client)
@@ -333,8 +334,8 @@ class Server:
                 self.change_flags(response)
 
                 self.sendto_socket(socket_udp, response, next_step)
-
-                while response.response_code == 1:
+                response_code = 1
+                while response_code == 1:
                     try:
                         response, address = self.recvfrom_socket(socket_udp)
                     except socket.timeout:
@@ -343,6 +344,8 @@ class Server:
                     if response.response_code == 1:
                         next_step = self.find_next_step(response)
                         self.change_flags(response)
+
+                    response_code = response.response_code
 
                 self.change_flags(response)
                 self.sendto_socket(socket_udp, response, client)
