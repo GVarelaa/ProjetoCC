@@ -119,6 +119,7 @@ class Server:
             ret = "."
         return ret
 
+
     def fill_extra_values(self, response_values, authorities_values):
         """
         Preenche os extra values relativos a uma query
@@ -253,33 +254,6 @@ class Server:
 
         return message, address
 
-    def iterative_mode(self, socket_udp, response, client):
-        servers_visited = list()
-        next_step = self.find_next_step(response)
-        response_code = 1
-
-        while response_code == 1:
-            self.sendto_socket(socket_udp, response, next_step)
-
-            try:
-                response, address = self.recvfrom_socket(socket_udp)
-            except socket.timeout:
-                self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-
-                servers_visited.append(next_step[0])
-                if next_step == self.find_next_step(response, servers_visited):
-                    break
-
-            response_code = response.response_code
-            next_step = self.find_next_step(response)
-            self.change_flags(response)
-
-        if response_code == 0:
-            self.sendto_socket(socket_udp, response, client)
-            self.cache_response(response, 30)
-        elif response_code == 2:
-            self.sendto_socket(socket_udp, response, client)
-
     def interpret_message(self, message, client):
         """
         Determina o próximo passo de uma mensagem DNS
@@ -340,6 +314,9 @@ class Server:
                     response_code = response.response_code
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
+
+            else:
+
 
             self.sendto_socket(socket_udp, response, client)
 
