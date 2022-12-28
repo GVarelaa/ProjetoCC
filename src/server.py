@@ -305,20 +305,19 @@ class Server:
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
 
-                    self.sendto_socket(socket_udp, response, next_step)
                     response_code = 1
                     while response_code == 1:
+                        self.sendto_socket(socket_udp, response, next_step)
+
                         try:
                             response, address = self.recvfrom_socket(socket_udp)
                         except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
-                        if response.response_code == 1:
-                            next_step = self.find_next_step(response)
-                            self.change_flags(response)
                         response_code = response.response_code
+                        next_step = self.find_next_step(response)
+                        self.change_flags(response)
 
-                    self.change_flags(response)
                     self.sendto_socket(socket_udp, response, client)
                 else:
                     response = self.build_response(message)
@@ -326,28 +325,24 @@ class Server:
 
 
         elif self.is_resolution_server():  # Se for servidor de resolução
-            #response = self.build_response(message)
-
             if "R" in message.flags:
                 response = self.build_response(message)
                 next_step = self.find_next_step(response)
                 self.change_flags(response)
 
-                self.sendto_socket(socket_udp, response, next_step)
                 response_code = 1
                 while response_code == 1:
+                    self.sendto_socket(socket_udp, response, next_step)
+
                     try:
                         response, address = self.recvfrom_socket(socket_udp)
                     except socket.timeout:
                         self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
-                    if response.response_code == 1:
-                        next_step = self.find_next_step(response)
-                        self.change_flags(response)
-
                     response_code = response.response_code
+                    next_step = self.find_next_step(response)
+                    self.change_flags(response)
 
-                self.change_flags(response)
                 self.sendto_socket(socket_udp, response, client)
 
             else:
