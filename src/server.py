@@ -296,7 +296,7 @@ class Server:
                     self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
             else:  # Pode responder a todos os domínios
-                if "R" in message.flags and not self.handles_recursion:
+                if "R" in message.flags and self.handles_recursion:
                     response = self.build_response(message)
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
