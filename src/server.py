@@ -97,10 +97,16 @@ class Server:
                     if record1.value == record2.domain and address[0] not in servers_visited:
                         return address
 
-        if not self.is_name_server() and self.is_domain_in_dd(query.domain): # antes ou depois
-            return Server.parse_address(self.config["DD"][query.domain][0])
+        if self.is_domain_in_dd(query.domain): # antes ou depois
+            for address in self.config["DD"][query.domain]:
+                address = Server.parse_address(address)
+                if address[0] not in servers_visited:
+                    return address
 
-        return Server.parse_address(self.config["ST"][0]) # pega o primeiro servidor de topo?
+        for address in self.config["ST"]:
+            address = Server.parse_address(address)
+            if address[0] not in servers_visited:
+                return address
 
     @staticmethod
     def find_next_domain(domain):
@@ -240,6 +246,7 @@ class Server:
         return message, address
 
     def iterative_mode(self, socket_udp, response, client):
+        servers_visited = list()
         next_step = self.find_next_step(response)
         response_code = 1
 
@@ -248,9 +255,12 @@ class Server:
 
             try:
                 response, address = self.recvfrom_socket(socket_udp)
-            except socket.timeout as e:
+            except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-                break
+
+                servers_visited.append(next_step[0])
+                if next_step == self.find_next_step(response, servers_visited):
+                    break
 
             response_code = response.response_code
             next_step = self.find_next_step(response)
@@ -322,32 +332,7 @@ class Server:
                         self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
                 else: # Modo iterativo
-                    next_step = self.find_next_step(response)
-                    response_code = 1
-                    servers_visited = list()
-                    print(next_step)
-                    while response_code == 1:
-                        self.sendto_socket(socket_udp, response, next_step)
-
-                        try:
-                            response, address = self.recvfrom_socket(socket_udp)
-                        except socket.timeout:
-                            self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-
-                            servers_visited.append(next_step[0])
-                            if next_step == self.find_next_step(response, servers_visited):
-                                break
-
-                        response_code = response.response_code
-                        next_step = self.find_next_step(response, servers_visited)
-                        print(next_step)
-                        self.change_flags(response)
-
-                    if response_code == 0:
-                        self.cache_response(response, 30)
-                        self.sendto_socket(socket_udp, response, client)
-                    elif response_code == 2:
-                        self.sendto_socket(socket_udp, response, client)
+                    self.iterative_mode(socket_udp, message, client)
 
             else:
                 self.sendto_socket(socket_udp, response, client)
