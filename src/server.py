@@ -160,7 +160,7 @@ class Server:
 
         return query
 
-    def build_response(self, query):
+    def search_on_cache(self, query):
         """
         Formula a resposta a uma query
         :param query: Query a responder
@@ -253,6 +253,37 @@ class Server:
 
         return message, address
 
+    def fill_root_servers(self, query):
+        for i in range(len(self.config["SP"])):
+            name = "root" + str(i)
+            query.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
+            query.extra_values.append(ResourceRecord(name, "A", self.config["SP"][i], 0, -1))
+
+    def message_resolver(self, message, socket):
+        servers_visited = list()
+        next_step = self.find_next_step(message)
+        self.change_flags(message)
+
+        response_code = 1
+        while response_code == 1:
+            self.sendto_socket(socket, message, next_step)
+
+            try:
+                response, address = self.recvfrom_socket(socket)
+            except socket.timeout:
+                self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+
+                servers_visited.append(next_step[0])
+                if next_step == self.find_next_step(message, servers_visited):
+                    break
+
+            response_code = message.response_code
+            next_step = self.find_next_step(message)
+            self.change_flags(message)
+
+        if response_code == 0:
+            self.cache_response(message, 30)
+
     def interpret_message(self, message, client):
         """
         Determina o próximo passo de uma mensagem DNS
@@ -266,73 +297,30 @@ class Server:
         if self.is_name_server():  # Se for SP ou SS para algum domínio
             if self.has_default_domains():  # Name server tem domínios por defeito
                 if self.is_domain_in_dd(message.domain):  # Pode responder
-                    response = self.build_response(message)  # Caso em que falha ao encontrar na cache
+                    message = self.search_on_cache(message)  # Caso em que falha ao encontrar na cache
 
-                    self.sendto_socket(socket_udp, response, client)
+                    self.sendto_socket(socket_udp, message, client)
                 else:  # Timeout?
                     self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
             else:  # Pode responder a todos os domínios
-                response = self.build_response(message)
+                message = self.search_on_cache(message)
 
-                if "R" in message.flags and self.handles_recursion and ("Q" in response.flags or response.response_code == 1):
-                    servers_visited = list()
-                    next_step = self.find_next_step(response)
-                    self.change_flags(response)
+                if "R" in message.flags and self.handles_recursion and ("Q" in message.flags or message.response_code == 1):
+                    self.message_resolver(message, socket_udp)
 
-                    response_code = 1
-                    while response_code == 1:
-                        self.sendto_socket(socket_udp, response, next_step)
-
-                        try:
-                            response, address = self.recvfrom_socket(socket_udp)
-                        except socket.timeout:
-                            self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-
-                            servers_visited.append(next_step[0])
-                            if next_step == self.find_next_step(response, servers_visited):
-                                break
-
-                        response_code = response.response_code
-                        next_step = self.find_next_step(response)
-                        self.change_flags(response)
-
-                    if response_code == 0:
-                        self.cache_response(response, 30)
-
-                self.sendto_socket(socket_udp, response, client)
-
+                self.sendto_socket(socket_udp, message, client)
 
         elif self.is_resolution_server():  # Se for servidor de resolução
-            response = self.build_response(message)
+            message = self.search_on_cache(message)
 
             if "R" in message.flags:
-                servers_visited = list()
-                next_step = self.find_next_step(response)
-                self.change_flags(response)
+                self.message_resolver(message, socket_udp)
 
-                response_code = 1
-                while response_code == 1:
-                    self.sendto_socket(socket_udp, response, next_step)
+            else:
+                self.fill_root_servers(message)
 
-                    try:
-                        response, address = self.recvfrom_socket(socket_udp)
-                    except socket.timeout:
-                        self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
-
-                        servers_visited.append(next_step[0])
-                        if next_step == self.find_next_step(response, servers_visited):
-                            break
-
-                    response_code = response.response_code
-                    next_step = self.find_next_step(response)
-                    self.change_flags(response)
-
-                if response_code == 0:
-                    self.cache_response(response, 30)
-
-            self.sendto_socket(socket_udp, response, client)
-
+            self.sendto_socket(socket_udp, message, client)
 
         socket_udp.close()
 
@@ -380,7 +368,7 @@ class Server:
                     self.log.log_zt(domain, str(address_from), "SP : Zone transfer started")
                     response = self.axfr_response(message)
                 elif message.type == "SOASERIAL":
-                    response = self.build_response(message)
+                    response = self.search_on_cache(message)
 
                 connection.sendall(response.serialize())
                 self.log.log_rp(domain, str(address_from), response.to_string())
