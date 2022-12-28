@@ -302,7 +302,7 @@ class Server:
             else:  # Pode responder a todos os domínios
                 response = self.build_response(message)
 
-                if "R" in message.flags and self.handles_recursion and (response.flags == "Q" or response.response_code == 1):
+                if "R" in message.flags and self.handles_recursion and ("Q" in response.flags or response.response_code == 1):
                     next_step = self.find_next_step(response)
                     self.change_flags(response)
 
