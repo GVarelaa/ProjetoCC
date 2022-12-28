@@ -332,9 +332,9 @@ class Server:
                             response, address = self.recvfrom_socket(socket_udp)
                         except socket.timeout:
                             self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
+                            servers_visited.append(next_step)
                             if next_step == self.find_next_step(response, servers_visited):
                                 break
-                            servers_visited.append(next_step)
                             next_step = self.find_next_step(response, servers_visited)
 
                         response_code = response.response_code
