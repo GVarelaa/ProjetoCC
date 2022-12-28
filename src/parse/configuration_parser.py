@@ -118,6 +118,8 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     server = Server(config, log, port, timeout, handles_recursion)
 
     parser_database_caller(server)
-    log.log_ev("all", "localhost", "db-file-read", config["DB"])
+
+    for db_file in config["DB"]:
+        log.log_ev("all", "localhost", "db-file-read", config["DB"][db_file])
 
     return server
