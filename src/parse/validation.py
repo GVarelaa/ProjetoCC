@@ -10,7 +10,7 @@ def validate_port(port):
     :param port: Porta
     :return: Bool
     """
-    return 1 < int(port) < 65535
+    return 1 < port < 65535
 
 
 def validate_ip(ip_address):

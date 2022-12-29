@@ -139,7 +139,7 @@ class Logger:
         :param mode: Modo de funcionamento
         """
         if mode == "shy" or mode == "debug":
-            message = "ST " + ip_address + " " + port + " " + timeout + " " + mode
+            message = "ST " + ip_address + " " + str(port) + " " + str(timeout) + " " + mode
             self.add_log(message)
 
     # Method called by the others
