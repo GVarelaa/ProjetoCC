@@ -205,7 +205,7 @@ class Server:
 
     def fill_root_servers(self, message):
         """
-        Preenche os authorities e extra values de uma mensagem nos servidores de topo
+        Preenche os authorities e extra values de uma mensagem com informação dos servidores de topo
         :param message: Mensagem
         :return: Mensagem atualizada
         """
@@ -331,24 +331,25 @@ class Server:
         :return Mensagem atualizada
         """
         servers_visited = list()
-        next_step = self.find_next_step(message)
+        next_server = self.find_next_step(message)
         self.change_flags(message)
 
         response_code = 1
         while response_code == 1:
-            self.sendto_socket(socket, message, next_step)
+            self.sendto_socket(socket, message, next_server)
 
             try:
                 message, address = self.recvfrom_socket(socket)
+
             except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
-                servers_visited.append(next_step[0])
-                if next_step == self.find_next_step(message, servers_visited):
+                servers_visited.append(next_server[0])
+                if next_server == self.find_next_step(message, servers_visited):
                     break
 
             response_code = message.response_code
-            next_step = self.find_next_step(message)
+            next_server = self.find_next_step(message)
             self.change_flags(message)
 
         if response_code == 0:
@@ -365,36 +366,36 @@ class Server:
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP para enviar mensagens
         socket_udp.settimeout(self.timeout)
 
-        if self.is_name_server():  # Se for SP ou SS para algum domínio
-            if self.has_default_domains():  # Name server tem domínios por defeito
+        if self.is_name_server():  # SP/SS/ST/SDT
+            if self.has_default_domains():
                 if self.is_domain_in_dd(message.domain):  # Pode responder
-                    message = self.search_on_cache(message)  # Caso em que falha ao encontrar na cache
-
+                    message = self.search_on_cache(message)
                     self.sendto_socket(socket_udp, message, client)
                 else:  # Timeout?
-                    self.log.log_to(message.domain, str(client),
-                                    "Server has no permission to attend the query domain!")
+                    self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
 
-            else:  # Pode responder a todos os domínios
-                is_query = "Q" in message.flags
-                is_recursive = "R" in message.flags
-                message = self.search_on_cache(message)
+            else:  # Se não tiver domínios por defeito, pode responder a queries de qualquer domínio
+                response = self.search_on_cache(message)
 
-                if (is_query and is_recursive) or (is_recursive and self.handles_recursion):
-                    message = self.message_resolver(message, socket_udp)
+                if "R" in message.flags:  # Mensagem recursiva
+                    if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
+                        response = self.message_resolver(response, socket_udp)
 
-                self.sendto_socket(socket_udp, message, client)
+                elif "Q" in response.flags:  # Não encontrou informação sobre o domínio da query na cache, responde com informação dos ST's
+                    response = self.fill_root_servers(response)
 
-        elif self.is_resolution_server():  # Se for servidor de resolução
-            message = self.search_on_cache(message)
+                self.sendto_socket(socket_udp, response, client)
 
-            if "R" in message.flags:
-                message = self.message_resolver(message, socket_udp)
+        elif self.is_resolution_server():  # SR
+            response = self.search_on_cache(message)
 
-            else: # acrescentar condição de nao ter encontrado nada na cache
-                message = self.fill_root_servers(message)
+            if "R" in message.flags:  # Mensagem recursiva
+                response = self.message_resolver(response, socket_udp)
 
-            self.sendto_socket(socket_udp, message, client)
+            elif "Q" in response.flags:  # Não encontrou informação sobre o domínio da query na cache, responde com informação dos ST's
+                response = self.fill_root_servers(response)
+
+            self.sendto_socket(socket_udp, response, client)
 
         socket_udp.close()
 
@@ -421,7 +422,7 @@ class Server:
         :param connection: Conexão estabelecida
         :param address_from: Endereço do servidor secundário
         """
-        connection.settimeout(int(self.timeout))
+        connection.settimeout(self.timeout)
         domain = None
 
         while True:
