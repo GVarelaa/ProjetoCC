@@ -316,10 +316,10 @@ class Server:
             message.response_code = 2
             message.flags = ""
             self.change_flags(message)
-        elif not found and self.is_root_server():
-            message.response_code = 2
-            message.flags = ""
-            self.change_flags(message)
+        #elif not found and self.is_root_server():
+        #    message.response_code = 2
+        #    message.flags = ""
+        #    self.change_flags(message)
 
         return message
 
