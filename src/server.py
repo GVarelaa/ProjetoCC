@@ -324,7 +324,7 @@ class Server:
             self.sendto_socket(socket, message, next_step)
 
             try:
-                response, address = self.recvfrom_socket(socket)
+                message, address = self.recvfrom_socket(socket)
             except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
@@ -338,6 +338,8 @@ class Server:
 
         if response_code == 0:
             self.cache_response(message, 30)
+
+        return message
 
     def interpret_message(self, message, client):
         """
