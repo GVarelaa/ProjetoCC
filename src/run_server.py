@@ -12,7 +12,7 @@ def main():
     """
     args = sys.argv
     config_path = args[1]  # Ficheiro de configuração
-    port = args[2]  # Porta onde o servidor vai estar à escuta
+    port = int(args[2])  # Porta onde o servidor vai estar à escuta
     timeout = int(args[3])  # Tempo que o servidor vai esperar por uma resposta
     handles_recursion = int(args[4])  # Indica se o servidor aceita ou não o modo recursivo
 

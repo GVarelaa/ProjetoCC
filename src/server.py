@@ -25,7 +25,7 @@ class Server:
         """
         self.config = config
         self.log = log
-        self.port = int(port)
+        self.port = port
         self.timeout = timeout
         self.handles_recursion = handles_recursion
 
