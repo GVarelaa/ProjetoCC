@@ -30,6 +30,6 @@ def validate_ip(ip_address):
 
     elif length == 2:
         port = (ip_address.split(':'))[-1]
-        port_bool = validate_port(port)
+        port_bool = validate_port(int(port))
 
     return len(ip_parts) == 4 and all(0 <= int(part) < 256 for part in ip_parts) and port_bool
