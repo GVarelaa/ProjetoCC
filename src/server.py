@@ -312,6 +312,7 @@ class Server:
             name = "root" + str(i)
             message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
             message.extra_values.append(ResourceRecord(name, "A", self.config["ST"][i], 0, -1))
+
         return message
 
     def message_resolver(self, message, socket):
@@ -364,7 +365,7 @@ class Server:
                 message = self.search_on_cache(message)
 
                 if "R" in message.flags and self.handles_recursion and ("Q" in message.flags or message.response_code == 1):
-                    self.message_resolver(message, socket_udp)
+                    message = self.message_resolver(message, socket_udp)
 
                 self.sendto_socket(socket_udp, message, client)
 
@@ -375,7 +376,7 @@ class Server:
                 message = self.message_resolver(message, socket_udp)
 
             else:
-                self.fill_root_servers(message)
+                message = self.fill_root_servers(message)
 
             self.sendto_socket(socket_udp, message, client)
 
