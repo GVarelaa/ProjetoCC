@@ -3,12 +3,11 @@
 # Data da última atualização: 11/11/22
 # Descrição: Implementação de um servidor
 # Última atualização: Documentação
+
 import random
 import socket
 import threading
 import time
-from datetime import datetime
-
 import exceptions
 from dns_message import *
 from resource_record import ResourceRecord
@@ -21,6 +20,8 @@ class Server:
         :param config: Estrutura com os dados de configuração
         :param log: Objetos Log
         :param port: Porta de atendimento
+        :param timeout: Timeout
+        :param handles_recursion: Aceita ou não modo recursivo
         """
         self.config = config
         self.log = log
@@ -35,21 +36,21 @@ class Server:
         Devolve a representação em string do objeto Server
         :return: String
         """
-        return "fazer"
+        return str(self.config) + str(self.log) + str(self.port) + str(self.timeout) + "handles recursion: " + str(self.handles_recursion)
 
     def __repr__(self):
         """
         Devolve a representação oficial em string do objeto Server
         :return: String
         """
-        return "fazer"
+        return str(self.config) + str(self.log) + str(self.port) + str(self.timeout) + "handles recursion: " + str(self.handles_recursion)
 
     @staticmethod
     def parse_address(address):
         """
         Separa um endereço em endereço e porta
         :param address: Endereço IP
-        :return: Tuplo com o endereço e a porta
+        :return: Endereço e porta
         """
         substrings = address.split(":")
         ip_address = substrings[0]
@@ -62,38 +63,74 @@ class Server:
         return ip_address, port
 
     def change_flags(self, query):
+        """
+        Altera as flags de uma query consoante o modo e a autoridade do servidor
+        :param query: Query
+        :return: Flags
+        """
         authoritative = False
+
         for domain in self.config["DB"].keys():
             if domain == query.domain:
                 authoritative = True
                 break
 
-        if self.handles_recursion and "Q" in query.flags:
-            query.flags = "Q+R"
-        elif not self.handles_recursion and "Q" in query.flags:
-            query.flags = "Q"
-        elif self.handles_recursion and authoritative:
-            query.flags = "R+A"
-        elif self.handles_recursion:
-            query.flags = "R"
+        if self.handles_recursion:
+            if "Q" in query.flags:
+                query.flags = "Q+R"
+            elif authoritative:
+                query.flags = "R+A"
+            else:
+                query.flags = "R"
         else:
-            query.flags = ""
+            if "Q" in query.flags:
+                query.flags = "Q"
+            else:
+                query.flags = ""
 
     def is_root_server(self):
+        """
+        Verifica se o servidor é um servidor de topo
+        :return: True caso seja um ST, False caso contrário
+        """
         return "." in self.config["DB"].keys()
+
     def is_resolution_server(self):
+        """
+        Verifica se o servidor é um servidor de resolução
+        :return: True caso seja um SR, False caso contrário
+        """
         return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
 
     def is_name_server(self):
+        """
+        Verifica se o servidor é um name server
+        :return: True caso seja um ST/SP/SS, False caso contrário
+        """
         return len(self.config["SS"].keys()) != 0 or len(self.config["SP"].keys()) != 0 or len(self.config["DB"].keys()) != 0
 
     def is_domain_in_dd(self, domain):
+        """
+        Verifica se o domínio está nos domínios por defeito
+        :param domain: Domínio a procurar
+        :return: True caso o domínio esteja nos DD's, False caso contrário
+        """
         return domain in self.config["DD"].keys()
 
     def has_default_domains(self):
+        """
+        Verifica se o servidor tem domínios por defeito
+        :return: True caso tenha DD's, False caso contrário
+        """
         return len(self.config["DD"].keys()) != 0
 
     def find_next_step(self, query, servers_visited=list()):
+        """
+        Encontra o próximo servidor a ser contactado
+        :param query: Query recebida
+        :param servers_visited: Lista de servidores já visitados (para evitar contactar servidores repetidos)
+        :return: Endereço do próximo servidor a ser contactado
+        """
         for record1 in query.authorities_values:
             if record1.domain in query.domain:
                 for record2 in query.extra_values:
@@ -101,7 +138,7 @@ class Server:
                     if record1.value == record2.domain and address[0] not in servers_visited:
                         return address
 
-        if self.is_domain_in_dd(query.domain): # antes ou depois
+        if self.is_domain_in_dd(query.domain):  # antes ou depois
             for address in self.config["DD"][query.domain]:
                 address = Server.parse_address(address)
                 if address[0] not in servers_visited:
@@ -114,9 +151,16 @@ class Server:
 
     @staticmethod
     def find_next_domain(domain):
+        """
+        Encontra o domínio acima do domínio dado na hierarquia
+        :param domain: Domínio dado
+        :return: Domínio acima na hierarquia
+        """
         ret = domain.split(".", 1)[1]
+
         if ret == "":
             ret = "."
+
         return ret
 
     def fill_extra_values(self, response_values, authorities_values):
@@ -139,6 +183,11 @@ class Server:
         return extra_values
 
     def cache_response(self, response, ttl):
+        """
+        Adiciona os dados da resposta na cache
+        :param response: Resposta
+        :param ttl: TTL dos records a serem adicionados
+        """
         for record in response.response_values:
             record.origin = Origin.OTHERS
             self.cache.add_entry(record, response.domain, ttl)
@@ -152,7 +201,12 @@ class Server:
             self.cache.add_entry(record, response.domain, ttl)
 
     def axfr_response(self, query):
-        record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]),0, -1,Origin.SP)
+        """
+        Retorna o número de entradas da DB de um certo domínio (resposta a uma query AXFR)
+        :param query: Query que contém o domínio
+        :return: Resposta à query AXFR
+        """
+        record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]), 0,  -1, Origin.SP)
         query.flags = ""
         query.response_code = 0
         query.response_values.append(record)

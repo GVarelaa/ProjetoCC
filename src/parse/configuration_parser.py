@@ -1,14 +1,14 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 29/10/22
-# Data da última atualização: 19/11/22
+# Data da última atualização: 28/12/22
 # Descrição: Parsing de ficheiros de configuração de servidores
-# Última atualização: Documentação
+# Última atualização: Logs adicionados
 
-from parse.validation import *
 from parse.database_parser import *
-from log import *
+from logger import *
 from exceptions import *
 from server import *
+
 
 def parser_root_servers(file_path):
     """
@@ -36,7 +36,8 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     :param file_path: Ficheiro de configuração
     :param port: Porta
     :param timeout: Timeout
-    :param mode: Modo
+    :param handles_recursion: Indica se o servidor aceita o modo recursivo
+    :param mode: Modo (debug/shy)
     :return: Servidor
     """
     config = dict()
@@ -104,14 +105,13 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     if mode != "shy" and mode != "debug":
         return None
 
-    log = Log(logs, is_debug)
+    log = Logger(logs, is_debug)
 
     if not validate_port(port):
         raise InvalidPortError
 
     log.log_ev("all", "localhost", "conf-file-read", file_path)
     log.log_st("127.0.0.1", port, timeout, mode)
-
     for log_file in config["LG"]:
         log.log_ev("all", "localhost", "log-file-create", config["LG"][log_file])
 
