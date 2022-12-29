@@ -308,10 +308,10 @@ class Server:
         return message, address
 
     def fill_root_servers(self, message):
-        for i in range(len(self.config["SP"])):
+        for i in range(len(self.config["ST"])):
             name = "root" + str(i)
             message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
-            message.extra_values.append(ResourceRecord(name, "A", self.config["SP"][i], 0, -1))
+            message.extra_values.append(ResourceRecord(name, "A", self.config["ST"][i], 0, -1))
         return message
 
     def message_resolver(self, message, socket):
@@ -373,8 +373,7 @@ class Server:
                 self.message_resolver(message, socket_udp)
 
             else:
-                print("aqui")
-                message = self.fill_root_servers(message)
+                self.fill_root_servers(message)
 
             self.sendto_socket(socket_udp, message, client)
 
