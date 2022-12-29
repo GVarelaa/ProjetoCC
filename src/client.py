@@ -22,7 +22,7 @@ def main():
     message_id = random.randint(1, 65535)
     ip_address = args_split[0]
     port = 5353  # porta default
-    domain_name = args[1]
+    domain = args[1]
     type = args[2]
     flags = "Q"  # Flags default
     timeout = 10  # Valor de timeout default
@@ -74,7 +74,7 @@ def main():
     socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
     socket_udp.settimeout(timeout)
 
-    query = DNSMessage(message_id, flags, 0, domain_name, type)  # Criar mensagem
+    query = DNSMessage(message_id, flags, 0, domain, type)  # Criar mensagem
 
     if debug:  # Enviar query para o socket do server
         socket_udp.sendto(query.to_string(), (ip_address, port))
