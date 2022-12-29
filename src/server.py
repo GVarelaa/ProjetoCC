@@ -313,6 +313,10 @@ class Server:
             message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
             message.extra_values.append(ResourceRecord(name, "A", self.config["ST"][i], 0, -1))
 
+        message.num_authorities = len(message.authorities_values)
+        message.num_extra = len(message.extra_values)
+        message.flags = ""
+
         return message
 
     def message_resolver(self, message, socket):
