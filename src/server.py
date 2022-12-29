@@ -377,11 +377,10 @@ class Server:
 
             else:  # Pode responder a todos os domínios
                 is_query = "Q" in message.flags
+                is_recursive = "R" in message.flags
                 message = self.search_on_cache(message)
 
-                if "R" in message.flags and is_query:
-                    message = self.message_resolver(message, socket_udp)
-                elif "R" in message.flags and self.handles_recursion and ("Q" in message.flags or message.response_code == 1):
+                if (is_query and is_recursive) or (is_recursive and self.handles_recursion):
                     message = self.message_resolver(message, socket_udp)
 
                 self.sendto_socket(socket_udp, message, client)
