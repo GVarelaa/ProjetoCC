@@ -378,7 +378,9 @@ class Server:
             else:  # Pode responder a todos os domínios
                 message = self.search_on_cache(message)
 
-                if "R" in message.flags and self.handles_recursion and ("Q" in message.flags or message.response_code == 1):
+                if "R" in message.flags and "Q" in message.flags:
+                    message = self.message_resolver(message, socket_udp)
+                elif "R" in message.flags and self.handles_recursion and ("Q" in message.flags or message.response_code == 1):
                     message = self.message_resolver(message, socket_udp)
 
                 self.sendto_socket(socket_udp, message, client)
@@ -389,7 +391,7 @@ class Server:
             if "R" in message.flags:
                 message = self.message_resolver(message, socket_udp)
 
-            else:
+            else: # acrescentar condição de nao ter encontrado nada na cache
                 message = self.fill_root_servers(message)
 
             self.sendto_socket(socket_udp, message, client)
