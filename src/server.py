@@ -508,7 +508,7 @@ class Server:
                 socket_tcp.close()
 
             except socket.error:
-                self.log.ez(domain, self.config["SP"][domain], "SS: Failed to connect to primary server")
+                self.log.log_ez(domain, self.config["SP"][domain], "SS: Failed to connect to primary server")
 
             time.sleep(wait)
 
