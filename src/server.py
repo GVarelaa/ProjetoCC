@@ -372,7 +372,7 @@ class Server:
             message = self.search_on_cache(message)
 
             if "R" in message.flags:
-                self.message_resolver(message, socket_udp)
+                message = self.message_resolver(message, socket_udp)
 
             else:
                 self.fill_root_servers(message)
