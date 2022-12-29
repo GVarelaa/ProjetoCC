@@ -1,6 +1,6 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 30/10/22
-# Data da última atualização: 11/11/22
+# Data da última atualização: 28/12/22
 # Descrição: Implementação de um servidor
 # Última atualização: Documentação
 
@@ -62,31 +62,50 @@ class Server:
 
         return ip_address, port
 
-    def change_flags(self, query):
+    def sendto_socket(self, socket, message, address):
         """
-        Altera as flags de uma query consoante o modo e a autoridade do servidor
-        :param query: Query
-        :return: Flags
+        Envia uma mensagem serializada e regista os respetivos logs
+        :param socket: Socket
+        :param message: Mensagem a enviar
+        :param address: Endereço do servidor para o qual vai enviar
         """
-        authoritative = False
+        socket.sendto(message.serialize(), address)
 
-        for domain in self.config["DB"].keys():
-            if domain == query.domain:
-                authoritative = True
-                break
-
-        if self.handles_recursion:
-            if "Q" in query.flags:
-                query.flags = "Q+R"
-            elif authoritative:
-                query.flags = "R+A"
-            else:
-                query.flags = "R"
+        if "Q" in message.flags:
+            self.log.log_qe(message.domain, str(address), message.to_string())
         else:
-            if "Q" in query.flags:
-                query.flags = "Q"
+            self.log.log_rp(message.domain, str(address), message.to_string())
+
+    def recvfrom_socket(self, socket):
+        """
+        Recebe uma mensagem, desserializa-a e regista os respetivos logs
+        :param socket: Socket
+        :return: Mensagem, endereço do servidor da origem da mensagem
+        """
+        message, address = socket.recvfrom(4096)
+
+        if message:
+            message = DNSMessage.deserialize(message)
+
+            if "Q" in message.flags:
+                self.log.log_qr(message.domain, str(address), message.to_string())
             else:
-                query.flags = ""
+                self.log.log_rr(message.domain, str(address), message.to_string())
+
+        return message, address
+
+    def receive_queries(self):
+        """
+        Recebe queries através de um socket udp e cria uma thread para cada query (thread-per-connection)
+        """
+        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
+        socket_udp.bind(("", self.port))
+
+        while True:
+            message, address = self.recvfrom_socket(socket_udp)
+            threading.Thread(target=self.interpret_message, args=(message, address)).start()  # Thread per connection
+
+        socket_udp.close()
 
     def is_root_server(self):
         """
@@ -100,14 +119,16 @@ class Server:
         Verifica se o servidor é um servidor de resolução
         :return: True caso seja um SR, False caso contrário
         """
-        return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(self.config["DB"].keys()) == 0
+        return len(self.config["SS"].keys()) == 0 and len(self.config["SP"].keys()) == 0 and len(
+            self.config["DB"].keys()) == 0
 
     def is_name_server(self):
         """
         Verifica se o servidor é um name server
         :return: True caso seja um ST/SP/SS, False caso contrário
         """
-        return len(self.config["SS"].keys()) != 0 or len(self.config["SP"].keys()) != 0 or len(self.config["DB"].keys()) != 0
+        return len(self.config["SS"].keys()) != 0 or len(self.config["SP"].keys()) != 0 or len(
+            self.config["DB"].keys()) != 0
 
     def is_domain_in_dd(self, domain):
         """
@@ -123,6 +144,20 @@ class Server:
         :return: True caso tenha DD's, False caso contrário
         """
         return len(self.config["DD"].keys()) != 0
+
+    @staticmethod
+    def find_next_domain(domain):
+        """
+        Encontra o domínio acima do domínio dado na hierarquia
+        :param domain: Domínio dado
+        :return: Domínio acima na hierarquia
+        """
+        ret = domain.split(".", 1)[1]
+
+        if ret == "":
+            ret = "."
+
+        return ret
 
     def find_next_step(self, query, servers_visited=list()):
         """
@@ -149,20 +184,6 @@ class Server:
             if address[0] not in servers_visited:
                 return address
 
-    @staticmethod
-    def find_next_domain(domain):
-        """
-        Encontra o domínio acima do domínio dado na hierarquia
-        :param domain: Domínio dado
-        :return: Domínio acima na hierarquia
-        """
-        ret = domain.split(".", 1)[1]
-
-        if ret == "":
-            ret = "."
-
-        return ret
-
     def fill_extra_values(self, response_values, authorities_values):
         """
         Preenche os extra values relativos a uma query
@@ -182,7 +203,50 @@ class Server:
 
         return extra_values
 
-    def cache_response(self, response, ttl):
+    def fill_root_servers(self, message):
+        """
+        Preenche os authorities e extra values de uma mensagem nos servidores de topo
+        :param message: Mensagem
+        :return: Mensagem atualizada
+        """
+        for i in range(len(self.config["ST"])):
+            name = "root" + str(i)
+            message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
+            message.extra_values.append(ResourceRecord(name, "A", self.config["ST"][i], 0, -1))
+
+        message.num_authorities = len(message.authorities_values)
+        message.num_extra = len(message.extra_values)
+        message.flags = ""
+
+        return message
+
+    def change_flags(self, query):
+        """
+        Altera as flags de uma query consoante o modo e a autoridade do servidor
+        :param query: Query
+        :return: Flags
+        """
+        authoritative = False
+
+        for domain in self.config["DB"].keys():
+            if domain == query.domain:
+                authoritative = True
+                break
+
+        if self.handles_recursion:
+            if "Q" in query.flags:
+                query.flags = "Q+R"
+            elif authoritative:
+                query.flags = "R+A"
+            else:
+                query.flags = "R"
+        else:
+            if "Q" in query.flags:
+                query.flags = "Q"
+            else:
+                query.flags = ""
+
+    def register_response_on_cache(self, response, ttl):
         """
         Adiciona os dados da resposta na cache
         :param response: Resposta
@@ -200,41 +264,27 @@ class Server:
             record.origin = Origin.OTHERS
             self.cache.add_entry(record, response.domain, ttl)
 
-    def axfr_response(self, query):
+    def search_on_cache(self, message):
         """
-        Retorna o número de entradas da DB de um certo domínio (resposta a uma query AXFR)
-        :param query: Query que contém o domínio
-        :return: Resposta à query AXFR
-        """
-        record = ResourceRecord(query.domain, query.type, str(self.cache.get_file_entries_by_domain(query.domain)[0]), 0,  -1, Origin.SP)
-        query.flags = ""
-        query.response_code = 0
-        query.response_values.append(record)
-        query.num_response = 1
-
-        return query
-
-    def search_on_cache(self, query):
-        """
-        Formula a resposta a uma query
-        :param query: Query a responder
-        :return: Query já respondida
+        Procura na cache informação para responder à mensagem recebida
+        :param message: Mensagem a responder
+        :return: Mensagem atualizada
         """
         response_values = list()
         authorities_values = list()
         extra_values = list()
 
         found = False
-        domain = query.domain
+        domain = message.domain
 
         while not found:
-            response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
+            response_values = self.cache.get_records_by_domain_and_type(domain, message.type)
 
-            if len(response_values) == 0 and query.type == "A":  # Vai ver o seu CNAME
+            if len(response_values) == 0 and message.type == "A":  # Vai ver o seu CNAME
                 cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
                 if len(cname) > 0:
                     domain = cname[0].value
-                    response_values = self.cache.get_records_by_domain_and_type(domain, query.type)
+                    response_values = self.cache.get_records_by_domain_and_type(domain, message.type)
 
             authorities_values = self.cache.get_records_by_domain_and_type(domain, "NS")
             extra_values = self.fill_extra_values(response_values, authorities_values)
@@ -242,84 +292,44 @@ class Server:
             if len(response_values) == 0 and len(authorities_values) == 0 and len(extra_values) == 0:
                 domain = Server.find_next_domain(domain)
 
-                if domain == ".": # Mudar
+                if domain == ".":  # Mudar
                     break
             else:
                 found = True
 
-        query.num_response = len(response_values)
-        query.num_authorities = len(authorities_values)
-        query.num_extra = len(extra_values)
-        query.response_values = response_values
-        query.authorities_values = authorities_values
-        query.extra_values = extra_values
+        message.num_response = len(response_values)
+        message.num_authorities = len(authorities_values)
+        message.num_extra = len(extra_values)
+        message.response_values = response_values
+        message.authorities_values = authorities_values
+        message.extra_values = extra_values
 
-        if len(query.response_values) != 0:
-            query.response_code = 0
-            query.flags = ""
-            self.change_flags(query)
+        if len(message.response_values) != 0:
+            message.response_code = 0
+            message.flags = ""
+            self.change_flags(message)
         elif found:
-            query.response_code = 1
-            query.flags = ""
-            self.change_flags(query)
-        elif not found and "Q" not in query.flags:
-            query.response_code = 2
-            query.flags = ""
-            self.change_flags(query)
+            message.response_code = 1
+            message.flags = ""
+            self.change_flags(message)
+        elif not found and "Q" not in message.flags:
+            message.response_code = 2
+            message.flags = ""
+            self.change_flags(message)
         elif not found and self.is_root_server():
-            query.response_code = 2
-            query.flags = ""
-            self.change_flags(query)
-
-        return query
-
-    def receive_queries(self):
-        """
-        Recebe queries através de um socket udp e cria uma thread para cada query (thread-per-connection)
-        """
-        socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
-        socket_udp.bind(("", self.port))
-
-        while True:
-            message, address = self.recvfrom_socket(socket_udp)
-            threading.Thread(target=self.interpret_message, args=(message, address)).start()  # Thread per connection
-
-        socket_udp.close()
-
-    def sendto_socket(self, socket, message, address):
-        socket.sendto(message.serialize(), address)
-
-        if "Q" in message.flags:
-            self.log.log_qe(message.domain, str(address), message.to_string())
-        else:
-            self.log.log_rp(message.domain, str(address), message.to_string())
-
-    def recvfrom_socket(self, socket):
-        message, address = socket.recvfrom(4096)
-
-        if message:
-            message = DNSMessage.deserialize(message)
-
-            if "Q" in message.flags:
-                self.log.log_qr(message.domain, str(address), message.to_string())
-            else:
-                self.log.log_rr(message.domain, str(address), message.to_string())
-
-        return message, address
-
-    def fill_root_servers(self, message):
-        for i in range(len(self.config["ST"])):
-            name = "root" + str(i)
-            message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
-            message.extra_values.append(ResourceRecord(name, "A", self.config["ST"][i], 0, -1))
-
-        message.num_authorities = len(message.authorities_values)
-        message.num_extra = len(message.extra_values)
-        message.flags = ""
+            message.response_code = 2
+            message.flags = ""
+            self.change_flags(message)
 
         return message
 
     def message_resolver(self, message, socket):
+        # TODO Documentação aqui
+        """
+        :param message: Mensagem
+        :param socket: Socket
+        :return Mensagem atualizada
+        """
         servers_visited = list()
         next_step = self.find_next_step(message)
         self.change_flags(message)
@@ -342,19 +352,18 @@ class Server:
             self.change_flags(message)
 
         if response_code == 0:
-            self.cache_response(message, 30)
+            self.register_response_on_cache(message, 30)
 
         return message
 
     def interpret_message(self, message, client):
         """
-        Determina o próximo passo de uma mensagem DNS
+        Processo de resposta a uma mensagem
         :param message: Mensagem DNS
         :param client: Endereço de onde foi enviada a mensagem
-        :param socket_udp: Socket UDP
         """
         socket_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP para enviar mensagens
-        socket_udp.settimeout(int(self.timeout))
+        socket_udp.settimeout(self.timeout)
 
         if self.is_name_server():  # Se for SP ou SS para algum domínio
             if self.has_default_domains():  # Name server tem domínios por defeito
@@ -363,7 +372,8 @@ class Server:
 
                     self.sendto_socket(socket_udp, message, client)
                 else:  # Timeout?
-                    self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
+                    self.log.log_to(message.domain, str(client),
+                                    "Server has no permission to attend the query domain!")
 
             else:  # Pode responder a todos os domínios
                 message = self.search_on_cache(message)
@@ -386,7 +396,8 @@ class Server:
 
         socket_udp.close()
 
-# ===========================================   TRANSFERÊNCIA DE ZONA   ==============================================
+    # ===========================================   TRANSFERÊNCIA DE ZONA   ==============================================
+
     def sp_zone_transfer(self):
         """
             Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
@@ -440,12 +451,14 @@ class Server:
                 index = 1
                 for record in entries:
                     if record.origin == Origin.FILE:
-                        record = str(index) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
+                        record = str(
+                            index) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
                         connection.sendall(record.encode('utf-8'))
                         index += 1
 
                 t_end = time.time()
-                self.log.log_zt(domain, str(address_from), "SP : All entries sent", str(round(t_end - t_start, 5)) + "s")
+                self.log.log_zt(domain, str(address_from), "SP : All entries sent",
+                                str(round(t_end - t_start, 5)) + "s")
                 break
 
         connection.close()
@@ -475,7 +488,7 @@ class Server:
 
                 socket_tcp.close()
 
-                print(self.cache) # Soaexpire register
+                print(self.cache)  # Soaexpire register
 
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
@@ -496,6 +509,20 @@ class Server:
 
             print(self.cache)
             time.sleep(wait)
+
+    def get_version(self, domain):
+        """
+        Obtém a versão da base de dados do servidor secundário
+        :return: Versão
+        """
+        list = self.cache.get_records_by_domain_and_type(domain, "SOASERIAL")
+
+        if len(list) == 0:
+            ss_version = -1
+        else:
+            ss_version = list[0].value
+
+        return ss_version
 
     def ss_ask_version(self, socket_tcp, domain):
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
@@ -532,6 +559,20 @@ class Server:
         except socket.timeout:
             raise socket.timeout('Attempt of starting zone transfer.')
 
+    def axfr_response(self, query):
+        """
+        Retorna o número de entradas da DB de um certo domínio (resposta a uma query AXFR)
+        :param query: Query que contém o domínio
+        :return: Resposta à query AXFR
+        """
+        record = ResourceRecord(query.domain, query.type,
+                                str(self.cache.get_file_entries_by_domain(query.domain)[0]), 0, -1, Origin.SP)
+        query.flags = ""
+        query.response_code = 0
+        query.response_values.append(record)
+        query.num_response = 1
+
+        return query
 
     def ss_receive_records(self, socket_tcp, domain):
         try:
@@ -590,20 +631,3 @@ class Server:
         record = " ".join(fields)
 
         return index, record
-
-    def get_version(self, domain):
-        """
-        Obtém a versão da base de dados do servidor secundário
-        :return: Versão
-        """
-        list = self.cache.get_records_by_domain_and_type(domain, "SOASERIAL")
-
-        if len(list) == 0:
-            ss_version = -1
-        else:
-            ss_version = list[0].value
-
-        return ss_version
-
-
-

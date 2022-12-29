@@ -1,6 +1,6 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 29/10/22
-# Data da última atualização: 19/11/22
+# Data da última atualização: 28/12/22
 # Descrição: Parsing de ficheiros de dados de servidores primários
 # Última atualização: Documentação
 
@@ -103,8 +103,8 @@ def parser_database(server, file_path, domain, data):
     Função responsável pelo parse dos ficheiros de dados
     :param server: Servidor
     :param file_path: Ficheiro de dados
+    :param domain: Domínio
     :param data: Cache do servidor
-    @TODO resolver logs
     """
     server.log.log_ev(domain, "localhost", "db-file-read", file_path)
 
@@ -267,6 +267,10 @@ def parser_database(server, file_path, domain, data):
 
 
 def parser_database_caller(server):
+    """
+    Chama o parser dos ficheiros de dados para todos os domínios para os quais o servidor é SP e atualiza a DB do mesmo
+    :param server: Servidor
+    """
     data = Cache()
     db_keys = server.config["DB"].keys()
 
