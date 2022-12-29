@@ -373,6 +373,7 @@ class Server:
                 self.message_resolver(message, socket_udp)
 
             else:
+                print("aqui")
                 message = self.fill_root_servers(message)
 
             self.sendto_socket(socket_udp, message, client)
