@@ -471,10 +471,10 @@ class Server:
 
         while True:
             socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket_tcp.connect(Server.parse_address(self.config["SP"][domain]))
-            socket_tcp.settimeout(int(self.timeout))
-
             try:
+                socket_tcp.connect(Server.parse_address(self.config["SP"][domain]))
+                socket_tcp.settimeout(int(self.timeout))
+
                 self.ss_ask_version(socket_tcp, domain)
 
                 start = time.time()
@@ -489,8 +489,6 @@ class Server:
                                 "SS : Zone Transfer concluded successfully", str(round(end - start, 5)) + "s")
 
                 socket_tcp.close()
-
-                print(self.cache)  # Soaexpire register
 
                 soarefresh = int(self.cache.get_records_by_domain_and_type(domain, "SOAREFRESH")[0].value)
                 soaretry = int(self.cache.get_records_by_domain_and_type(domain, "SOARETRY")[0].value)
@@ -509,7 +507,9 @@ class Server:
                 self.log.log_to(e.args[0])
                 socket_tcp.close()
 
-            print(self.cache)
+            except socket.error:
+                self.log.ez(domain, self.config["SP"][domain], "SS: Failed to connect to primary server")
+
             time.sleep(wait)
 
     def get_version(self, domain):
