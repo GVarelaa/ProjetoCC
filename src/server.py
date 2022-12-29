@@ -376,14 +376,15 @@ class Server:
                                     "Server has no permission to attend the query domain!")
 
             else:  # Pode responder a todos os domínios
-                message = self.search_on_cache(message)
+                response = self.search_on_cache(message)
 
-                if "R" in message.flags and "Q" in message.flags:
-                    message = self.message_resolver(message, socket_udp)
-                elif "R" in message.flags and self.handles_recursion and ("Q" in message.flags or message.response_code == 1):
-                    message = self.message_resolver(message, socket_udp)
+                if "R" in message.flags:
+                    if "Q" in message.flags:
+                        response = self.message_resolver(response, socket_udp)
+                    elif "R" in response.flags and self.handles_recursion and ("Q" in response.flags or response.response_code == 1):
+                        message = self.message_resolver(response, socket_udp)
 
-                self.sendto_socket(socket_udp, message, client)
+                self.sendto_socket(socket_udp, response, client)
 
         elif self.is_resolution_server():  # Se for servidor de resolução
             message = self.search_on_cache(message)
