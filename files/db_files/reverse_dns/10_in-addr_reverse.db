@@ -3,70 +3,57 @@
 @ DEFAULT 10.in-addr.reverse.
 TTL DEFAULT 86400
 
-@ SOASP ns1.10.in-addr.reverse. TTL
-@ SOAADMIN gabs\.ggm TTL
+@ SOASP portatil1.10.in-addr.reverse.root. TTL
+@ SOAADMIN gabs\.ggm.root. TTL
 @ SOASERIAL 1 TTL
 @ SOAREFRESH 14400 TTL
 @ SOARETRY 3600 TTL
 @ SOAEXPIRE 604800 TTL
 
 # Name servers
-@ NS ns1.10.in-addr.reverse. TTL
+@ NS portatil1 TTL
 
 # Addresses
-ns1 A 10.1.1.1:2000 TTL
+portatil1 A 10.1.1.1:2000 TTL
 
 # PTR Records
 # 10.1.1
-1.1.1 PTR sp.10.in-addr.reverse. TTL
-1.1.1 PTR tone.cc.ggm. TTL
+1.1.1 PTR portatil1.10.in-addr.reverse.root. TTL
+1.1.1 PTR portatil1.ggm.root. TTL
 
-2.1.1 PTR ss1.taremi.fcp. TTL
-2.1.1 PTR mike.ggm. TTL
+2.1.1 PTR portatil2.cc.ggm.root. TTL
 
-3.1.1 PTR sp.cc.ggm. TTL
-3.1.1 PTR tunes.cc.ggm. TTL
+3.1.1 PTR portatil3.taremi.fcp.root. TTL
+
+4.1.1 PTR sr2. TTL
 
 # 10.2.2
-1.2.2 PTR s1. TTL
-1.2.2 PTR sp.ggm. TTL
-1.2.2 PTR sp.1.10.in-addr.reverse. TTL
-1.2.2 PTR ms1.fcp. TTL
+1.2.2 PTR servidor1.root. TTL
 
-2.2.2 PTR sp.fcp. TTL
-2.2.2 sp.2.10.in-addr.reverse. TTL
+2.2.2 PTR servidor2.fcp.root. TTL
+2.2.2 PTR servidor2.ggm.root. TTL
 
-3.2.2 PTR ss2.taremi.fcp. TTL
-3.2.2 PTR sr.taremi.fcp. TTL
-3.2.2 PTR sp.3.10.in-addr.reverse.
+3.2.2 PTR servidor3.taremi.fcp.root. TTL
+3.2.2 PTR ms2.ggm.root. TTL
 
 # 10.3.3
-1.3.3 PTR s1. TTL
-1.3.3 PTR ss1.ggm. TTL
-1.3.3 PTR sp.4.10.in-addr.reverse TTL
-1.3.3 PTR ms1.ggm. TTL
+1.3.3 PTR orca.root. TTL
+1.3.3 PTR ms1.taremi.fcp.root. TTL
+1.3.3 PTR ms1.ggm.root. TTL
 
-2.3.3 PTR ss1.fcp. TTL
-2.3.3 PTR sp.reverse. TTL
-2.3.3 PTR sp.1.1.19.in-addr.reverse. TTL
-2.3.3 PTR gabs.ggm. TTL
+2.3.3 PTR golfinho.fcp.root. TTL
+2.3.3 PTR golfinho.reverse.root. TTL
+2.3.3 PTR golfinho.cc.ggm.root. TTL
 
-3.3.3 PTR ss2.cc.ggm. TTL
-3.3.3 PTR sp.2.2.10.in-addr.reverse. TTL
-3.3.3 PTR ms2.ggm. TTL
+3.3.3 PTR sr1. TTL
 
 # 10.4.4
-1.4.4 PTR ss2.ggm. TTL
-1.4.4 PTR sp.taremi.fcp. TTL
-1.4.4 PTR sp.3.3.10.in-addr.reverse. TTL
-1.4.4 PTR pdc.fcp. TTL
-1.4.4 PTR gui.ggm. TTL
+1.4.4 PTR grilo.ggm.root. TTL
+1.4.4 PTR grilo.taremi.fcp.root. TTL
 
-2.4.4 PTR ss2.fcp. TTL
-2.4.4 PTR sp.4.4.10.in-addr.reverse. TTL
-2.4.4 PTR ms1.cc.ggm. TTL
-2.4.4 PTR avb.fcp. TTL
+2.4.4 PTR cigarra.cc.ggm.root. TTL
+2.4.4 PTR cigarra.in-addr.reverse.root. TTL
+2.4.4 PTR ms1.cc.ggm.root. TTL
 
-3.4.4 PTR ss1.cc.ggm. TTL
-3.4.4 PTR sp.in-addr.reverse. TTL
+3.4.4 PTR vespa.fcp.root. TTL
 

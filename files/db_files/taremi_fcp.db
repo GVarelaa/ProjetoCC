@@ -24,13 +24,13 @@ portatil3 A 10.1.1.3:2000 TTL
 servidor3 A 10.2.2.3:2000 TTL
 
 ms1 A 10.3.3.1:2000 TTL
-sr A 10.3.3.3:2000 TTL
+sr1. A 10.3.3.3:2000 TTL
 
 maquina3 CNAME grilo TTL
 maquina6 CNAME portatil3 TTL
 maquina7 CNAME servidor3 TTL
 mail1 CNAME ms1 TTL
-resolver CNAME sr TTL
+resolver1. CNAME sr1. TTL
 
 
 
