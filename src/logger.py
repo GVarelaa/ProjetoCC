@@ -1,6 +1,6 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 29/10/22
-# Data da última atualização: 28/12/22
+# Data da última atualização: 29/12/22
 # Descrição: Implementação de logs
 # Última atualização: Documentação atualizada
 
@@ -80,7 +80,7 @@ class Logger:
         :param event_data: Dados do evento
         """
         message = "EV " + ip_address + " " + event + " " + event_data
-        self.add_log(message)
+        self.add_log(message, domain)
 
     def log_er(self, domain, ip_address, info):
         """
@@ -142,10 +142,9 @@ class Logger:
             message = "ST " + ip_address + " " + str(port) + " " + str(timeout) + " " + mode
             self.add_log(message)
 
-    # Method called by the others
     def add_log(self, message, domain=None):
         """
-        Regista log nos ficheiros
+        Método chamado pelos restantes responsável pela escrita do log no ficheiro
         :param message: Mensagem a ser registada
         :param domain: Domínio
         """

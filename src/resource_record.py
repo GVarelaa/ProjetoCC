@@ -1,8 +1,8 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 30/10/22
-# Data da última atualização: 20/11/22
+# Data da última atualização: 29/12/22
 # Descrição: Representação de uma entrada no sistema de cache do servidor
-# Última atualização: Documentação
+# Última atualização: Documentação atualizada
 
 from bitstring import BitStream, BitArray
 from enum import Enum
@@ -100,6 +100,11 @@ class ResourceRecord:
 
     @staticmethod
     def encode_type(type):
+        """
+        Codificação do tipo em bits
+        :param type: Tipo
+        :return: Tipo codificado num bitarray de 4bits
+        """
         match type:
             case "SOASP":
                 type = 0
@@ -130,6 +135,11 @@ class ResourceRecord:
 
     @staticmethod
     def decode_type(type):
+        """
+        Descodificação do tipo
+        :param type: Tipo codificado
+        :return: Tipo
+        """
         match type:
             case 0:
                 type = "SOASP"
@@ -160,6 +170,11 @@ class ResourceRecord:
 
     @staticmethod
     def string_to_bit_array(string):
+        """
+        Codificação de uma string em bits
+        :param string: String a codificar
+        :return: String codificada num bitarray
+        """
         bit_array = BitArray()
 
         for char in string:
@@ -170,6 +185,12 @@ class ResourceRecord:
 
     @staticmethod
     def bit_array_to_string(bit_stream, length):
+        """
+        Descodificação de uma string
+        :param bit_stream: String codificada (array de bits)
+        :param length: Comprimento do bitarray que contém a string
+        :return: String descodificada
+        """
         string = ""
 
         i = 0
@@ -182,6 +203,10 @@ class ResourceRecord:
         return string
 
     def serialize(self):
+        """
+        Codificação de um record
+        :return: Record codificado num bitarray
+        """
         bit_array = BitArray()
 
         bit_array.append(BitArray(uint=len(self.domain), length=8))
@@ -205,9 +230,9 @@ class ResourceRecord:
     @staticmethod
     def deserialize(stream):
         """
-
-        :param stream:
-        :return:
+        Descodificação de um record
+        :param stream: Record codificado (array de bits)
+        :return: Objeto ResourceRecord
         """
         len_domain = stream.read('uint:8')
         domain = ResourceRecord.bit_array_to_string(stream, len_domain)
@@ -226,6 +251,3 @@ class ResourceRecord:
             priority = stream.read('uint:8')
         
         return ResourceRecord(domain, type, value, ttl, priority)
-
-
-

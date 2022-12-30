@@ -1,8 +1,8 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 08/11/22
-# Data da última atualização: 11/11/22
+# Data da última atualização: 29/12/22
 # Descrição: Representação de queries
-# Última atualização: Documentação
+# Última atualização: Documentação atualizada
 
 from bitstring import BitArray, ConstBitStream
 from resource_record import *
@@ -15,8 +15,12 @@ class DNSMessage:
         Construtor de um objeto DNSMessage
         :param message_id: ID da mensagem
         :param flags: Flags
-        :param domain: Nome do domínio
+        :param response_code : Response code
+        :param domain: Domínio
         :param type: Tipo
+        :param response: Response values
+        :param authorities: Authorities values
+        :param extra: Extra values
         """
         self.message_id = message_id
         self.flags = flags
@@ -84,9 +88,9 @@ class DNSMessage:
         :return: Objeto DNSMessage
         """
         (message_id, flags, response_code, num_response_values, num_authorities_values,
-         num_extra_values, name, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
+         num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
-        query = DNSMessage(message_id, flags, name, type)
+        query = DNSMessage(message_id, flags, domain, type)
         query.response_code = int(response_code)
         query.number_of_values = int(num_response_values)
         query.number_of_authorities = int(num_authorities_values)
@@ -162,6 +166,10 @@ class DNSMessage:
                 num_extra_values, name, type, response_values, authorities_values, extra_values)
 
     def encode_flags(self):
+        """
+        Codificação das flags
+        :return: Flags codificadas num bitarray de 3 bits
+        """
         if self.flags == "":
             flags = 0
         elif self.flags == "Q":
@@ -179,6 +187,11 @@ class DNSMessage:
 
     @staticmethod
     def decode_flags(flags):
+        """
+        Descodificação das flags
+        :param flags: Flags codificadas em bits
+        :return: Flags
+        """
         if flags == 0:
             flags = ""
         elif flags == 1:
@@ -195,6 +208,10 @@ class DNSMessage:
         return flags
 
     def serialize(self):
+        """
+        Codificação de uma mensagem
+        :return: Mensagem codificada
+        """
         bit_array = BitArray()
 
         # MessageID - 2 bytes
@@ -237,6 +254,11 @@ class DNSMessage:
 
     @staticmethod
     def deserialize(bytes):
+        """
+        Descodificação de uma mensagem
+        :param bytes: Mensagem codificada
+        :return: Objeto DNSMessage
+        """
         stream = ConstBitStream(bytes)
 
         msg_id = stream.read('uint:16')
