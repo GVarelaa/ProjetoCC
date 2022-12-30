@@ -25,9 +25,9 @@ def main():
 
         response_code = 1
         servers_visited = list()
-        next_server = address[0]
+        next_server = address
         while response_code == 1:
-            client.sendto_socket(message, address)
+            client.sendto_socket(message, next_server)
 
             try:
                 message = client.recvfrom_socket()
