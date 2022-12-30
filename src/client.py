@@ -14,6 +14,7 @@ class Client:
         self.timeout = timeout
         self.debug = debug
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Criar socket UDP
+        self.socket.settimeout(timeout)
 
     def __str__(self):
         return "Timeout: " + str(self.timeout) + "\nDebug: " + str(self.debug)
