@@ -1,33 +1,19 @@
 # Data de criação: 13/11/22
 # Data da última atualização: 30/12/22
 # Descrição: Executa um servidor
-# Última atualização: Print para debug removido
+# Última atualização: Separação do parse do servidor em outro módulo
 
-from parse.configuration_parser import *
+from parse.server_parser import *
+from exceptions import *
 
 
 def main():
     """
     Programa que corre um servidor
     """
-    args = sys.argv
-    config_path = args[1]  # Ficheiro de configuração
-    port = int(args[2])  # Porta onde o servidor vai estar à escuta
-    timeout = int(args[3])  # Tempo que o servidor vai esperar por uma resposta
-    handles_recursion = int(args[4])  # Indica se o servidor aceita ou não o modo recursivo
-
-    if handles_recursion == 1:
-        handles_recursion = True
-    elif handles_recursion == 0:
-        handles_recursion = False
-
-    if len(args) > 5:
-        mode = args[5]  # Modo (Debug/Shy)
-    else:
-        mode = "debug"  # Modo debug por default
-
     try:
-        server = parser_configuration(config_path, port, timeout, handles_recursion, mode)  # Parser dos dados
+        server = parser_server(sys.argv)
+
     except InvalidIPError:
         sys.stdout.write("Error running server configurations: Invalid IP address")
         return

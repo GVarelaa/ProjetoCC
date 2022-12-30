@@ -22,6 +22,12 @@ class TooManyArgumentsError(Exception):
         super().__init__("Too many arguments")
 
 
+class InvalidArgument(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__("Invalid value")
+
+
 class InvalidValueTTL(Exception):
     def __init__(self, message):
         self.message = message
