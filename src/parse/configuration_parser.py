@@ -61,8 +61,7 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
         if len(words) > 0:
             if len(words) == 3:
-                if (words[0] != "root" and words[1] != "ST") and words[0] != "all" and words[0] != ".":
-                    words[0] = words[0] + "."
+                words[0] = words[0] + "."
 
                 parameter = words[0]
                 value_type = words[1]
@@ -93,10 +92,11 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
                         config[value_type][parameter] = list()
                         config[value_type][parameter].append(value)
 
-                elif value_type == "ST" and parameter == "root":
+                elif value_type == "ST" and parameter == "root.":
                     config[value_type] = parser_root_servers(value)
 
                 elif value_type == "LG":
+                    parameter = parameter[:-1]
                     config[value_type][parameter] = value
                     logs[parameter] = value
 
