@@ -217,6 +217,7 @@ class Server:
         message.num_authorities = len(message.authorities_values)
         message.num_extra = len(message.extra_values)
         message.flags = ""
+        message.response_code = 1
 
         return message
 
