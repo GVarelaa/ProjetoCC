@@ -21,26 +21,26 @@ def main():
 
         client = Client(timeout, debug)
 
-        query = DNSMessage(random.randint(1, 65535), flags, 0, domain, type)  # Criar mensagem
-        client.sendto_socket(query, address)
+        message = DNSMessage(random.randint(1, 65535), flags, 0, domain, type)  # Criar mensagem
 
         response_code = 1
         servers_visited = list()
         next_server = address[0]
-        response = query
         while response_code == 1:
+            client.sendto_socket(message, address)
+
             try:
-                response = client.recvfrom_socket()
+                message = client.recvfrom_socket()
 
             except socket.timeout:
                 sys.stdout.write("Timeout occured")
 
                 servers_visited.append(next_server[0])
-                if next_server == Client.find_next_step(response, servers_visited):
+                if next_server == Client.find_next_step(message, servers_visited):
                     break
 
-            response_code = response.response_code
-            next_server = Client.find_next_step(response, servers_visited)
+            response_code = message.response_code
+            next_server = Client.find_next_step(message, servers_visited)
 
         client.socket.close()
 
