@@ -1,14 +1,14 @@
 # Configuration file for primary server for fcp domain
-fcp DB dns/files/db_files/fcp.db
-fcp SS 10.3.3.2:2000
-fcp SS 10.4.4.3:2000
-fcp LG dns/files/log_files/fcp.log
+fcp.root DB dns/files/db_files/fcp.db
+fcp.root SS 10.3.3.2:2000
+fcp.root SS 10.4.4.3:2000
+fcp.root LG dns/files/log_files/fcp.log
 
 # Configuration file for primary server for ggm domain
-ggm DB dns/files/db_files/ggm.db
-ggm SS 10.1.1.1:2000
-ggm SS 10.4.1.1:2000
-ggm LG dns/files/log_files/ggm.log
+ggm.root DB dns/files/db_files/ggm.db
+ggm.root SS 10.1.1.1:2000
+ggm.root SS 10.4.1.1:2000
+ggm.root LG dns/files/log_files/ggm.log
 
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
