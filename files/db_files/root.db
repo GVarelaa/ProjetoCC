@@ -1,6 +1,6 @@
 # DNS database file for root server 
 
-@ DEFAULT G103.
+@ DEFAULT root.
 TTL DEFAULT 86400
 
 # Config data
