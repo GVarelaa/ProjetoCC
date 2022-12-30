@@ -352,7 +352,7 @@ class Server:
             self.change_flags(message)
 
         if response_code == 0:
-            self.register_response_on_cache(message, 30)
+            self.register_response_on_cache(message)
 
         return message
 
