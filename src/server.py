@@ -210,8 +210,8 @@ class Server:
         :return: Mensagem atualizada
         """
         for i in range(len(self.config["ST"])):
-            name = "root" + str(i)
-            message.authorities_values.append(ResourceRecord(".", "NS", name, 0, -1))
+            name = "root" + str(i) + ".root."
+            message.authorities_values.append(ResourceRecord("root.", "NS", name, 0, -1))
             message.extra_values.append(ResourceRecord(name, "A", self.config["ST"][i], 0, -1))
 
         message.num_authorities = len(message.authorities_values)
