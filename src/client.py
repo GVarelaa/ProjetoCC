@@ -38,6 +38,7 @@ class Client:
                 message = DNSMessage.deserialize(message)
 
             sys.stdout.write(message.to_string())
+            return message
 
         except socket.timeout:
             raise
