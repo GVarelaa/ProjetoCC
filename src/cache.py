@@ -1,20 +1,18 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 30/10/22
-# Data da última atualização: 15/11/22
+# Data da última atualização: 30/12/22
 # Descrição: Implementação de sistema de cache de um servidor
-# Última atualização: Implementação da funcionalidade SOAEXPIRE (hardcoded)
-import threading
+# Última atualização: Documentação atualizada
 
+import threading
 from resource_record import *
 from datetime import datetime
-import time
 
 
 class Cache:
     def __init__(self):
         """
         Construtor de um objeto Cache
-        :param list: Lista vazia
         """
         self.domains = dict()
         self.soaexpire = dict()
@@ -33,10 +31,11 @@ class Cache:
         """
         return str(self.domains)
 
-    def add_entry(self, new_record, domain, ttl=-1):
+    def add_entry(self, new_record, domain):
         """
         Adiciona uma nova entrada na cache
         :param new_record: Nova entrada
+        :param domain: Domínio do record
         """
         self.lock.acquire()
 
@@ -76,7 +75,6 @@ class Cache:
 
                     if record.origin == Origin.OTHERS:
                         record.status = Status.VALID
-                        record.ttl = ttl
                         record.timestamp = datetime.timestamp(datetime.now())
 
                     found = True
@@ -84,7 +82,6 @@ class Cache:
 
                 elif last_free != -1:
                     new_record.status = Status.VALID
-                    new_record.ttl = ttl
                     new_record.timestamp = datetime.timestamp(datetime.now())
                     entries[last_free] = new_record
 
@@ -92,8 +89,6 @@ class Cache:
                     break
 
         if not found:
-            if new_record.origin == Origin.OTHERS:
-                new_record.ttl = ttl
             new_record.status = Status.VALID
             new_record.timestamp = datetime.timestamp(datetime.now())
             entries.append(new_record)
@@ -103,6 +98,7 @@ class Cache:
     def get_file_entries_by_domain(self, domain):
         """
         Obtém as entradas com origem ficheiro de um domínio da cache
+        :param domain: Domínio
         :return: Lista com as entradas de um domínio
         """
         self.lock.acquire()
@@ -120,9 +116,9 @@ class Cache:
 
     def get_records_by_domain_and_type(self, domain, type):
         """
-        Obtém a lista das entradas correspondentes com o domain e o type.
-        :param domain: Domain
-        :param type: Type
+        Obtém a lista das entradas correspondentes com o domain e o type
+        :param domain: Domínio
+        :param type: Tipo
         :return: Lista com as entradas que deram match
         """
         self.lock.acquire()
@@ -150,10 +146,10 @@ class Cache:
 
         return records
 
-    def free_cache(self, domain):  # SOAEXPIRE
+    def free_cache(self, domain):
         """
-        Liberta a cache, colocando as entradas a FREE
-        :param domain: Nome do domínio
+        Liberta a entradas de um determinado domínio, colocando as entradas a FREE
+        :param domain: Domínio
         """
         self.lock.acquire()
 
@@ -167,7 +163,8 @@ class Cache:
 
     def free_sp_entries(self, domain):
         """
-        Liberta as entradas do servidor primário
+        Liberta as entradas do servidor primário para um dado domínio
+        :param domain: Domínio
         """
         self.lock.acquire()
 
@@ -180,10 +177,19 @@ class Cache:
 
         self.lock.release()
 
-    def register_soaexpire(self, domain):
+    def register_initial_timestamp(self, domain):
+        """
+        Regista o timestamp após a ZT ter sido realizada para posteriormente verificar se as entradas estão expiradas
+        :param domain: Domínio
+        :return: Timestamp inicial
+        """
         self.soaexpire[domain] = datetime.timestamp(datetime.now())
 
     def check_expire_domain(self, domain):
+        """
+        Verifica se as entradas de um domínio provenientes da ZT estão expiradas (SOAEXPIRE)
+        :param domain: Domínio
+        """
         if domain in self.soaexpire.keys():
             soaexpire = None
             for record in self.domains[domain]:
@@ -193,4 +199,3 @@ class Cache:
             if datetime.timestamp(datetime.now()) - self.soaexpire[domain] > soaexpire:
                 self.domains.pop(domain)
                 self.soaexpire.pop(domain)
-

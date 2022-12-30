@@ -246,23 +246,22 @@ class Server:
             else:
                 query.flags = ""
 
-    def register_response_on_cache(self, response, ttl):
+    def register_response_on_cache(self, response):
         """
         Adiciona os dados da resposta na cache
         :param response: Resposta
-        :param ttl: TTL dos records a serem adicionados
         """
         for record in response.response_values:
             record.origin = Origin.OTHERS
-            self.cache.add_entry(record, response.domain, ttl)
+            self.cache.add_entry(record, response.domain)
 
         for record in response.authorities_values:
             record.origin = Origin.OTHERS
-            self.cache.add_entry(record, response.domain, ttl)
+            self.cache.add_entry(record, response.domain)
 
         for record in response.extra_values:
             record.origin = Origin.OTHERS
-            self.cache.add_entry(record, response.domain, ttl)
+            self.cache.add_entry(record, response.domain)
 
     def search_on_cache(self, message):
         """
@@ -581,7 +580,7 @@ class Server:
         try:
             database_lines = Server.receive_database_records(socket_tcp)
             self.add_records_to_db(socket_tcp, database_lines, domain)
-            self.cache.register_soaexpire(domain)
+            self.cache.register_initial_timestamp(domain)
 
         except exceptions.ZoneTransferFailed:
             raise

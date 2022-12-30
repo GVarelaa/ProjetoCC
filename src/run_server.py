@@ -1,7 +1,7 @@
 # Data de criação: 13/11/22
-# Data da última atualização: 13/11/22
+# Data da última atualização: 30/12/22
 # Descrição: Executa um servidor
-# Última atualização: Timeout de string para inteiro
+# Última atualização: Print para debug removido
 
 from parse.configuration_parser import *
 
@@ -34,8 +34,6 @@ def main():
     except InvalidPortError:
         sys.stdout.write("Error running server configurations: Invalid Port")
         return
-
-    print(server.cache)
 
     if len(server.config["SS"].values()) != 0:  # Só recebe pedidos de ZT se for primário para algum domínio
         threading.Thread(target=server.sp_zone_transfer).start()
