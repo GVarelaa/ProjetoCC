@@ -25,13 +25,13 @@ def parser_server(args):
     if mode != "shy" and mode != "debug":
         raise InvalidArgument("Invalid mode")
 
+    if not validate_port(port):
+        raise InvalidPortError
+
     try:
         server = parser_configuration(config_path, port, timeout, handles_recursion, mode)  # Parser dos dados
 
     except InvalidIPError:
-        raise
-
-    except InvalidPortError:
         raise
 
     return server

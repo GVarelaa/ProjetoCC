@@ -104,9 +104,6 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
     log = Logger(logs, is_debug)
 
-    if not validate_port(port):
-        raise InvalidPortError
-
     log.log_ev("all", "localhost", "conf-file-read", file_path)
     log.log_st("127.0.0.1", port, timeout, mode)
     for log_file in config["LG"]:

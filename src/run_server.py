@@ -15,13 +15,13 @@ def main():
         server = parser_server(sys.argv)
 
     except InvalidIPError:
-        sys.stdout.write("Error running server configurations: Invalid IP address")
+        sys.stdout.write("Error running server configuration: Invalid IP address")
         return
     except InvalidPortError:
-        sys.stdout.write("Error running server configurations: Invalid Port")
+        sys.stdout.write("Error running server configuration: Invalid Port")
         return
     except InvalidArgument as e:
-        sys.stdout.write(e.message)
+        sys.stdout.write("Error running server configuration: " + e.message)
         return
 
     if len(server.config["SS"].values()) != 0:  # Só recebe pedidos de ZT se for primário para algum domínio
