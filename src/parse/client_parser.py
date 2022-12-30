@@ -35,13 +35,13 @@ def parser_client(args):
                         debug = False
 
                     elif args[5] != "debug":
-                        raise exceptions.InvalidArgument(" for mode")
+                        raise exceptions.InvalidArgument("Invalid mode")
 
                 elif args[4] == "shy":
                     debug = False
 
                 elif args[4] != "debug":
-                    raise exceptions.InvalidArgument(" for timeout or mode")
+                    raise exceptions.InvalidArgument("Invalid timeout or mode")
 
         elif args[3].isdigit():
             timeout = int(args[3])
@@ -51,12 +51,12 @@ def parser_client(args):
                     debug = False
 
                 elif args[4] != "debug":
-                    raise exceptions.InvalidArgument(" for mode")
+                    raise exceptions.InvalidArgument("Invalid mode")
 
         elif args[3] == "shy":
             debug = False
 
         elif args[3] != "debug":
-            raise exceptions.InvalidArgument(" for flag, timeout or mode")
+            raise exceptions.InvalidArgument("Invalid flag, timeout or mode")
 
     return address, domain, type, flags, timeout, debug

@@ -102,9 +102,6 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
     f.close()
 
-    if mode != "shy" and mode != "debug":
-        return None
-
     log = Logger(logs, is_debug)
 
     if not validate_port(port):

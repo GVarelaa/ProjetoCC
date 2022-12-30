@@ -22,6 +22,9 @@ def parser_server(args):
     else:
         mode = "debug"  # Modo debug por default
 
+    if mode != "shy" and mode != "debug":
+        raise InvalidArgument("Invalid mode")
+
     try:
         server = parser_configuration(config_path, port, timeout, handles_recursion, mode)  # Parser dos dados
 

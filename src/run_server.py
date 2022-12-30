@@ -20,6 +20,9 @@ def main():
     except InvalidPortError:
         sys.stdout.write("Error running server configurations: Invalid Port")
         return
+    except InvalidArgument as e:
+        sys.stdout.write(e.message)
+        return
 
     if len(server.config["SS"].values()) != 0:  # Só recebe pedidos de ZT se for primário para algum domínio
         threading.Thread(target=server.sp_zone_transfer).start()
