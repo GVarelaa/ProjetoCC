@@ -1,36 +1,39 @@
 # DNS database file for root server 
 
-@ DEFAULT root.
+@ DEFAULT G103.
 TTL DEFAULT 86400
 
 # Config data
-@ SOAADMIN mike\.ggm. TTL
+@ SOAADMIN mike\.ggm.root. TTL
 @ SOASERIAL 1 TTL
 
-
 # Name servers
-root. NS s1. TTL 
-root. NS s2. TTL 
-ggm. NS sp.ggm. TTL
-ggm. NS ss1.ggm. TTL
-ggm. NS ss2.ggm. TTL
-fcp. NS sp.fcp. TTL
-fcp. NS ss1.fcp. TTL
-fcp. NS ss2.fcp. TTL
-reverse. NS sp.reverse. TTL 
+@ NS servidor1 TTL
+@ NS orca TTL
+
+ggm NS servidor2.ggm TTL
+ggm NS portatil1.ggm TTL
+ggm NS grilo.ggm TTL
+
+fcp NS servidor2.fcp TTL
+fcp NS golfinho.fcp TTL
+fcp NS vespa.fcp TTL
+
+reverse NS golfinho.reverse TTL
 
 # Addresses
+servidor2.ggm A 10.2.2.2:2000 TTL
+portatil1.ggm A 10.1.1.1:2000 TTL
+grilo.ggm A 10.4.4.1:2000 TTL
 
-sp.ggm. A 10.2.2.2:2000 TTL  
-ss1.ggm. A 10.1.1.1:2000 TTL
-ss2.ggm. A 10.4.4.1:2000 TTL
-sp.fcp. A 10.2.2.2:2000 TTL
-ss1.fcp. A 10.3.3.2:2000 TTL
-ss2.fcp. A 10.4.4.3:2000 TTL
-sp.reverse. A 10.3.3.2:2000 TTL
+servidor2.fcp A 10.2.2.2:2000 TTL
+golfinho.fcp A 10.3.3.2:2000 TTL
+vespa.fcp A 10.4.4.3:2000 TTL
 
-s1. A 10.2.2.1:2000 TTL
-s2. A 10.3.3.1:2000 TTL
+golfinho.reverse A 10.3.3.2:2000 TTL
+
+servidor1 A 10.2.2.1:2000 TTL
+orca A 10.3.3.1:2000 TTL
 
 
 
