@@ -40,7 +40,6 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     :param mode: Modo (debug/shy)
     :return: Servidor
     """
-
     config = dict()
     config["DB"] = dict()
     config["SP"] = dict()

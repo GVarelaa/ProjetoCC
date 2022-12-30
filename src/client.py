@@ -25,6 +25,8 @@ class Client:
     def sendto_socket(self, message, address):
         if self.debug:  # Enviar query para o socket do server
             self.socket.sendto(message.to_string(), address)
+        else:
+            self.socket.sendto(message.serialize(), address)
 
     def recvfrom_socket(self):
         try:
