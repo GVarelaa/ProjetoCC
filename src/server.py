@@ -244,6 +244,8 @@ class Server:
         else:
             if "Q" in query.flags:
                 query.flags = "Q"
+            elif authoritative:
+                query.flags = "A"
             else:
                 query.flags = ""
 
