@@ -159,6 +159,17 @@ class Server:
 
         return ret
 
+    @staticmethod
+    def sort_by_priority(list):
+        new_list = list()
+        for i in range(len(list)):
+            min = list[0]
+            for record in list:
+                if record.priority < min.priority and record.priority != -1:
+                    min = record
+            new_list.append(min)
+        return new_list
+
     def find_next_step(self, query, servers_visited=list()):
         """
         Encontra o próximo servidor a ser contactado
@@ -166,7 +177,8 @@ class Server:
         :param servers_visited: Lista de servidores já visitados (para evitar contactar servidores repetidos)
         :return: Endereço do próximo servidor a ser contactado
         """
-        for record1 in query.authorities_values:
+        authorities_values = Server.sort_by_priority(query.authorities_values)
+        for record1 in authorities_values:
             if record1.domain in query.domain:
                 for record2 in query.extra_values:
                     address = Server.parse_address(record2.value)
