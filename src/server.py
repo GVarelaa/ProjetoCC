@@ -165,7 +165,7 @@ class Server:
         for i in range(len(list)):
             min = list[0]
             for record in list:
-                if record.priority < min.priority and record.priority != -1:
+                if record.priority < min.priority and record.priority != -1 and record not in new_list:
                     min = record
             new_list.append(min)
         return new_list
