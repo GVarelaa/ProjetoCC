@@ -466,6 +466,21 @@ class Server:
 
         connection.close()
 
+    def axfr_response(self, query):
+        """
+        Retorna o número de entradas da DB de um certo domínio (resposta a uma query AXFR)
+        :param query: Query que contém o domínio
+        :return: Resposta à query AXFR
+        """
+        record = ResourceRecord(query.domain, query.type,
+                                str(len(self.cache.get_file_entries_by_domain(query.domain))), 0, -1, Origin.SP)
+        query.flags = "A"
+        query.response_code = 0
+        query.response_values.append(record)
+        query.num_response = 1
+
+        return query
+
     def ss_zone_transfer(self, domain):  # Ir aos seus SPs
         soaretry = 10
         wait = soaretry  # soaretry default
@@ -482,8 +497,8 @@ class Server:
                 self.log.log_zt(domain, str(Server.parse_address(self.config["SP"][domain])),
                                 "SS : Zone Transfer started")
 
-                self.ss_ask_zone_transfer(socket_tcp, domain)
-                self.ss_receive_records(socket_tcp, domain)
+                num_entries = self.ss_ask_zone_transfer(socket_tcp, domain)
+                self.ss_receive_records(socket_tcp, domain, num_entries)
 
                 end = time.time()
                 self.log.log_zt(domain, str(Server.parse_address(self.config["SP"][domain])),
@@ -556,30 +571,18 @@ class Server:
 
         try:
             message, address = self.recvfrom_socket(socket_tcp)
+            num_entries = int(message.response_values[0].value)
 
             socket_tcp.sendall(message.serialize())
             self.log.log_rp(domain, str(address), message.to_string())
+
+            return num_entries
         except socket.timeout:
             raise socket.timeout('Attempt of starting zone transfer.')
 
-    def axfr_response(self, query):
-        """
-        Retorna o número de entradas da DB de um certo domínio (resposta a uma query AXFR)
-        :param query: Query que contém o domínio
-        :return: Resposta à query AXFR
-        """
-        record = ResourceRecord(query.domain, query.type,
-                                str(self.cache.get_file_entries_by_domain(query.domain)[0]), 0, -1, Origin.SP)
-        query.flags = ""
-        query.response_code = 0
-        query.response_values.append(record)
-        query.num_response = 1
-
-        return query
-
-    def ss_receive_records(self, socket_tcp, domain):
+    def ss_receive_records(self, socket_tcp, domain, num_entries):
         try:
-            database_lines = Server.receive_database_records(socket_tcp)
+            database_lines = Server.receive_database_records(socket_tcp, num_entries)
             self.add_records_to_db(socket_tcp, database_lines, domain)
             self.cache.register_initial_timestamp(domain)
 
@@ -587,7 +590,7 @@ class Server:
             raise
 
     @staticmethod
-    def receive_database_records(socket_tcp):
+    def receive_database_records(socket_tcp, num_entries):
         end = time.time() + 10
         success = False
 
@@ -605,6 +608,11 @@ class Server:
             raise exceptions.ZoneTransferFailed("Timeout occurred")
 
         database_lines = database_lines[:-1].split("\n")
+        last_record = database_lines[-1]
+        last_record_index = int(last_record.split(" ")[0])
+
+        if last_record_index != num_entries:
+            raise exceptions.ZoneTransferFailed("Unexpected number of entries")
 
         return database_lines
 
