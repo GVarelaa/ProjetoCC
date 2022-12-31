@@ -106,7 +106,6 @@ def parser_database(server, file_path, domain, data):
     :param domain: Domínio
     :param data: Cache do servidor
     """
-    server.log.log_ev(domain, "localhost", "db-file-read", file_path)
 
     if file_path is not None:
         f = open(file_path, "r")
