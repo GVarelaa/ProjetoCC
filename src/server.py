@@ -341,7 +341,7 @@ class Server:
 
         return message
 
-    def message_resolver(self, message, socket):
+    def message_resolver(self, message, socket_udp):
         # TODO Documentação aqui
         """
         :param message: Mensagem
@@ -354,10 +354,10 @@ class Server:
 
         response_code = 1
         while response_code == 1:
-            self.sendto_socket(socket, message, next_server)
+            self.sendto_socket(socket_udp, message, next_server)
 
             try:
-                message, address = self.recvfrom_socket(socket)
+                message, address = self.recvfrom_socket(socket_udp)
 
             except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
