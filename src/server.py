@@ -160,11 +160,11 @@ class Server:
         return ret
 
     @staticmethod
-    def sort_by_priority(list):
+    def sort_by_priority(records):
         new_list = list()
-        for i in range(len(list)):
-            min = list[0]
-            for record in list:
+        for i in range(len(records)):
+            min = records[0]
+            for record in records:
                 if record.priority < min.priority and record.priority != -1 and record not in new_list:
                     min = record
             new_list.append(min)
