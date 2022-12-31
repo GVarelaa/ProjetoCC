@@ -11,9 +11,9 @@ TTL DEFAULT 86400
 @ NS servidor1 TTL
 @ NS orca TTL
 
-ggm NS servidor2.ggm TTL
-ggm NS portatil1.ggm TTL
-ggm NS grilo.ggm TTL
+ggm NS servidor2.ggm TTL 10
+ggm NS portatil1.ggm TTL 5
+ggm NS grilo.ggm TTL 15
 
 fcp NS servidor2.fcp TTL
 fcp NS golfinho.fcp TTL
