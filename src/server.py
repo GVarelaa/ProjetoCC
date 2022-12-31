@@ -171,7 +171,7 @@ class Server:
 
         new_priority = list()
         for i in range(len(priority)):
-            min = records[0]
+            min = priority[0]
             for record in priority:
                 if record.priority < min.priority and record.priority != -1 and record not in new_priority:
                     min = record
