@@ -161,14 +161,21 @@ class Server:
 
     @staticmethod
     def sort_by_priority(records):
-        new_list = list()
-        for i in range(len(records)):
+        no_priority = list()
+        priority = list()
+        for record in records:
+            if record.priority == -1:
+                no_priority.append(record)
+            else:
+                priority.append(record)
+
+        for i in range(len(priority)):
             min = records[0]
-            for record in records:
+            for record in priority:
                 if record.priority < min.priority and record.priority != -1 and record not in new_list:
                     min = record
-            new_list.append(min)
-        return new_list
+
+        return priority + no_priority
 
     def find_next_step(self, query, servers_visited=list()):
         """
