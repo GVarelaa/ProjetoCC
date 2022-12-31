@@ -82,20 +82,17 @@ class Server:
         :param socket: Socket
         :return: Mensagem, endereço do servidor da origem da mensagem
         """
-        try:
-            message, address = socket.recvfrom(4096)
+        message, address = socket.recvfrom(4096)
 
-            if message:
-                message = DNSMessage.deserialize(message)
+        if message:
+            message = DNSMessage.deserialize(message)
 
-                if "Q" in message.flags:
-                    self.log.log_qr(message.domain, str(address), message.to_string())
-                else:
-                    self.log.log_rr(message.domain, str(address), message.to_string())
+            if "Q" in message.flags:
+                self.log.log_qr(message.domain, str(address), message.to_string())
+            else:
+                self.log.log_rr(message.domain, str(address), message.to_string())
 
-            return message, address
-        except socket.timeout:
-            raise
+        return message, address
 
     def receive_queries(self):
         """
