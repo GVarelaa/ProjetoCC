@@ -1311,7 +1311,7 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
-        <startup>cp -r /home/core/ProjetoCC/core/Portatil2 dns/files</startup>
+        <startup>cp -r /home/core/ProjetoCC/core/Portatil4 dns/files</startup>
       </startups>
       <files>
         <file name="cc_ggm.db"><![CDATA[# DNS database file for domain cc.ggm
