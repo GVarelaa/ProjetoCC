@@ -1351,7 +1351,7 @@ ss2 CNAME ns3 TTL]]></file>
 10.3.3.1:2000
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil2/config.txt 2000 100 0]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Portatil4/config.txt 2000 100 0]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
