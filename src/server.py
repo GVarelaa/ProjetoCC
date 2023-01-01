@@ -358,20 +358,16 @@ class Server:
 
             try:
                 message, address = self.recvfrom_socket(socket_udp)
-                servers_visited.append(next_server[0])
 
             except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
                 servers_visited.append(next_server[0])
-                if message.num_authorities != 0 and len(servers_visited) == 2:
-                    break
-
-                if len(servers_visited) > 2 + message.num_authorities:
+                if next_server == self.find_next_step(message, servers_visited):
                     break
 
             response_code = message.response_code
-            next_server = self.find_next_step(message, servers_visited)
+            next_server = self.find_next_step(message)
             print(next_server)
             self.change_flags(message)
 
