@@ -394,7 +394,7 @@ class Server:
             else:  # Se não tiver domínios por defeito, pode responder a queries de qualquer domínio
                 response = self.search_on_cache(message)
 
-                if "R" in message.flags:  # Mensagem recursiva
+                if "R" in message.flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
                     if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
                         response = self.message_resolver(response, socket_udp)
 
