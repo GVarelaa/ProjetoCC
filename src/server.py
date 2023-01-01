@@ -169,15 +169,9 @@ class Server:
             else:
                 priority.append(record)
 
-        new_priority = list()
-        for i in range(len(priority)):
-            min = priority[0]
-            for record in priority:
-                if record.priority < min.priority and record.priority != -1 and record not in new_priority:
-                    min = record
-            new_priority.append(min)
+        priority.sort(key=lambda x : x.priority)
 
-        return new_priority + no_priority
+        return priority + no_priority
 
     def find_next_step(self, query, servers_visited=list()):
         """
