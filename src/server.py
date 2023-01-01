@@ -350,7 +350,6 @@ class Server:
         """
         servers_visited = list()
         next_server = self.find_next_step(message)
-        servers_visited.append(next_server[0])
         self.change_flags(message)
 
         response_code = 1
@@ -359,10 +358,12 @@ class Server:
 
             try:
                 message, address = self.recvfrom_socket(socket_udp)
+                servers_visited.append(next_server[0])
 
             except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
+                servers_visited.append(next_server[0])
                 if message.num_authorities != 0 and len(servers_visited) == 2:
                     break
 
@@ -370,7 +371,6 @@ class Server:
                     break
 
             response_code = message.response_code
-            servers_visited.append(next_server[0])
             next_server = self.find_next_step(message, servers_visited)
             print(next_server)
             self.change_flags(message)
