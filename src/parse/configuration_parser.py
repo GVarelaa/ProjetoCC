@@ -1,8 +1,8 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 29/10/22
-# Data da última atualização: 28/12/22
+# Data da última atualização: 01/01/23
 # Descrição: Parsing de ficheiros de configuração de servidores
-# Última atualização: Logs adicionados
+# Última atualização: Fix
 
 from parse.database_parser import *
 from logger import *
@@ -82,7 +82,8 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
                     if parameter not in config[value_type].keys():
                         config[value_type][parameter] = list()
-                        config[value_type][parameter].append(value)
+
+                    config[value_type][parameter].append(value)
 
                 elif value_type == "DD":
                     if not validate_ip(value):
@@ -90,7 +91,8 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
                     if parameter not in config[value_type].keys():
                         config[value_type][parameter] = list()
-                        config[value_type][parameter].append(value)
+
+                    config[value_type][parameter].append(value)
 
                 elif value_type == "ST" and parameter == "root.":
                     config[value_type] = parser_root_servers(value)

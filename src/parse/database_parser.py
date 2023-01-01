@@ -239,7 +239,7 @@ def parser_database(server, file_path, domain, data):
                                 server.log.log_fl(domain, e.message, "Invalid IP address")
 
                     elif type == "CNAME":
-                        if value in names_list: # VERIFICAR COM O LOST
+                        if value in names_list:
                             record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
                             data.add_entry(record, domain)
                         else:
