@@ -352,7 +352,7 @@ class Server:
         self.change_flags(message)
 
         response_code = 1
-        while response_code == 1:
+        while response_code == 1 or "Q" in message.flags:
             self.sendto_socket(socket_udp, message, next_server)
 
             try:
