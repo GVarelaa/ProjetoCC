@@ -350,6 +350,7 @@ class Server:
         """
         servers_visited = list()
         next_server = self.find_next_step(message)
+        servers_visited.append(next_server[0])
         self.change_flags(message)
 
         response_code = 1
@@ -362,11 +363,14 @@ class Server:
             except socket.timeout:
                 self.log.log_to("Foi detetado um timeout numa resposta a uma query.")
 
-                servers_visited.append(next_server[0])
-                if next_server == self.find_next_step(message, servers_visited):
+                if message.num_authorities != 0 and len(servers_visited) == 2:
+                    break
+
+                if len(servers_visited) > 2 + message.num_authorities:
                     break
 
             response_code = message.response_code
+            servers_visited.append(next_server[0])
             next_server = self.find_next_step(message, servers_visited)
             print(next_server)
             self.change_flags(message)
