@@ -1,6 +1,6 @@
 # DNS database file for domain 10.in-addr.reverse
 
-@ DEFAULT 10.in-addr.reverse.
+@ DEFAULT 10.in-addr.reverse.root.
 TTL DEFAULT 86400
 
 @ SOASP portatil1.10.in-addr.reverse.root. TTL
