@@ -1,8 +1,0 @@
-# Configuration file for primary server for fcp domain
-
-fcp DB dns/files/db_files/fcp.db
-fcp SS 10.3.3.2:2000
-fcp SS 10.4.4.3:2000
-fcp LG dns/files/log_files/fcp.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db

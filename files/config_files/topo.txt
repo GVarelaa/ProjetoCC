@@ -1,7 +1,0 @@
-# Configuration file for root server
-
-. DB dns/files/config_files/root.db
-. LG dns/files/log_files/root.log
-all LG dns/files/log_files/all.log
-
-

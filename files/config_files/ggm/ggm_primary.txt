@@ -1,8 +1,0 @@
-# Configuration file for primary server for ggm domain
-
-ggm DB dns/files/db_files/ggm.db
-ggm SS 10.1.1.1:2000
-ggm SS 10.4.1.1:2000
-ggm LG dns/files/log_files/ggm.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db

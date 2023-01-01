@@ -58,6 +58,7 @@ class Client:
             port = 5353  # porta default
 
         return ip_address, port
+
     @staticmethod
     def find_next_step(response, servers_visited=list()):
         """
@@ -71,4 +72,3 @@ class Client:
                     address = Client.parse_address(record2.value)
                     if record1.value == record2.domain and address[0] not in servers_visited:
                         return address
-
