@@ -1,4 +1,0 @@
-fcp.root SP 10.2.2.2:2000
-fcp.root LG dns/files/log_files/fcp.log
-all LG dns/files/log_files/all.log
-root ST dns/files/rootservers.db
