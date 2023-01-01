@@ -367,7 +367,7 @@ class Server:
                     break
 
             response_code = message.response_code
-            next_server = self.find_next_step(message)
+            next_server = self.find_next_step(message, servers_visited)
             print(next_server)
             self.change_flags(message)
 
