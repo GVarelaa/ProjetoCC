@@ -181,7 +181,6 @@ class Server:
         :return: Endereço do próximo servidor a ser contactado
         """
         authorities_values = Server.sort_by_priority(query.authorities_values)
-        print(authorities_values)
         for record1 in authorities_values:
             if record1.domain in query.domain:
                 for record2 in query.extra_values:
@@ -368,7 +367,6 @@ class Server:
 
             response_code = message.response_code
             next_server = self.find_next_step(message, servers_visited)
-            print(next_server)
             self.change_flags(message)
 
         if response_code == 0:
