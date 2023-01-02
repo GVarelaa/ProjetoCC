@@ -470,7 +470,12 @@ class Server:
                 elif message.type == "SOASERIAL":
                     response = self.search_on_cache(message)
 
-                connection.sendall(response.serialize())
+                # Envia query a pedir a versão da BD
+                if not self.is_debug:
+                    connection.sendall(response.serialize())
+                else:
+                    connection.sendall(response.to_string().encode('utf-8'))
+
                 self.log.log_rp(domain, str(address_from), response.to_string())
 
             elif message.response_code == 0:  # Secundário aceitou linhas e respondeu com o nº de linhas
