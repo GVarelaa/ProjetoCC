@@ -90,10 +90,10 @@ class DNSMessage:
         (message_id, flags, response_code, num_response_values, num_authorities_values,
          num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
-        query = DNSMessage(message_id, flags, int(response_code), domain, type)
-        response = list()
-        authorities = list()
-        extra = list()
+        query = DNSMessage(message_id, flags, response_code, domain, type)
+        query.response_values = list()
+        query.authorities_values = list()
+        query.extra_values = list()
 
         for value in response_values:
             fields = value.split(" ")
@@ -103,7 +103,7 @@ class DNSMessage:
                 priority = fields[4]
 
             record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-            response.append(record)
+            query.response_values.append(record)
 
         for value in authorities_values:
             fields = value.split(" ")
@@ -113,7 +113,7 @@ class DNSMessage:
                 priority = fields[4]
 
             record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-            authorities.append(record)
+            query.authorities_values.append(record)
 
         for value in extra_values:
             fields = value.split(" ")
@@ -123,16 +123,16 @@ class DNSMessage:
                 priority = fields[4]
 
             record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-            extra.append(record)
+            query.extra_values.append(record)
 
-        return  DNSMessage(message_id, flags, response_code, domain, type, response, authorities, extra)
+        return query
 
     @staticmethod
     def parse(message):
         """
         Parse de uma mensagem
         :param message: Mensagem
-        :return: Strings com os valores para as variáveis do objeto
+        :return: Valores para as variáveis do objeto
                  Response values, authorities values e extra values são listas de strings
         """
         message = message.replace("\n", "")
@@ -161,8 +161,8 @@ class DNSMessage:
         for i in range(int(num_extra_values)):
             extra_values.append(fields[8 + int(num_response_values) + int(num_authorities_values) + i])
 
-        return (message_id, flags, response_code, num_response_values, num_authorities_values,
-                num_extra_values, name, type, response_values, authorities_values, extra_values)
+        return (int(message_id), flags, int(response_code), int(num_response_values), int(num_authorities_values),
+                int(num_extra_values), name, type, response_values, authorities_values, extra_values)
 
     def encode_flags(self):
         """
