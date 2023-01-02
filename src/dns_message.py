@@ -91,9 +91,9 @@ class DNSMessage:
          num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
         query = DNSMessage(message_id, flags, int(response_code), domain, type)
-        query.num_response = int(num_response_values)
-        query.num_authorities = int(num_authorities_values)
-        query.num_extra = int(num_extra_values)
+        response = list()
+        authorities = list()
+        extra = list()
 
         for value in response_values:
             fields = value.split(" ")
@@ -103,7 +103,7 @@ class DNSMessage:
                 priority = fields[4]
 
             record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-            query.response_values.append(record)
+            response.append(record)
 
         for value in authorities_values:
             fields = value.split(" ")
@@ -113,7 +113,7 @@ class DNSMessage:
                 priority = fields[4]
 
             record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-            query.authorities_values.append(record)
+            authorities.append(record)
 
         for value in extra_values:
             fields = value.split(" ")
@@ -123,9 +123,9 @@ class DNSMessage:
                 priority = fields[4]
 
             record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-            query.extra_values.append(record)
+            extra.append(record)
 
-        return query
+        return  DNSMessage(message_id, flags, response_code, domain, type, response, authorities, extra)
 
     @staticmethod
     def parse(message):
