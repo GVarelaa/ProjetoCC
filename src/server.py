@@ -517,7 +517,6 @@ class Server:
     def ss_zone_transfer(self, domain):  # Ir aos seus SPs
         """
         Processo de transferência de zona por parte do SS
-        :param socket_tcp: Socket TCP
         :param domain: Domínio
         """
         soaretry = 10

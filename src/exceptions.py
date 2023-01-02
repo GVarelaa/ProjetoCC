@@ -1,3 +1,10 @@
+# Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
+# Data de criação: 04/12/22
+# Data da última atualização: 30/12/22
+# Descrição: Exceções
+# Última atualização: Argumentos inválidos ao executar o cliente
+
+
 class InvalidIPError(Exception):
     def __init__(self, message=""):
         self.message = message
