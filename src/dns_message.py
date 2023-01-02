@@ -152,14 +152,14 @@ class DNSMessage:
         authorities_values = list()
         extra_values = list()
 
-        for i in range(1, int(num_response_values) + 1):
-            response_values.append(fields[7 + i])
+        for i in range(int(num_response_values)):
+            response_values.append(fields[8 + i])
 
-        for i in range(1, int(num_authorities_values) + 1):
-            authorities_values.append(fields[7 + int(num_response_values) + i])
+        for i in range(int(num_authorities_values)):
+            authorities_values.append(fields[8 + int(num_response_values) + i])
 
-        for i in range(1, int(num_extra_values) + 1):
-            extra_values.append(fields[7 + int(num_response_values) + int(num_authorities_values) + i])
+        for i in range(int(num_extra_values)):
+            extra_values.append(fields[8 + int(num_response_values) + int(num_authorities_values) + i])
 
         return (message_id, flags, response_code, num_response_values, num_authorities_values,
                 num_extra_values, name, type, response_values, authorities_values, extra_values)
