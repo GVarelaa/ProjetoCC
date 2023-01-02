@@ -351,7 +351,7 @@ ip route add default via 2001:2:2::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
-        <startup>touch dns/files/log_files/ggm.log</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="ggm.db"><![CDATA[# DNS database file domain .ggm
@@ -453,6 +453,7 @@ ip route add default via 2001:2:2::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -539,6 +540,7 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns/files</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -614,6 +616,7 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="cc_ggm.db"><![CDATA[# DNS database file for domain cc.ggm
@@ -697,6 +700,7 @@ ip route add default via 2001:4:4::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -788,6 +792,7 @@ ip route add default via 2001:4:4::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="Cigarra.txt"><![CDATA[# Configuration file for "Cigarra"
@@ -860,6 +865,7 @@ ip route add default via 2001:3:3::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -943,6 +949,7 @@ ip route add default via 2001:3:3::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -1006,6 +1013,7 @@ ip route add default via 2001:2:2::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -1102,6 +1110,7 @@ ip route add default via 2001:3:3::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
@@ -1142,6 +1151,7 @@ ip route add default via 2001:4:4::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
@@ -1200,6 +1210,7 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="cc_ggm.db"><![CDATA[# DNS database file for domain cc.ggm
