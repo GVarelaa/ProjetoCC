@@ -160,7 +160,6 @@ class Logger:
             all_fd.write(dt + " " + message + "\n")
             all_fd.close()
 
-        if self.is_debug:
-            sys.stdout.write(dt + " " + message + "\n")
+        sys.stdout.write(dt + " " + message + "\n")
 
         self.lock.release()
