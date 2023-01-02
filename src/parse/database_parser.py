@@ -128,7 +128,7 @@ def parser_database(server, file_path, domain, data):
                     try:
                         raise ArgumentsMissingError(entry.replace("\n", ""))
                     except ArgumentsMissingError as e:
-                        server.log.log_fl("all", e.message, "Arguments missing")
+                        server.log.log_fl("all.", e.message, "Arguments missing")
 
                 elif words[1] == "DEFAULT":
                     if len(words) == 3:
@@ -138,19 +138,19 @@ def parser_database(server, file_path, domain, data):
                         try:
                             raise ArgumentsMissingError(entry.replace("\n", ""))
                         except ArgumentsMissingError as e:
-                            server.log.log_fl("all", e.message, "Too many arguments")
+                            server.log.log_fl("all.", e.message, "Too many arguments")
 
                 elif len(words) > 5:
                     try:
                         raise ArgumentsMissingError(entry.replace("\n", ""))
                     except ArgumentsMissingError as e:
-                        server.log.log_fl("all", e.message, "Too many arguments")
+                        server.log.log_fl("all.", e.message, "Too many arguments")
 
                 elif len(words) < 4:
                     try:
                         raise ArgumentsMissingError(entry.replace("\n", ""))
                     except ArgumentsMissingError as e:
-                        server.log.log_fl("all", e.message, "Arguments missing")
+                        server.log.log_fl("all.", e.message, "Arguments missing")
 
                 else:
                     type = words[1]
