@@ -9,7 +9,7 @@ from cache import *
 from exceptions import *
 
 
-def set_default_values( ttl_default, suffix, line):
+def set_default_values(ttl_default, suffix, line):
     """
     Interpreta e atualiza o valor default do TTL e o sufixo
     :param ttl_default: Valor default do TTL

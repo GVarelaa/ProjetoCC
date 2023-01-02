@@ -4,7 +4,7 @@
 # Descrição: Representação de uma entrada no sistema de cache do servidor
 # Última atualização: Documentação atualizada
 
-from bitstring import BitStream, BitArray
+from bitstring import BitArray
 from enum import Enum
 
 

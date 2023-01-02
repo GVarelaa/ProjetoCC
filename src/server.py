@@ -398,7 +398,7 @@ class Server:
                 if self.is_domain_in_dd(message.domain):  # Pode responder
                     message = self.search_on_cache(message)
                     self.sendto_socket(socket_udp, message, client)
-                else:  # Timeout?
+                else:
                     self.log.log_to("Server has no permission to attend the query domain!")
 
             else:  # Se não tiver domínios por defeito, pode responder a queries de qualquer domínio
@@ -488,7 +488,7 @@ class Server:
                 for record in entries:
                     if record.origin == Origin.FILE:
                         record = str(
-                            index) + " " + record.resource_record_to_string() + "\n"  # VER COM O LOST - INDICE
+                            index) + " " + record.resource_record_to_string() + "\n"
                         connection.sendall(record.encode('utf-8'))
                         index += 1
 
@@ -514,7 +514,7 @@ class Server:
 
         return query
 
-    def ss_zone_transfer(self, socket_tcp, domain):  # Ir aos seus SPs
+    def ss_zone_transfer(self, domain):  # Ir aos seus SPs
         """
         Processo de transferência de zona por parte do SS
         :param socket_tcp: Socket TCP
@@ -650,7 +650,7 @@ class Server:
         """
         try:
             database_lines = Server.receive_database_records(socket_tcp, num_entries)
-            self.add_records_to_db(socket_tcp, database_lines, domain)
+            self.add_records_to_db(database_lines, domain)
             self.cache.register_initial_timestamp(domain)
 
         except exceptions.ZoneTransferFailed:
