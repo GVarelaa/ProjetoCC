@@ -24,7 +24,7 @@ class Client:
 
     def sendto_socket(self, message, address):
         if self.debug:  # Enviar query para o socket do server
-            self.socket.sendto(message.to_string(), address)
+            self.socket.sendto(message.to_string().encode('utf-8'), address)
         else:
             self.socket.sendto(message.serialize(), address)
 
@@ -33,7 +33,7 @@ class Client:
             message = self.socket.recv(4096)  # Receber resposta do servidor
 
             if self.debug:  # Descodificação da resposta do servidor
-                message = DNSMessage.from_string(message)
+                message = DNSMessage.from_string(message.decode('utf-8'))
             else:
                 message = DNSMessage.deserialize(message)
 
@@ -43,6 +43,7 @@ class Client:
         except socket.timeout:
             raise
 
+    @staticmethod
     def parse_address(address):
         """
         Separa um endereço em endereço e porta
@@ -63,7 +64,8 @@ class Client:
     def find_next_step(response, servers_visited=list()):
         """
         Encontra o próximo servidor a ser contactado
-        :param query: Query recebida
+        :param response: Resposta recebida
+        :param servers_visited: Lista que guarda os servidores já visitados
         :return: Endereço do próximo servidor a ser contactado
         """
         for record1 in response.authorities_values:
