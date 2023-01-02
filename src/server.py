@@ -354,7 +354,7 @@ class Server:
         """
         Processo de resolução de uma mensagem
         :param message: Mensagem
-        :param socket: Socket
+        :param socket_udp: Socket
         :return Mensagem atualizada
         """
         servers_visited = list()
@@ -514,9 +514,10 @@ class Server:
 
         return query
 
-    def ss_zone_transfer(self, domain):  # Ir aos seus SPs
+    def ss_zone_transfer(self, socket_tcp, domain):  # Ir aos seus SPs
         """
         Processo de transferência de zona por parte do SS
+        :param socket_tcp: Socket TCP
         :param domain: Domínio
         """
         soaretry = 10
@@ -611,8 +612,8 @@ class Server:
     def ss_ask_zone_transfer(self, socket_tcp, domain):
         """
         Processo de transferência de zona do servidor secundário
-        :param: socket_tcp: Socket TCP
-        :param: domain: Domínio
+        :param socket_tcp: Socket TCP
+        :param domain: Domínio
         :return: Número esperado de entradas da DB do SP a receber
         """
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR

@@ -2,6 +2,7 @@
 # Data da última atualização: 30/12/22
 # Descrição: Cria um objeto Client a partir dos argumentos de input
 # Última atualização: Criação do módulo
+
 import exceptions
 
 
