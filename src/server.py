@@ -14,7 +14,7 @@ from resource_record import ResourceRecord
 
 
 class Server:
-    def __init__(self, config, log, port, timeout, handles_recursion):
+    def __init__(self, config, log, port, timeout, handles_recursion, is_debug):
         """
         Construtor de um objeto Server
         :param config: Estrutura com os dados de configuração
@@ -28,6 +28,7 @@ class Server:
         self.port = port
         self.timeout = timeout
         self.handles_recursion = handles_recursion
+        self.is_debug = is_debug
 
         self.cache = None
 
@@ -36,14 +37,16 @@ class Server:
         Devolve a representação em string do objeto Server
         :return: String
         """
-        return str(self.config) + str(self.log) + str(self.port) + str(self.timeout) + "handles recursion: " + str(self.handles_recursion)
+        return str(self.config) + str(self.log) + str(self.port) + str(self.timeout) + \
+               "handles recursion: " + str(self.handles_recursion) + "modo debug: " + self.is_debug
 
     def __repr__(self):
         """
         Devolve a representação oficial em string do objeto Server
         :return: String
         """
-        return str(self.config) + str(self.log) + str(self.port) + str(self.timeout) + "handles recursion: " + str(self.handles_recursion)
+        return str(self.config) + str(self.log) + str(self.port) + str(self.timeout) + \
+               "handles recursion: " + str(self.handles_recursion) + "modo debug: " + self.is_debug
 
     @staticmethod
     def parse_address(address):
@@ -69,7 +72,10 @@ class Server:
         :param message: Mensagem a enviar
         :param address: Endereço do servidor para o qual vai enviar
         """
-        socket.sendto(message.serialize(), address)
+        if not self.is_debug:
+            socket.sendto(message.serialize(), address)
+        else:
+            socket.sendto(message.to_string().encode('utf-8'), address)
 
         if "Q" in message.flags:
             self.log.log_qe(message.domain, str(address), message.to_string())
@@ -85,7 +91,10 @@ class Server:
         message, address = socket.recvfrom(4096)
 
         if message:
-            message = DNSMessage.deserialize(message)
+            if not self.is_debug:
+                message = DNSMessage.deserialize(message)
+            else:
+                message = DNSMessage.from_string(message.decode('utf-8'))
 
             if "Q" in message.flags:
                 self.log.log_qr(message.domain, str(address), message.to_string())
@@ -333,10 +342,6 @@ class Server:
             message.response_code = 2
             message.flags = ""
             self.change_flags(message)
-        #elif not found and self.is_root_server():
-        #    message.response_code = 2
-        #    message.flags = ""
-        #    self.change_flags(message)
 
         return message
 
@@ -356,6 +361,7 @@ class Server:
             self.sendto_socket(socket_udp, message, next_server)
 
             try:
+
                 message, address = self.recvfrom_socket(socket_udp)
 
             except socket.timeout:
@@ -563,7 +569,11 @@ class Server:
 
     def ss_ask_version(self, socket_tcp, domain):
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
-        socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
+
+        if not self.is_debug:
+            socket_tcp.sendall(query.serialize())  # Envia query a pedir a versão da BD
+        else:
+            socket_tcp.sendall(query.to_string().encode('utf-8'))
         self.log.log_qe(domain, str(Server.parse_address(self.config["SP"][domain])), query.to_string())
 
         try:
@@ -585,14 +595,23 @@ class Server:
         Processo de transferência de zona do servidor secundário
         """
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR
-        socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
+
+        if not self.is_debug:
+            socket_tcp.sendall(query.serialize())  # Envia query a pedir a transferência
+        else:
+            socket_tcp.sendall(query.to_string().encode('utf-8'))
+
         self.log.log_qe(domain, str(Server.parse_address(self.config["SP"][domain])), query.to_string())
 
         try:
             message, address = self.recvfrom_socket(socket_tcp)
             num_entries = int(message.response_values[0].value)
 
-            socket_tcp.sendall(message.serialize())
+            if not self.is_debug:
+                socket_tcp.sendall(message.serialize())
+            else:
+                socket_tcp.sendall(message.to_string().encode('utf-8'))
+
             self.log.log_rp(domain, str(address), message.to_string())
 
             return num_entries

@@ -111,7 +111,7 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
     for log_file in config["LG"]:
         log.log_ev("all", "localhost", "log-file-create", config["LG"][log_file])
 
-    server = Server(config, log, port, timeout, handles_recursion)
+    server = Server(config, log, port, timeout, handles_recursion, is_debug)
 
     parser_database_caller(server)
 
