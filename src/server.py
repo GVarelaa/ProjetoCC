@@ -540,6 +540,7 @@ class Server:
             except socket.timeout as e:
                 self.log.log_to(e.args[0])
                 socket_tcp.close()
+                wait = soaretry # verificar
 
             except socket.error:
                 self.log.log_ez(domain, self.config["SP"][domain], "SS: Failed to connect to primary server")
