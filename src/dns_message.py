@@ -87,53 +87,45 @@ class DNSMessage:
         :param query: Mensagem (string)
         :return: Objeto DNSMessage
         """
+        (message_id, flags, response_code, num_response_values, num_authorities_values,
+         num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
-        def from_string(query):
-            """
-            Transforma uma string num objeto DNSMessage
-            :param query: Mensagem (string)
-            :return: Objeto DNSMessage
-            """
-            (message_id, flags, response_code, num_response_values, num_authorities_values,
-             num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(
-                query)
+        query = DNSMessage(message_id, flags, int(response_code), domain, type)
+        response = list()
+        authorities = list()
+        extra = list()
 
-            query = DNSMessage(message_id, flags, int(response_code), domain, type)
-            response = list()
-            authorities = list()
-            extra = list()
+        for value in response_values:
+            fields = value.split(" ")
+            priority = -1
 
-            for value in response_values:
-                fields = value.split(" ")
-                priority = -1
+            if len(fields) > 4:
+                priority = fields[4]
 
-                if len(fields) > 4:
-                    priority = fields[4]
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
+            response.append(record)
 
-                record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-                response.append(record)
+        for value in authorities_values:
+            fields = value.split(" ")
+            priority = -1
 
-            for value in authorities_values:
-                fields = value.split(" ")
-                priority = -1
+            if len(fields) > 4:
+                priority = fields[4]
 
-                if len(fields) > 4:
-                    priority = fields[4]
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
+            authorities.append(record)
 
-                record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-                authorities.append(record)
+        for value in extra_values:
+            fields = value.split(" ")
+            priority = -1
 
-            for value in extra_values:
-                fields = value.split(" ")
-                priority = -1
+            if len(fields) > 4:
+                priority = fields[4]
 
-                if len(fields) > 4:
-                    priority = fields[4]
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
+            extra.append(record)
 
-                record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
-                extra.append(record)
-
-            return DNSMessage(message_id, flags, response_code, domain, type, response, authorities, extra)
+        return DNSMessage(message_id, flags, response_code, domain, type, response, authorities, extra)
 
     @staticmethod
     def parse(message):
