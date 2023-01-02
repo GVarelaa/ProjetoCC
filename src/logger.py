@@ -156,7 +156,7 @@ class Logger:
             domain_fd.write(dt + " " + message + "\n")
             domain_fd.close()
         else:
-            all_fd = open(self.log_files_paths["all"], "a")
+            all_fd = open(self.log_files_paths["all."], "a")
             all_fd.write(dt + " " + message + "\n")
             all_fd.close()
 
