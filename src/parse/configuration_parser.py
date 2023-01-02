@@ -105,16 +105,16 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
 
     log = Logger(logs, is_debug)
 
-    log.log_ev("all", "localhost", "conf-file-read", file_path)
+    log.log_ev("localhost", "conf-file-read", file_path)
     log.log_st("127.0.0.1", port, timeout, mode)
     for log_file in config["LG"]:
-        log.log_ev("all", "localhost", "log-file-create", config["LG"][log_file])
+        log.log_ev("localhost", "log-file-create", config["LG"][log_file])
 
     server = Server(config, log, port, timeout, handles_recursion, is_debug)
 
     parser_database_caller(server)
 
     for db_file in config["DB"]:
-        log.log_ev("all", "localhost", "db-file-read", config["DB"][db_file])
+        log.log_ev("localhost", "db-file-read", config["DB"][db_file])
 
     return server

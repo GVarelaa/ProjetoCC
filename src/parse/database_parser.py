@@ -9,10 +9,9 @@ from cache import *
 from exceptions import *
 
 
-def set_default_values(server, ttl_default, suffix, line):
+def set_default_values( ttl_default, suffix, line):
     """
     Interpreta e atualiza o valor default do TTL e o sufixo
-    :param server: Server
     :param ttl_default: Valor default do TTL
     :param suffix: Sufixo
     :param line: Linha a ser analisada
@@ -21,8 +20,6 @@ def set_default_values(server, ttl_default, suffix, line):
     if line[0] == "TTL":
         if line[2].isnumeric():
             ttl_default = int(line[2])
-        else:
-            server.domain_log.log_fl("Invalid value for TTL")
 
     elif line[0] == "@":
         suffix = line[2]
@@ -128,29 +125,29 @@ def parser_database(server, file_path, domain, data):
                     try:
                         raise ArgumentsMissingError(entry.replace("\n", ""))
                     except ArgumentsMissingError as e:
-                        server.log.log_fl("all.", e.message, "Arguments missing")
+                        server.log.log_fl(e.message, "Arguments missing")
 
                 elif words[1] == "DEFAULT":
                     if len(words) == 3:
-                        ttl_default, suffix = set_default_values(server, ttl_default, suffix, words)
+                        ttl_default, suffix = set_default_values(ttl_default, suffix, words)
 
                     else:
                         try:
                             raise ArgumentsMissingError(entry.replace("\n", ""))
                         except ArgumentsMissingError as e:
-                            server.log.log_fl("all.", e.message, "Too many arguments")
+                            server.log.log_fl(e.message, "Too many arguments")
 
                 elif len(words) > 5:
                     try:
                         raise ArgumentsMissingError(entry.replace("\n", ""))
                     except ArgumentsMissingError as e:
-                        server.log.log_fl("all.", e.message, "Too many arguments")
+                        server.log.log_fl(e.message, "Too many arguments")
 
                 elif len(words) < 4:
                     try:
                         raise ArgumentsMissingError(entry.replace("\n", ""))
                     except ArgumentsMissingError as e:
-                        server.log.log_fl("all.", e.message, "Arguments missing")
+                        server.log.log_fl(e.message, "Arguments missing")
 
                 else:
                     type = words[1]
@@ -162,7 +159,7 @@ def parser_database(server, file_path, domain, data):
                         try:
                             raise InvalidValueTTL(entry.replace("\n", ""))
                         except InvalidValueTTL as e:
-                            server.log.log_fl(domain, e.message, "Invalid value for TTL")
+                            server.log.log_fl(e.message, "Invalid value for TTL", domain)
                             continue
 
                     if len(words) == 5:
@@ -172,7 +169,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise InvalidValuePriority(entry.replace("\n", ""))
                             except InvalidValueTTL as e:
-                                server.log.log_fl(domain, e.message, "Invalid value for priority")
+                                server.log.log_fl(e.message, "Invalid value for priority", domain)
                                 continue
 
                     if type == "SOASP":
@@ -191,7 +188,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise InvalidValueSoaserial(entry.replace("\n", ""))
                             except InvalidValueSoaserial as e:
-                                server.log.log_fl(domain, e.message, "Invalid value for SOASERIAL")
+                                server.log.log_fl(e.message, "Invalid value for SOASERIAL", domain)
 
                     elif type == "SOAREFRESH":
                         if value.isnumeric():
@@ -201,7 +198,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise InvalidValueSoarefresh(entry.replace("\n", ""))
                             except InvalidValueSoarefresh as e:
-                                server.log.log_fl(domain, e.message, "Invalid value for SOAREFRESH")
+                                server.log.log_fl(e.message, "Invalid value for SOAREFRESH", domain)
 
                     elif type == "SOARETRY":
                         if value.isnumeric():
@@ -211,7 +208,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise InvalidValueSoaretry(entry.replace("\n", ""))
                             except InvalidValueSoaretry as e:
-                                server.log.log_fl(domain, e.message, "Invalid value for SOARETRY")
+                                server.log.log_fl(e.message, "Invalid value for SOARETRY", domain)
 
                     elif type == "SOAEXPIRE":
                         if value.isnumeric():
@@ -221,7 +218,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise InvalidValueSoaexpire(entry.replace("\n", ""))
                             except InvalidValueSoaexpire as e:
-                                server.log.log_fl(domain, e.message, "Invalid value for SOAEXPIRE")
+                                server.log.log_fl(e.message, "Invalid value for SOAEXPIRE", domain)
 
                     elif type == "NS":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
@@ -236,7 +233,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise InvalidIPError(entry.replace("\n", ""))
                             except InvalidIPError as e:
-                                server.log.log_fl(domain, e.message, "Invalid IP address")
+                                server.log.log_fl(e.message, "Invalid IP address", domain)
 
                     elif type == "CNAME":
                         if value in names_list:
@@ -246,7 +243,7 @@ def parser_database(server, file_path, domain, data):
                             try:
                                 raise NameNotFoundError(entry.replace("\n", ""))
                             except NameNotFoundError as e:
-                                server.log.log_fl(domain, e.message, "Name not found")
+                                server.log.log_fl(e.message, "Name not found", domain)
 
                     elif type == "MX":
                         record = ResourceRecord(parameter, type, value, expiration, priority, Origin.FILE)
@@ -260,7 +257,7 @@ def parser_database(server, file_path, domain, data):
                         try:
                             raise InvalidType(entry.replace("\n", ""))
                         except InvalidType as e:
-                            server.log.log_fl(domain, e.message, "Invalid entry type")
+                            server.log.log_fl(e.message, "Invalid entry type", domain)
 
         f.close()
 

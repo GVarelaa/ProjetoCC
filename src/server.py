@@ -395,7 +395,7 @@ class Server:
                     message = self.search_on_cache(message)
                     self.sendto_socket(socket_udp, message, client)
                 else:  # Timeout?
-                    self.log.log_to(message.domain, str(client), "Server has no permission to attend the query domain!")
+                    self.log.log_to("Server has no permission to attend the query domain!")
 
             else:  # Se não tiver domínios por defeito, pode responder a queries de qualquer domínio
                 response = self.search_on_cache(message)

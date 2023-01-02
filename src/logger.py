@@ -71,13 +71,13 @@ class Logger:
         message = "ZT " + ip_address + " " + data + " " + duration
         self.add_log(message, domain)
 
-    def log_ev(self, domain, ip_address, event, event_data):
+    def log_ev(self, ip_address, event, event_data, domain=None):
         """
         Regista log de um evento
-        :param domain: Domínio
         :param ip_address: Endereço IP
         :param event: Evento
         :param event_data: Dados do evento
+        :param domain: Domínio
         """
         message = "EV " + ip_address + " " + event + " " + event_data
         self.add_log(message, domain)
@@ -102,12 +102,12 @@ class Logger:
         message = "EZ " + ip_address + " " + data  # data - papel do servidor local
         self.add_log(message, domain)
 
-    def log_fl(self, domain, entry, info):
+    def log_fl(self, entry, info, domain=None):
         """
         Regista log de um erro detetado no funcionamento interno de um componente
-        :param domain: Domínio
         :param entry: Entrada
         :param info: Informação
+        :param domain: Domínio
         """
         message = "FL 127.0.0.1 | Entry: " + entry + " | " + info  # Info - razão (erros de parsing, erros na descodificação, etc)
         self.add_log(message, domain)
