@@ -90,7 +90,7 @@ class DNSMessage:
         (message_id, flags, response_code, num_response_values, num_authorities_values,
          num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
-        query = DNSMessage(message_id, flags, domain, type)
+        query = DNSMessage(message_id, flags, response_code, domain, type)
         query.response_code = int(response_code)
         query.number_of_values = int(num_response_values)
         query.number_of_authorities = int(num_authorities_values)
@@ -103,7 +103,7 @@ class DNSMessage:
             if len(fields) > 4:
                 priority = fields[4]
 
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
             query.response_values.append(record)
 
         for value in authorities_values:
@@ -113,7 +113,7 @@ class DNSMessage:
             if len(fields) > 4:
                 priority = fields[4]
 
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
             query.authorities_values.append(record)
 
         for value in extra_values:
@@ -123,7 +123,7 @@ class DNSMessage:
             if len(fields) > 4:
                 priority = fields[4]
 
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority, "")
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
             query.extra_values.append(record)
 
         return query
