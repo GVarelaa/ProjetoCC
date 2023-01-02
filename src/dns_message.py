@@ -91,10 +91,10 @@ class DNSMessage:
          num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
         query = DNSMessage(message_id, flags, response_code, domain, type)
-        query.response_code = int(response_code)
-        query.number_of_values = int(num_response_values)
-        query.number_of_authorities = int(num_authorities_values)
-        query.number_of_extra_values = int(num_extra_values)
+
+        query.num_response = int(num_response_values)
+        query.num_authorities = int(num_authorities_values)
+        query.num_extra = int(num_extra_values)
 
         for value in response_values:
             fields = value.split(" ")
