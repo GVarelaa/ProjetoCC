@@ -98,7 +98,6 @@ def parser_configuration(file_path, port, timeout, handles_recursion, mode):
                     config[value_type] = parser_root_servers(value)
 
                 elif value_type == "LG":
-                    parameter = parameter[:-1]
                     config[value_type][parameter] = value
                     logs[parameter] = value
 
