@@ -1,6 +1,6 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 30/10/22
-# Data da última atualização: 28/12/22
+# Data da última atualização: 02/01/23
 # Descrição: Implementação de um servidor
 # Última atualização: Documentação
 
@@ -170,6 +170,11 @@ class Server:
 
     @staticmethod
     def sort_by_priority(records):
+        """
+        Ordena os records contidos nos authorities values de uma mensagem por prioridade
+        :param records: Lista de records
+        :return: Lista dos records ordenados por prioridade
+        """
         no_priority = list()
         priority = list()
         for record in records:
@@ -178,7 +183,7 @@ class Server:
             else:
                 priority.append(record)
 
-        priority.sort(key=lambda x : x.priority)
+        priority.sort(key=lambda x: x.priority)
 
         return priority + no_priority
 
@@ -346,8 +351,8 @@ class Server:
         return message
 
     def message_resolver(self, message, socket_udp):
-        # TODO Documentação aqui
         """
+        Processo de resolução de uma mensagem
         :param message: Mensagem
         :param socket: Socket
         :return Mensagem atualizada
@@ -361,7 +366,6 @@ class Server:
             self.sendto_socket(socket_udp, message, next_server)
 
             try:
-
                 message, address = self.recvfrom_socket(socket_udp)
 
             except socket.timeout:
@@ -427,7 +431,7 @@ class Server:
 
     def sp_zone_transfer(self):
         """
-            Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
+        Cria o socket TCP e executa a transferência de zona para cada ligação estabelecida
         """
         socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_tcp.bind(("", self.port))
@@ -511,6 +515,10 @@ class Server:
         return query
 
     def ss_zone_transfer(self, domain):  # Ir aos seus SPs
+        """
+        Processo de transferência de zona por parte do SS
+        :param domain: Domínio
+        """
         soaretry = 10
         wait = soaretry  # soaretry default
 
@@ -573,6 +581,11 @@ class Server:
         return ss_version
 
     def ss_ask_version(self, socket_tcp, domain):
+        """
+        Pergunta a versão ao servidor primário e liberta as entradas em cache caso a versão do SP seja mais recente
+        :param socket_tcp: Socket TCP
+        :param domain: Domínio
+        """
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "SOASERIAL")
 
         if not self.is_debug:
@@ -598,6 +611,9 @@ class Server:
     def ss_ask_zone_transfer(self, socket_tcp, domain):
         """
         Processo de transferência de zona do servidor secundário
+        :param: socket_tcp: Socket TCP
+        :param: domain: Domínio
+        :return: Número esperado de entradas da DB do SP a receber
         """
         query = DNSMessage(random.randint(1, 65535), "Q", 0, domain, "AXFR")  # Query AXFR
 
@@ -620,10 +636,17 @@ class Server:
             self.log.log_rp(domain, str(address), message.to_string())
 
             return num_entries
+
         except socket.timeout:
             raise socket.timeout('Attempt of starting zone transfer.')
 
     def ss_receive_records(self, socket_tcp, domain, num_entries):
+        """
+        Recebe as entradas da base de dados do SP e regista-as na cache
+        :param socket_tcp: Socket TCP
+        :param domain: Domínio
+        :param num_entries: Número esperado de entradas a receber
+        """
         try:
             database_lines = Server.receive_database_records(socket_tcp, num_entries)
             self.add_records_to_db(socket_tcp, database_lines, domain)
@@ -634,6 +657,12 @@ class Server:
 
     @staticmethod
     def receive_database_records(socket_tcp, num_entries):
+        """
+        Recebe as linhas da base de dados do SP
+        :param socket_tcp: Socket TCP
+        :param num_entries: Número esperado de entradas a receber
+        :return: Linhas recebidas
+        """
         end = time.time() + 10
         success = False
 
@@ -659,7 +688,12 @@ class Server:
 
         return database_lines
 
-    def add_records_to_db(self, socket_tcp, database_lines, domain):
+    def add_records_to_db(self, database_lines, domain):
+        """
+        Adiciona as entradas recebidas do servidor primário à cache
+        :param database_lines: Linhas recebidas
+        :param domain: Domínio
+        """
         expected_value = 1
 
         for line in database_lines:

@@ -1,8 +1,8 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 30/12/22
-# Data da última atualização: 30/12/22
+# Data da última atualização: 02/01/23
 # Descrição: Implementação de um cliente
-# Última atualização: Classe nova
+# Última atualização: Prioridades implementadas no próximo servidor a contactar
 
 import socket
 import sys
@@ -61,6 +61,26 @@ class Client:
         return ip_address, port
 
     @staticmethod
+    def sort_by_priority(records):
+        """
+        Ordena os records contidos nos authorities values de uma mensagem por prioridade
+        :param records: Lista de records
+        :return: Lista dos records ordenados por prioridade
+        """
+        no_priority = list()
+        priority = list()
+
+        for record in records:
+            if record.priority == -1:
+                no_priority.append(record)
+            else:
+                priority.append(record)
+
+        priority.sort(key=lambda x: x.priority)
+
+        return priority + no_priority
+
+    @staticmethod
     def find_next_step(response, servers_visited=list()):
         """
         Encontra o próximo servidor a ser contactado
@@ -68,7 +88,8 @@ class Client:
         :param servers_visited: Lista que guarda os servidores já visitados
         :return: Endereço do próximo servidor a ser contactado
         """
-        for record1 in response.authorities_values:
+        authorities_values = Client.sort_by_priority(response.authorities_values)
+        for record1 in authorities_values:
             if record1.domain in response.domain:
                 for record2 in response.extra_values:
                     address = Client.parse_address(record2.value)
