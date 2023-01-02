@@ -1,8 +1,8 @@
 # Autores: Gabriela Cunha, Guilherme Varela e Miguel Braga
 # Data de criação: 08/11/22
-# Data da última atualização: 29/12/22
+# Data da última atualização: 02/01/23
 # Descrição: Representação de queries
-# Última atualização: Documentação atualizada
+# Última atualização: Proridade a ser enviada como inteiro para o construtor
 
 from bitstring import BitArray, ConstBitStream
 from resource_record import *
@@ -90,7 +90,6 @@ class DNSMessage:
         (message_id, flags, response_code, num_response_values, num_authorities_values,
          num_extra_values, domain, type, response_values, authorities_values, extra_values) = DNSMessage.parse(query)
 
-        query = DNSMessage(message_id, flags, int(response_code), domain, type)
         response = list()
         authorities = list()
         extra = list()
@@ -102,7 +101,7 @@ class DNSMessage:
             if len(fields) > 4:
                 priority = fields[4]
 
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), int(priority))
             response.append(record)
 
         for value in authorities_values:
@@ -112,7 +111,7 @@ class DNSMessage:
             if len(fields) > 4:
                 priority = fields[4]
 
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), int(priority))
             authorities.append(record)
 
         for value in extra_values:
@@ -122,7 +121,7 @@ class DNSMessage:
             if len(fields) > 4:
                 priority = fields[4]
 
-            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), priority)
+            record = ResourceRecord(fields[0], fields[1], fields[2], int(fields[3]), int(priority))
             extra.append(record)
 
         return DNSMessage(message_id, flags, response_code, domain, type, response, authorities, extra)
