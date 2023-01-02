@@ -159,7 +159,8 @@ class Logger:
             all_fd = open(self.log_files_paths["all"], "a")
             all_fd.write(dt + " " + message + "\n")
             all_fd.close()
-
-        sys.stdout.write(dt + " " + message + "\n")
+        
+        if self.is_debug:
+            sys.stdout.write(dt + " " + message + "\n")
 
         self.lock.release()
