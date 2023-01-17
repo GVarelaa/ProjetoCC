@@ -1053,6 +1053,7 @@ ip route add default via 2001:1:1::254
         <startup>mkdir dns</startup>
         <startup>cp -r /home/core/ProjetoCC/src dns/src</startup>
         <startup>cp -r /home/core/ProjetoCC/files dns/</startup>
+        <startup>mkdir dns/files/log_files</startup>
       </startups>
       <files>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
