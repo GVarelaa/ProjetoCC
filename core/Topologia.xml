@@ -387,7 +387,7 @@ gabriela CNAME gabs TTL
 10.2.2.1:2000
 10.3.3.1:2000]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor1.txt 2000 5 0 shy]]></file>
         <file name="root.db"><![CDATA[@ DEFAULT root.
 TTL DEFAULT 86400
 # Config data
@@ -460,7 +460,7 @@ ip route add default via 2001:2:2::254
 10.2.2.1:2000
 10.3.3.1:2000]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor2.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor2.txt 2000 5 0 shy]]></file>
         <file name="fcp.db"><![CDATA[# DNS database file for domain .fcp
 @ DEFAULT fcp.
 TTL DEFAULT 86400
@@ -554,7 +554,7 @@ root ST dns/files/rootservers.db
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
         <file name="runClient.sh"><![CDATA[python3 dns/src/client.py 10.2.2.1:2000 mike.ggm. A ]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil1.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil1.txt 2000 5 0 shy]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -649,7 +649,7 @@ ss2 CNAME ns3 TTL]]></file>
 10.3.3.1:2000
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil2.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil2.txt 2000 5 0 shy]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -722,7 +722,7 @@ all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/grilo.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/grilo.txt 2000 5 0 shy]]></file>
         <file name="taremi_fcp.db"><![CDATA[# DNS database file for domain taremi.fcp
 @ DEFAULT .taremi.fcp
 TTL DEFAULT 86400
@@ -822,7 +822,7 @@ TTL DEFAULT 86400
 ns1 A 10.4.4.2:2000 TTL
 ns1.10.in-addr A 10.1.1.1:2000 TTL]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/cigarra.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/cigarra.txt 2000 5 0 shy]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -872,7 +872,7 @@ ip route add default via 2001:3:3::254
 10.2.2.1:2000
 10.3.3.1:2000]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Orca/config_files/orca.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Orca/config_files/orca.txt 2000 5 0 shy]]></file>
         <file name="root.db"><![CDATA[@ DEFAULT root.
 TTL DEFAULT 86400
 # Config data
@@ -980,7 +980,7 @@ all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/golfinho.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/golfinho.txt 2000 5 0 shy]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -1026,7 +1026,7 @@ taremi.fcp SP 10.4.4.1:2000
 taremi.fcp LG dns/files/log_files/taremi_fcp.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor3.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/servidor3.txt 2000 5 0 shy]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
@@ -1060,7 +1060,7 @@ ip route add default via 2001:1:1::254
 10.3.3.1:2000
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil3.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil3.txt 2000 5 0 shy]]></file>
         <file name="portatil3.txt"><![CDATA[# Configuration file for "Portatil3"
 # SS for taremi.fcp
 taremi.fcp SP 10.4.4.1:2000
@@ -1124,7 +1124,7 @@ cc.ggm LG dns/files/log_files/cc_ggm.log
 all LG dns/files/log_files/all.log
 root ST dns/files/rootservers.db
 ]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/foca.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/foca.txt 2000 5 0 shy]]></file>
         <file name="rootservers.db"><![CDATA[# List of root files for topology
 10.2.2.1:2000
 10.3.3.1:2000
@@ -1159,7 +1159,7 @@ ip route add default via 2001:4:4::254
 10.3.3.1:2000
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/vespa.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/vespa.txt 2000 5 0 shy]]></file>
         <file name="Vespa.txt"><![CDATA[# Configuration file for "Vespa"
 # SS fcp
 fcp SP 10.2.2.2:2000
@@ -1243,7 +1243,7 @@ ss2 CNAME ns3 TTL]]></file>
 10.3.3.1:2000
 ]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil4.txt 2000 10 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/portatil4.txt 2000 5 0 shy]]></file>
         <file name="preenche_resolvconf.sh"><![CDATA[echo "# -- gerado pela script de arranque..." >> /etc/resolv.conf
 echo "domain cc.pt" >> /etc/resolv.conf
 echo "nameserver 10.2.2.1" >> /etc/resolv.conf
