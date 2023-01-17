@@ -872,7 +872,7 @@ ip route add default via 2001:3:3::254
 10.2.2.1:2000
 10.3.3.1:2000]]></file>
         <file name="updateSrc.sh"><![CDATA[cp -r /home/core/ProjetoCC/src/* dns/src/]]></file>
-        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/Orca/config_files/orca.txt 2000 5 0 shy]]></file>
+        <file name="run.sh"><![CDATA[python3 dns/src/run_server.py dns/files/config_files/orca.txt 2000 5 0 shy]]></file>
         <file name="root.db"><![CDATA[@ DEFAULT root.
 TTL DEFAULT 86400
 # Config data
