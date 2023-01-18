@@ -406,7 +406,7 @@ class Server:
                 response = self.search_on_cache(message)
 
                 if "R" in flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
-                    #if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
+                    if "Q" in flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
                         response = self.message_resolver(response, socket_udp)
 
                 elif "Q" in response.flags:  # Não encontrou informação sobre o domínio da query na cache, responde com informação dos ST's
@@ -419,7 +419,7 @@ class Server:
             response = self.search_on_cache(message)
 
             if "R" in flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
-                #if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
+                if "Q" in flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
                     response = self.message_resolver(response, socket_udp)
 
             elif "Q" in response.flags:  # Não encontrou informação sobre o domínio da query na cache, responde com informação dos ST's
