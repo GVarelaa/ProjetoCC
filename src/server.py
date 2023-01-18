@@ -402,10 +402,11 @@ class Server:
                     self.log.log_to("Server has no permission to attend the query domain!")
 
             else:  # Se não tiver domínios por defeito, pode responder a queries de qualquer domínio
+                flags = message.flags
                 response = self.search_on_cache(message)
 
-                if "R" in message.flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
-                    if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
+                if "R" in flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
+                    #if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
                         response = self.message_resolver(response, socket_udp)
 
                 elif "Q" in response.flags:  # Não encontrou informação sobre o domínio da query na cache, responde com informação dos ST's
@@ -414,10 +415,11 @@ class Server:
                 self.sendto_socket(socket_udp, response, client)
 
         elif self.is_resolution_server():  # SR
+            flags = message.flags
             response = self.search_on_cache(message)
 
-            if "R" in message.flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
-                if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
+            if "R" in flags and (response.response_code == 1 or "Q" in response.flags):  # Mensagem recursiva
+                #if "Q" in message.flags or self.handles_recursion:  # Query ou servidor aceita modo recursivo
                     response = self.message_resolver(response, socket_udp)
 
             elif "Q" in response.flags:  # Não encontrou informação sobre o domínio da query na cache, responde com informação dos ST's
