@@ -308,9 +308,9 @@ class Server:
         found = False
         domain = message.domain
 
+        
+        response_values = self.cache.get_records_by_domain_and_type(domain, message.type)
         while not found:
-            response_values = self.cache.get_records_by_domain_and_type(domain, message.type)
-
             if len(response_values) == 0 and message.type == "A":  # Vai ver o seu CNAME
                 cname = self.cache.get_records_by_domain_and_type(domain, "CNAME")
                 if len(cname) > 0:
