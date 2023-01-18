@@ -129,7 +129,7 @@ class Cache:
         records = []
 
         for cache_domain in self.domains.keys():
-            if cache_domain == domain:
+            if cache_domain in domain:
                 entries = self.domains[cache_domain]
                 break
 
